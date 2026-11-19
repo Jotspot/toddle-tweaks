@@ -120,3 +120,4 @@ body, .ttl, .bar-title, .sec h2, .btn, .toc a { font-family: "Google Sans", "Goo
 .pv-banner.g { background: #108a7d url("https://www.gstatic.com/classroom/themes/Biology.jpg") right center / cover; }
 .pv-banner.p::before { content: ""; position: absolute; right: -20px; top: -40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.12); }
 .pv-banner.p i { position: absolute; right: 16px; top: 12px; width: 34px; height: 34px; border-radius: 6px; background: rgba(255,255,255,.85); clip-path: polygon(40% 0, 60% 0, 60% 35%, 100% 100%, 0 100%, 40% 35%); }
+.credits a { color: inherit; }

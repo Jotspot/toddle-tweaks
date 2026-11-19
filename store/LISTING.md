@@ -11,7 +11,7 @@ Images are in `store/images/chrome/` and `store/images/firefox/`. Upload zips ar
 ## Short description
 Chrome "Summary" (max 132 chars) / AMO "Summary" (max 250 chars):
 
-> Make Toddle faster and easier: a smart to-do list, instant page loads, quick search, and a clean Classroom-style layout.
+> Make Toddle faster and easier: a smart to-do list, instant page loads, quick search, and a clean Classroom-style layout. Free and open source.
 
 ## Category
 - Chrome Web Store: **Education** (alternative: Productivity → Tools)
@@ -54,6 +54,10 @@ Everything stays in your browser. Toddle Tweaks has no servers and no analytics.
 
 Every feature can be switched on or off in Settings, with a preview of what it does.
 
+FREE AND OPEN SOURCE
+Toddle Tweaks is free and open-source software (MIT License). Read every line of the code, report a bug, suggest a feature or contribute on GitHub:
+https://github.com/Jotspot/toddle-tweaks
+
 Toddle Tweaks is an independent project. It is not affiliated with, endorsed by, or sponsored by Toddle or Google.
 ```
 
@@ -87,7 +91,7 @@ Certify all three:
 ## Firefox (AMO) specifics
 - **Data collection** (in the manifest, already set): `"data_collection_permissions": { "required": ["none"] }`, because nothing is sent to the developer.
 - **Source code:** not required. The extension isn't minified, bundled or obfuscated.
-- **License:** pick one in the AMO form (e.g. "All Rights Reserved" or MIT).
+- **License:** MIT License (choose "MIT License" in the AMO form).
 - **Minimum Firefox:** 128 (needed for page-context content scripts).
 - **Notes to reviewer** (paste into "Notes for Reviewers"):
 
@@ -103,8 +107,8 @@ What it does:
 ```
 
 ## Support / homepage
-- Support email or URL: _(add one, e.g. a GitHub Issues page or a dedicated email)_
-- Homepage: _(optional)_
+- Support URL: https://github.com/Jotspot/toddle-tweaks/issues
+- Homepage: https://github.com/Jotspot/toddle-tweaks
 
 ## Images checklist
 

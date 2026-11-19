@@ -2,6 +2,8 @@
 
 A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and saner.
 
+**Free and open source** under the [MIT License](LICENSE). Bug reports, ideas and pull requests are welcome in [Issues](https://github.com/Jotspot/toddle-tweaks/issues).
+
 ![Toddle Tweaks](store/images/chrome/promo-marquee-1400x560.png)
 
 ## Get it
@@ -106,3 +108,7 @@ npx web-ext lint -s dist/firefox
 | `background.js` | service worker | | Tracker rulesets, toolbar badge |
 
 Everything is stored locally (page IndexedDB `toddle-tweaks`, localStorage keys prefixed `tt:`, `chrome.storage`). Nothing is sent anywhere except Toddle's own API.
+
+## License
+
+[MIT](LICENSE) © 2026 Jamie Perry. Toddle Tweaks is an independent project and is not affiliated with Toddle or Google.
