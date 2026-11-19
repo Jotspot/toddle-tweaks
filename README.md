@@ -92,7 +92,7 @@ npx web-ext lint -s dist/firefox
 - Bump `version` in `manifest.json` (and add a line to `CHANGELOG.md`) before each upload.
 - Store builds strip the developer-only reload hooks (`// @dev-start … // @dev-end`).
 - Firefox build: MV3 with `background.scripts`, `options_ui`, gecko id `toddle-tweaks@toddletweaks.app`, Firefox 128+, `data_collection_permissions: none`.
-- Listing text, permission justifications, reviewer notes and the data-use answers are in `store/LISTING.md`. The privacy policy is `store/privacy-policy.html` (host it somewhere public and paste the URL).
+- Listing text, permission justifications, reviewer notes and the data-use answers are in `store/LISTING.md`. The privacy policy is `docs/privacy-policy.html`, published by GitHub Pages at https://jotspot.github.io/toddle-tweaks/privacy-policy.html (the `docs/` folder is the project site).
 - Promo images are rendered from `store/promo/*.html`, which run the real extension UI with made-up classes and people.
 
 ## How it works

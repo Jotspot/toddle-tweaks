@@ -89,7 +89,7 @@ Certify all three:
 - ✅ I do not use or transfer user data for purposes that are unrelated to my item's single purpose
 - ✅ I do not use or transfer user data to determine creditworthiness or for lending purposes
 
-**Privacy policy URL:** host `store/privacy-policy.html` (GitHub Pages, Netlify, Google Sites…) and paste its URL.
+**Privacy policy URL:** https://jotspot.github.io/toddle-tweaks/privacy-policy.html (source: `docs/privacy-policy.html`, served by GitHub Pages)
 
 ## Firefox (AMO) specifics
 - **Data collection** (in the manifest, already set): `"data_collection_permissions": { "required": ["none"] }`, because nothing is sent to the developer.
