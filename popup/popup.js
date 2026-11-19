@@ -18,20 +18,38 @@ async function toddleTab() {
   return tabs.find((t) => active && t.id === active.id) || tabs[0] || null;
 }
 
-// Firefox (and Chrome if you restrict site access) needs an explicit OK for toddleapp.com.
-const ORIGINS = { origins: ['https://web.toddleapp.com/*', 'https://*.toddleapp.com/*'] };
+// Firefox (and Chrome if you restrict site access) needs an explicit OK for Toddle.
+// Only web.toddleapp.com matters: that's where the content scripts run.
+const NEED = { origins: ['https://web.toddleapp.com/*'] };
+const isFirefox = /firefox/i.test(navigator.userAgent);
 async function checkAccess() {
   try {
-    const ok = await chrome.permissions.contains(ORIGINS);
+    const ok = await chrome.permissions.contains(NEED);
     $('#needAccess').hidden = ok;
-  } catch { /* older browsers: assume granted */ }
+    return ok;
+  } catch { $('#needAccess').hidden = true; return true; } // older browsers: assume granted
+}
+
+function showAccessHelp(extra) {
+  const help = $('#accessHelp');
+  help.hidden = false;
+  help.textContent = (isFirefox
+    ? 'If no prompt appeared: open the menu ☰ → Add-ons and themes → Toddle Tweaks → Permissions, and turn on access for web.toddleapp.com.'
+    : 'If no prompt appeared: right-click the Toddle Tweaks icon → "This can read and change site data" → choose "On web.toddleapp.com" (or "On all sites").')
+    + (extra ? ` (${extra})` : '');
 }
 
 async function init() {
   checkAccess();
-  $('#grantAccess').addEventListener('click', async () => {
-    try { await chrome.permissions.request(ORIGINS); } catch {}
-    checkAccess();
+  $('#grantAccess').addEventListener('click', () => {
+    // Must be called straight from the click (no await before it) or browsers ignore it.
+    let req;
+    try { req = chrome.permissions.request(NEED); } catch (e) { showAccessHelp(e.message); return; }
+    Promise.resolve(req).then(async (granted) => {
+      const ok = await checkAccess();
+      if (!granted && !ok) showAccessHelp();
+      else if (ok) status('Access granted. Reload Toddle to start.');
+    }, (e) => showAccessHelp(e && e.message));
   });
   const s = await getSettings();
   document.querySelectorAll('input[data-k]').forEach((el) => {

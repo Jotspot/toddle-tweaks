@@ -33,3 +33,6 @@ footer { display: flex; align-items: center; justify-content: space-between; pad
 .access { background: #fef7e0; border-bottom: 1px solid #fde293; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; }
 .access small { color: #5f4300; font-size: 12px; line-height: 16px; }
 .access .primary { align-self: flex-start; margin-top: 6px; }
+/* the hidden attribute must win over display:flex above */
+[hidden] { display: none !important; }
+.access .help { margin-top: 6px; color: #3c4043; }
