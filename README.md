@@ -1,6 +1,21 @@
 # Toddle Tweaks
 
-A Chrome extension that makes Toddle (web.toddleapp.com) faster and saner.
+A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and saner.
+
+![Toddle Tweaks](store/images/chrome/promo-marquee-1400x560.png)
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Class cards](store/images/chrome/screenshot-1-home.png) | ![Smart to-do](store/images/chrome/screenshot-2-todo.png) |
+| **Your classes, at a glance:** class cards with what's due and what's missing | **A to-do list that makes sense:** Missing, Today, Tomorrow, This week |
+| ![Classwork](store/images/chrome/screenshot-3-classwork.png) | ![Quick jump](store/images/chrome/screenshot-4-palette.png) |
+| **Every class, organized:** Stream, Classwork and People | **Jump anywhere:** Ctrl/⌘ + K searches every class and assignment |
+| ![Settings](store/images/chrome/screenshot-5-settings.png) | |
+| **Make it yours:** every tweak can be switched on or off, with previews | |
+
+_All screenshots use made-up example classes and people._
 
 ## Install (developer mode)
 
