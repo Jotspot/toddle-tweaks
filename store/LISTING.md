@@ -54,6 +54,9 @@ Everything stays in your browser. Toddle Tweaks has no servers and no analytics.
 
 Every feature can be switched on or off in Settings, with a preview of what it does.
 
+SCHOOL SUPPORT
+So far Toddle Tweaks has only been verified with Singapore American School's Toddle. Other schools set Toddle up differently, so some features may not work the same. If something doesn't look right at your school, please open an issue on GitHub.
+
 FREE AND OPEN SOURCE
 Toddle Tweaks is free and open-source software (MIT License). Read every line of the code, report a bug, suggest a feature or contribute on GitHub:
 https://github.com/Jotspot/toddle-tweaks
@@ -96,7 +99,7 @@ Certify all three:
 - **Notes to reviewer** (paste into "Notes for Reviewers"):
 
 ```
-Toddle Tweaks only runs on web.toddleapp.com, a school learning platform that requires a school-issued account, so it can't be fully exercised without one.
+Toddle Tweaks only runs on web.toddleapp.com, a school learning platform that requires a school-issued account, so it can't be fully exercised without one. It has been verified with Singapore American School's Toddle.
 
 What it does:
 - src/page-hook.js runs in the page context (world: MAIN) to wrap fetch: it caches a small allowlist of slow, rarely-changing GraphQL queries in IndexedDB and notices Toddle's own task filters. It never sends data anywhere new.

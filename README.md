@@ -8,6 +8,8 @@ A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and 
 
 ## Get it
 
+> **Verified at Singapore American School only (so far).** Other schools set up Toddle differently, so some features may behave differently. If something looks off at your school, please [open an issue](https://github.com/Jotspot/toddle-tweaks/issues).
+
 - **Chrome Web Store:** coming soon
 - **Firefox Add-ons:** coming soon
 
