@@ -8,7 +8,7 @@ TT.DEFAULTS = {
   gqlCache: true,          // cache slow-changing GraphQL (config, course list…)
   turboCache: false,       // cache almost everything (stale-by-one-visit)
   blockTrackers: true,     // block analytics / Sentry / ad pixels
-  blockIntercom: false,    // hide the Intercom chat bubble
+  blockIntercom: true,     // hide the Intercom chat bubble
   // To-do
   smartTodo: true,         // replace the home "Assignments and deadlines" widget
   hidePastNoSubmission: true, // past items that don't take submissions count as done
@@ -41,7 +41,12 @@ TT.loadSettings = () => new Promise((resolve) => {
       TT.settings = { ...TT.DEFAULTS, ...((r && r.settings) || {}) };
       // One-time v2.1 migration: Intercom chat back on by default, floating to-do button retired.
       if (!TT.settings.migratedV21) {
-        TT.settings = { ...TT.settings, blockIntercom: false, todoButton: false, migratedV21: true };
+        TT.settings = { ...TT.settings, todoButton: false, migratedV21: true };
+        try { chrome.storage.sync.set({ settings: TT.settings }); } catch {}
+      }
+      // 2.3.1: the Intercom chat bubble is hidden by default (switch it back on in Settings).
+      if (!TT.settings.migratedV231) {
+        TT.settings = { ...TT.settings, blockIntercom: true, migratedV231: true };
         try { chrome.storage.sync.set({ settings: TT.settings }); } catch {}
       }
       // Mirror into page localStorage so the page-world hook can read it synchronously.

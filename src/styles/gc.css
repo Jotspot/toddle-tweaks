@@ -13,7 +13,9 @@ html.tt-gc-shell {
   --gc-blue-bg: #e8f0fe;
 }
 html.tt-gc-shell.tt-gc-drawer-open { --gc-dw: 300px; }
-@media (max-width: 1100px) { html.tt-gc-shell.tt-gc-drawer-open { --gc-dw: 72px; } html.tt-gc-shell.tt-gc-drawer-open #tt-gc-drawer { width: 300px; box-shadow: 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12); } }
+/* Narrow windows: the drawer is a rail; the hamburger slides the full menu over the page (tt-gc-drawer-peek). */
+@media (max-width: 1099px) { html.tt-gc-shell.tt-gc-drawer-open { --gc-dw: 72px; } }
+html.tt-gc-shell.tt-gc-drawer-peek #tt-gc-drawer { width: 300px; box-shadow: 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12); z-index: 985; }
 
 /* Toddle lives inside the content area; its own top header and class sidebar are replaced by ours. */
 html.tt-gc-shell body { overflow: hidden !important; background: #fff !important; }
@@ -367,16 +369,16 @@ html.tt-gc-shell [class*="Courses__sidebarWrapper"]:not(:empty) {
 
 /* ---------------- v2.1 polish ---------------- */
 /* Collapsed drawer = Classroom's icon rail: round 48px targets, no hover pop-out. */
-html.tt-gc-shell:not(.tt-gc-drawer-open) .tt-gc-nav {
+html.tt-gc-shell:not(.tt-gc-drawer-open):not(.tt-gc-drawer-peek) .tt-gc-nav {
   width: 48px; height: 48px; padding: 0; margin: 4px 12px; border-radius: 50%; justify-content: center;
 }
-html.tt-gc-shell:not(.tt-gc-drawer-open) .tt-gc-nav-ico,
-html.tt-gc-shell:not(.tt-gc-drawer-open) .tt-gc-nav-av { margin-left: 0; }
-html.tt-gc-shell:not(.tt-gc-drawer-open) .tt-gc-nav-label { display: none; }
-html.tt-gc-shell:not(.tt-gc-drawer-open) .tt-gc-nav-head { height: 0; padding: 0; overflow: hidden; }
-html.tt-gc-shell:not(.tt-gc-drawer-open) .tt-gc-nav-div { margin: 8px 12px; }
-@media (max-width: 1100px) {
-  html.tt-gc-shell.tt-gc-drawer-open .tt-gc-nav { width: auto; height: 56px; padding-left: 24px; margin: 0 12px 0 0; border-radius: 0 28px 28px 0; justify-content: flex-start; }
+html.tt-gc-shell:not(.tt-gc-drawer-open):not(.tt-gc-drawer-peek) .tt-gc-nav-ico,
+html.tt-gc-shell:not(.tt-gc-drawer-open):not(.tt-gc-drawer-peek) .tt-gc-nav-av { margin-left: 0; }
+html.tt-gc-shell:not(.tt-gc-drawer-open):not(.tt-gc-drawer-peek) .tt-gc-nav-label { display: none; }
+html.tt-gc-shell:not(.tt-gc-drawer-open):not(.tt-gc-drawer-peek) .tt-gc-nav-head { height: 0; padding: 0; overflow: hidden; }
+html.tt-gc-shell:not(.tt-gc-drawer-open):not(.tt-gc-drawer-peek) .tt-gc-nav-div { margin: 8px 12px; }
+@media (max-width: 1099px) {
+  html.tt-gc-shell.tt-gc-drawer-peek .tt-gc-nav { width: auto; height: 56px; padding-left: 24px; margin: 0 12px 0 0; border-radius: 0 28px 28px 0; justify-content: flex-start; }
 }
 /* Logo always visible; inside a class it's just the icon. */
 .tt-gc-brand.compact span { display: none; }
@@ -454,8 +456,8 @@ html.tt-gc-shell [class*="UIModal__fullScreenModalContent"] { overflow-x: clip !
 
 /* ---------------- v2.2 ---------------- */
 /* Collapsed rail: no scrollbar crowding the icons. */
-html.tt-gc-shell:not(.tt-gc-drawer-open) #tt-gc-drawer { scrollbar-width: none; }
-html.tt-gc-shell:not(.tt-gc-drawer-open) #tt-gc-drawer::-webkit-scrollbar { display: none; }
+html.tt-gc-shell:not(.tt-gc-drawer-open):not(.tt-gc-drawer-peek) #tt-gc-drawer { scrollbar-width: none; }
+html.tt-gc-shell:not(.tt-gc-drawer-open):not(.tt-gc-drawer-peek) #tt-gc-drawer::-webkit-scrollbar { display: none; }
 html.tt-gc-shell.tt-gc-drawer-open #tt-gc-drawer { scrollbar-gutter: stable; }
 
 /* Dialog form bits (Edit class) */
@@ -571,3 +573,36 @@ html.tt-gc-shell.tt-cp-style [class*="CourseFlow__container"], html.tt-gc-shell.
 .tt-gc-btn.light.strong { color: #8ab4f8 !important; }
 .tt-gc-btn.light:hover { background: rgba(255,255,255,.08); }
 .tt-gc-linkbtn { border: 0; background: none; padding: 0; color: #1967d2; cursor: pointer; font: inherit; text-decoration: underline; }
+
+/* ---------------- narrow windows ---------------- */
+/* Toddle's assignment page uses two fixed-width columns (820px + 480px). Inside the shell they
+   could overflow, and the centred flex layout then cut content off on the left (seen in Firefox). */
+html.tt-gc-shell [class*="StudentAssignmentV2__bodyContainer"] {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); align-items: start; gap: 24px 32px;
+  max-width: 100% !important; width: 100% !important; box-sizing: border-box !important; padding-left: 32px !important; padding-right: 32px !important;
+  container-type: inline-size;
+}
+html.tt-gc-shell [class*="StudentAssignmentV2__instructionsContainer"] { width: auto !important; min-width: 0 !important; max-width: 860px !important; }
+html.tt-gc-shell [class*="StudentAssignmentV2__instructionsContainer"] * { max-width: 100%; }
+html.tt-gc-shell #student-responses-container { width: auto !important; min-width: 0 !important; max-width: 100% !important; }
+/* Not enough room for two columns: stack them (instructions, then Your response). */
+@media (max-width: 860px) {
+  html.tt-gc-shell [class*="StudentAssignmentV2__bodyContainer"] { grid-template-columns: minmax(0, 1fr); }
+  html.tt-gc-shell #student-responses-container { position: static !important; padding-top: 0 !important; }
+}
+html.tt-gc-shell [class*="StudentAssignmentV2__"] { min-width: 0; }
+html.tt-gc-shell [class*="StudentAssignmentV2__instructionsContainer"] img { max-width: 100%; height: auto; }
+/* Class tabs and title share the bar on small screens. */
+@media (max-width: 1000px) {
+  .tt-gc-tab { padding: 0 12px; }
+  .tt-gc-crumb-title { font-size: 18px; }
+  .tt-gc-bar-left { flex: 0 1 auto; min-width: 0; }
+}
+@media (max-width: 760px) {
+  .tt-gc-brand span { display: none; }
+  .tt-gc-crumb-sub { display: none; }
+}
+/* Native views never scroll sideways. */
+#tt-gc-view { overflow-x: hidden; }
+.tt-gc-course, .tt-gc-todo, .tt-gc-calendar, .tt-gc-home { max-width: 100%; box-sizing: border-box; }
+@media (max-width: 760px) { .tt-gc-course, .tt-gc-todo, .tt-gc-home, .tt-gc-calendar { padding-left: 12px; padding-right: 12px; } .tt-gc-card { width: 100%; } .tt-gc-cal { overflow-x: auto; } }

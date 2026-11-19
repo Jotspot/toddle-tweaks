@@ -29,7 +29,7 @@
 
   <script>
     // Demo stub of the extension APIs so the real settings page renders here.
-    window.chrome = { runtime: { getManifest: () => ({ version: "2.3.0" }), openOptionsPage() {}, sendMessage() {} },
+    window.chrome = { runtime: { getManifest: () => ({ version: "2.3.1" }), openOptionsPage() {}, sendMessage() {} },
       storage: { sync: { async get() { return { settings: { classroomMode: true, googleBanners: true } }; }, async set() {} }, onChanged: { addListener() {} } },
       tabs: { async query() { return []; }, async sendMessage() {} } };
   </script>

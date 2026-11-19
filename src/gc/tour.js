@@ -84,7 +84,7 @@
     document.querySelectorAll('.tt-gc-menu, .tt-gc-account, .tt-gc-tour-offer').forEach((m) => m.remove());
     if (!document.documentElement.classList.contains('tt-gc-drawer-open')) {
       // The tour reads better with the full menu showing.
-      document.documentElement.classList.add('tt-gc-drawer-open');
+      document.documentElement.classList.add(window.innerWidth < 1100 ? 'tt-gc-drawer-peek' : 'tt-gc-drawer-open');
     }
     const r = gc.route();
     if (!r || r.view !== 'home') { gc.go(`${gc.base()}/courses`); await new Promise((res) => setTimeout(res, 450)); }

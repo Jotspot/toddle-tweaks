@@ -1,6 +1,6 @@
 /* Toddle Tweaks: settings page. Every setting has a little live preview of what it does. */
 const DEFAULTS = {
-  snapshot: true, gqlCache: true, turboCache: false, blockTrackers: true, blockIntercom: false,
+  snapshot: true, gqlCache: true, turboCache: false, blockTrackers: true, blockIntercom: true,
   smartTodo: true, hidePastNoSubmission: true, todoButton: false, classroomMode: true, redirectHome: true, realLinks: true,
   cacheCoursePlan: true, googleBanners: true, gcCardInfo: true, gcCompact: false, gcCoursePlanStyle: true, cpThumbnails: true, cpHideNotRequired: true,
   tabBadge: true, commandPalette: true, shortcuts: true, relativeDates: true,

@@ -1,6 +1,6 @@
 /* Toddle Tweaks — popup: settings + quick "up next" list. */
 const DEFAULTS = {
-  snapshot: true, gqlCache: true, turboCache: false, blockTrackers: true, blockIntercom: false,
+  snapshot: true, gqlCache: true, turboCache: false, blockTrackers: true, blockIntercom: true,
   smartTodo: true, hidePastNoSubmission: true, todoButton: false, classroomMode: true, realLinks: true, redirectHome: true,
 };
 const TODDLE = 'https://web.toddleapp.com/';

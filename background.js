@@ -1,6 +1,6 @@
 /* Toddle Tweaks — service worker: tracker blocking toggles + toolbar badge. */
 
-const DEFAULTS = { blockTrackers: true, blockIntercom: false };
+const DEFAULTS = { blockTrackers: true, blockIntercom: true };
 
 async function syncRulesets() {
   const { settings = {} } = await chrome.storage.sync.get('settings');

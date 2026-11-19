@@ -145,12 +145,27 @@
     if (!document.body) {
       document.addEventListener('DOMContentLoaded', () => document.body.appendChild(shell), { once: true });
     }
+    applyDrawerMode();
+    window.addEventListener('resize', TT.debounce(applyDrawerMode, 100));
+    // Clicking outside the slide-over menu closes it.
+    document.addEventListener('mousedown', (e) => {
+      if (html.classList.contains('tt-gc-drawer-peek') && drawerEl && !drawerEl.contains(e.target) && !e.target.closest('.tt-gc-bar-left .tt-gc-iconbtn')) html.classList.remove('tt-gc-drawer-peek');
+    }, true);
+  };
+
+  // Wide windows: the drawer is docked (open/closed is remembered). Narrow windows: a slim rail,
+  // and the hamburger slides the full menu over the page without remembering it.
+  const NARROW = 1100;
+  const isNarrow = () => window.innerWidth < NARROW;
+  const applyDrawerMode = () => {
     const p = TT.gcPrefs();
     const open = p.drawerOpen != null ? p.drawerOpen : window.innerWidth >= 1280;
-    html.classList.toggle('tt-gc-drawer-open', !!open);
+    html.classList.toggle('tt-gc-drawer-open', !isNarrow() && !!open);
+    if (!isNarrow()) html.classList.remove('tt-gc-drawer-peek');
   };
 
   const toggleDrawer = () => {
+    if (isNarrow()) { html.classList.toggle('tt-gc-drawer-peek'); return; }
     const open = !html.classList.contains('tt-gc-drawer-open');
     html.classList.toggle('tt-gc-drawer-open', open);
     const p = TT.gcPrefs(); p.drawerOpen = open; TT.gcSavePrefs(p);
@@ -309,6 +324,7 @@
       return;
     }
     build();
+    html.classList.remove('tt-gc-drawer-peek'); // navigating closes the slide-over menu
     if (!shell.isConnected) (document.body || html).appendChild(shell);
     swapIfChanged(barEl, (el) => renderBar(r, el));
     swapIfChanged(drawerEl, (el) => renderDrawer(r, el));
