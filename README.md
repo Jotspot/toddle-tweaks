@@ -4,6 +4,13 @@ A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and 
 
 ![Toddle Tweaks](store/images/chrome/promo-marquee-1400x560.png)
 
+## Get it
+
+- **Chrome Web Store:** coming soon
+- **Firefox Add-ons:** coming soon
+
+Until then you can install it by hand (see [Install (developer mode)](#install-developer-mode) below). For Firefox 128+, open `about:debugging` → This Firefox → **Load Temporary Add-on…** and pick `manifest.json` from a Firefox build (`node scripts/build.mjs`, then `dist/firefox`).
+
 ## Screenshots
 
 | | |
