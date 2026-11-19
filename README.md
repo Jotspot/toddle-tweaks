@@ -12,8 +12,24 @@ A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and 
 
 - **Chrome Web Store:** coming soon
 - **Firefox Add-ons:** coming soon
+- **Download now:** grab the Chrome or Firefox zip from the [latest release](https://github.com/Jotspot/toddle-tweaks/releases/latest), then follow the steps below.
 
-Until then you can install it by hand (see [Install (developer mode)](#install-developer-mode) below). For Firefox 128+, open `about:debugging` → This Firefox → **Load Temporary Add-on…** and pick `manifest.json` from a Firefox build (`node scripts/build.mjs`, then `dist/firefox`).
+### Chrome, Edge, Brave (from a release zip)
+
+1. Download `toddle-tweaks-chrome-<version>.zip` from the [latest release](https://github.com/Jotspot/toddle-tweaks/releases/latest) and unzip it somewhere you'll keep it (Chrome loads it from that folder).
+2. Open `chrome://extensions` and turn on **Developer mode** (top right).
+3. Click **Load unpacked** and pick the unzipped folder (the one with `manifest.json` in it).
+4. Open (or reload) Toddle and visit your Toddle **home page** once so the extension can learn your classes.
+
+To update, download the new zip, replace the folder's contents, and click ↻ on the extension card.
+
+### Firefox 128+ (from a release zip)
+
+1. Download `toddle-tweaks-firefox-<version>.zip` from the [latest release](https://github.com/Jotspot/toddle-tweaks/releases/latest).
+2. Open `about:debugging` → **This Firefox** → **Load Temporary Add-on…** and pick the zip.
+3. Open (or reload) Toddle.
+
+Firefox removes temporary add-ons when it restarts, because the release zip isn't signed by Mozilla. For a permanent install, use Firefox Add-ons once it's listed.
 
 ## Screenshots
 
@@ -28,14 +44,13 @@ Until then you can install it by hand (see [Install (developer mode)](#install-d
 
 _All screenshots use made-up example classes and people._
 
-## Install (developer mode)
+## Install from source (developers)
 
-1. Open `chrome://extensions`
-2. Turn on **Developer mode** (top right)
-3. Click **Load unpacked** and pick this folder (`Toddle Tweaks`)
-4. Open (or reload) Toddle. Visit your Toddle **home page** once so the extension can learn your classes.
+1. Clone this repo.
+2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the repo folder.
+3. Open (or reload) Toddle.
 
-After editing any file, hit the ↻ reload button on the extension card, then reload Toddle.
+After editing any file, hit the ↻ reload button on the extension card, then reload Toddle. For Firefox, run `node scripts/build.mjs` and load `dist/firefox/manifest.json` from `about:debugging`.
 
 ## What it does
 
@@ -90,6 +105,7 @@ npx web-ext lint -s dist/firefox
 ```
 
 - Bump `version` in `manifest.json` (and add a line to `CHANGELOG.md`) before each upload.
+- GitHub release: `gh release create v<version> dist/toddle-tweaks-chrome-<version>.zip dist/toddle-tweaks-firefox-<version>.zip --title "Toddle Tweaks <version>" --notes "…"`
 - Store builds strip the developer-only reload hooks (`// @dev-start … // @dev-end`).
 - Firefox build: MV3 with `background.scripts`, `options_ui`, gecko id `toddle-tweaks@toddletweaks.app`, Firefox 128+, `data_collection_permissions: none`.
 - Listing text, permission justifications, reviewer notes and the data-use answers are in `store/LISTING.md`. The privacy policy is `docs/privacy-policy.html`, published by GitHub Pages at https://jotspot.github.io/toddle-tweaks/privacy-policy.html (the `docs/` folder is the project site).
