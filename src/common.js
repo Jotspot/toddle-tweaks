@@ -23,6 +23,7 @@ TT.DEFAULTS = {
   gcCardInfo: true,        // class cards list what's due + a missing/due-this-week summary
   gcCompact: false,        // tighter spacing everywhere in Classroom mode
   googleBanners: true,     // class banners use Google Classroom's illustrations (store builds default to original art)
+  gcNativeCoursePlan: true, // course plan rebuilt as a Classroom-style page (off = Toddle's own)
   gcCoursePlanStyle: true, // course plan restyled like Classroom's Classwork
   cpThumbnails: true,      // course plan: show resource thumbnails
   cpHideNotRequired: true, // course plan: hide the "Submission not required" labels

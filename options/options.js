@@ -2,7 +2,7 @@
 const DEFAULTS = {
   snapshot: true, gqlCache: true, turboCache: false, blockTrackers: true, blockIntercom: true,
   smartTodo: true, hidePastNoSubmission: true, todoButton: false, classroomMode: true, redirectHome: true, realLinks: true,
-  cacheCoursePlan: true, googleBanners: true, gcCardInfo: true, gcCompact: false, gcCoursePlanStyle: true, cpThumbnails: true, cpHideNotRequired: true,
+  cacheCoursePlan: true, googleBanners: true, gcNativeCoursePlan: true, gcCardInfo: true, gcCompact: false, gcCoursePlanStyle: true, cpThumbnails: true, cpHideNotRequired: true,
   tabBadge: true, commandPalette: true, shortcuts: true, relativeDates: true,
 };
 
@@ -36,7 +36,8 @@ const SECTIONS = [
     { k: 'classroomMode', t: 'Google Classroom mode', d: 'Class cards, Stream / Classwork / People, To-do and Calendar. Turn it off for regular Toddle.', pv: P.classroom, master: true },
     { k: 'gcCompact', t: 'Compact spacing', d: 'Tighter rows and cards, so more fits on screen.', pv: P.compact },
     { k: 'gcCardInfo', t: 'Class cards show what\'s due', d: 'Up to three due items plus a "missing / due this week" summary on each card.', pv: P.cardInfo },
-    { k: 'gcCoursePlanStyle', t: 'Classroom-style course plan', d: 'Units become coloured topic headings, items become rows with round icons.', pv: P.cpStyle },
+    { k: 'gcNativeCoursePlan', t: 'Course plan as a Classroom page', d: "Units become topics with their dates, links open directly, and assignments show your status. Off: Toddle's own course plan.", pv: P.cpStyle },
+    { k: 'gcCoursePlanStyle', t: "Restyle Toddle's course plan", d: "When you open Toddle's own course plan (Classic view), give it Classroom-style headings and rows." },
     { k: 'cpThumbnails', t: 'Course plan thumbnails', d: 'Show the little preview images next to links and files.', pv: P.thumbs },
     { k: 'cpHideNotRequired', t: 'Hide "Submission not required"', d: 'Removes the repeated label from course plan rows.', pv: P.notRequired },
     { k: 'googleBanners', t: 'Use Google Classroom banner art', d: "Class banners use Google Classroom's own illustrations, loaded from Google's servers. Off: original Toddle Tweaks patterns in the same colours.", pv: P.banners },

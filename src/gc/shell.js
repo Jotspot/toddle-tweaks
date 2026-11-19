@@ -33,6 +33,9 @@
       if (q.get('tt') === 'classic') return { cp, courseId, view: null, sub: 'classroom', key: 'pass:' + p };
       return { cp, courseId, view, key: view + ':' + courseId };
     }
+    if ((m = p.match(/^\/platform\/\d+\/courses\/(\d+)\/course-plan(?:\/flow)?$/)) && TT.settings.gcNativeCoursePlan !== false && q.get('tt') !== 'classic') {
+      return { cp, courseId: m[1], view: 'course-plan', key: 'course-plan:' + m[1] };
+    }
     if ((m = p.match(/^\/platform\/\d+\/courses\/(\d+)\//))) {
       const sub = p.split('/')[5] || '';
       return { cp, courseId: m[1], view: null, sub, key: 'pass:' + p };

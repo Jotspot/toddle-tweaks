@@ -72,6 +72,7 @@
     return {
       id: it.id,
       assignmentId: a.id,
+      contentId: a.content && a.content.id, // matches course-plan assessment items
       submissionId: it.submission && it.submission.id,
       courseId,
       courseTitle: (a.course && a.course.title) || '',
@@ -243,6 +244,27 @@
       return list;
     },
     cachedCourseWork: (courseId) => TT.lsGet('tt:cw:' + courseId, null),
+
+    // The whole course plan in one request: units, folders, links/files (with URLs) and assessments,
+    // as a flat list in display order (each node has depth + parent).
+    async getCoursePlan(courseId) {
+      const d = await gql(`query ttCoursePlan($id: ID!, $filters: LearningCourseFlowFilter) { node(id: $id, type: COURSE) { id ... on Course {
+        classFlowFeedWrapper { learningCourseFlowFeed(first: 10000, filters: $filters) { edges { node { id label depth resourceType: itemType parent { id }
+          item { id ... on Attachment { name url type mimeType thumbUrl } ... on Assessment { assessmentType { value } } ... on UnitPlan { startDate endDate } } } } } } } } }`,
+      { id: courseId, filters: { searchText: '', unitTypes: [], sharedWith: [], itemTypes: ['FOLDER', 'ASSESSMENT', 'UNIT_PLAN', 'FILE'], classIds: [courseId], subjects: [],
+        assessmentFilters: { assessmentType: [], groupTypes: [], studentAssignmentStatus: [] }, attachmentTypes: [], createdBy: [], shouldShowSharedItemsOnly: false } }, 'ttCoursePlan');
+      const edges = (d && d.node && d.node.classFlowFeedWrapper && d.node.classFlowFeedWrapper.learningCourseFlowFeed && d.node.classFlowFeedWrapper.learningCourseFlowFeed.edges) || [];
+      const nodes = edges.map(({ node: n }) => ({
+        id: n.id, label: n.label || 'Untitled', depth: n.depth || 1, type: n.resourceType, parent: n.parent && n.parent.id,
+        itemId: n.item && n.item.id,
+        url: n.item && n.item.url, fileType: n.item && n.item.type, mime: n.item && n.item.mimeType, thumb: n.item && n.item.thumbUrl,
+        aType: n.item && n.item.assessmentType && n.item.assessmentType.value,
+        start: n.item && n.item.startDate, end: n.item && n.item.endDate,
+      }));
+      TT.lsSet('tt:cp:' + courseId, { t: Date.now(), nodes });
+      return nodes;
+    },
+    cachedCoursePlan: (courseId) => TT.lsGet('tt:cp:' + courseId, null),
 
     canMarkDone: () => true,
 

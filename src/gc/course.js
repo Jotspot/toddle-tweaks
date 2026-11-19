@@ -34,6 +34,8 @@
     return c;
   };
 
+  gc.courseData = { work, fresh, load, failedAt };
+
   // ---------------- shared pieces ----------------
   const banner = (course, big) => {
     const theme = TT.themes.forCourse(course);
@@ -100,10 +102,25 @@
     for (const it of list || []) if (it.publishedAt) items.push({ t: it.publishedAt, kind: 'work', it });
     items.sort((a, b) => b.t - a.t);
 
-    const feed = h('div', { class: 'tt-gc-feed' });
+    // Dedicated Announcements view: All / Announcements / Classwork posts (remembered).
+    const show = TT.lsGet('tt:streamShow', 'all') || 'all';
+    const nAnn = items.filter((x) => x.kind === 'ann').length;
+    const nUnread = (posts || []).filter((p) => !p.isRead).length;
+    const nWork = items.length - nAnn;
+    const chip = (k, label, n, extra) => h('button', {
+      class: 'tt-gc-chip-f' + (show === k ? ' on' : ''), 'aria-pressed': show === k ? 'true' : 'false',
+      onClick: () => { TT.lsSet('tt:streamShow', k); gc.rerender(); },
+    }, k === 'ann' ? I('campaign') : k === 'work' ? I('assignment') : null, label, h('span', { class: 'n' }, String(n)), extra || null);
+    const filters = h('div', { class: 'tt-gc-stream-filters', role: 'group', 'aria-label': 'Show' },
+      chip('all', 'All', items.length),
+      chip('ann', 'Announcements', nAnn, nUnread ? h('span', { class: 'dot', title: `${nUnread} unread` }) : null),
+      chip('work', 'Classwork posts', nWork));
+    const shown = show === 'ann' ? items.filter((x) => x.kind === 'ann') : show === 'work' ? items.filter((x) => x.kind === 'work') : items;
+
+    const feed = h('div', { class: 'tt-gc-feed' }, filters);
     if (list == null && posts == null) feed.append(loadingNote('Loading stream…'));
-    else if (!items.length) feed.append(h('div', { class: 'tt-gc-feed-empty' }, 'This is where you can talk to your class. Nothing posted yet.'));
-    for (const x of items.slice(0, 60)) {
+    else if (!shown.length) feed.append(h('div', { class: 'tt-gc-feed-empty' }, show === 'ann' ? 'No announcements from your teacher yet.' : show === 'work' ? 'Nothing has been posted yet.' : 'This is where you can talk to your class. Nothing posted yet.'));
+    for (const x of shown.slice(0, show === 'ann' ? 200 : 60)) {
       if (x.kind === 'ann') {
         const p = x.p;
         const who = p.createdBy || {};

@@ -56,7 +56,7 @@ Toddle's “Pending” list is every assignment since August, oldest first. 54 o
 Turn it on in the popup. Toddle gets wrapped in a Classroom-style shell, drawn at document_start from cached data, so the old Toddle UI never flashes:
 - **Top bar + drawer**: Home, Calendar, To-do, your classes (with teachers), and the school pages (announcements, school calendar, timetable, attendance, policies).
 - **Home**: Classroom cards that use Google Classroom's own banner illustrations (picked by subject, changeable via ⋮ → Change theme), teacher photos from Toddle, and what's due soon. Drag cards to reorder them, and hide ones you don't need.
-- **Class pages**: Stream (announcements + “posted a new assignment”, Upcoming box), Classwork (grouped by unit like Classroom topics; click a row to expand its instructions), People (teachers + classmates with photos), plus Toddle's Course plan and Portfolio as tabs.
+- **Class pages**: Stream (announcements + “posted a new assignment”, an All / Announcements / Classwork posts filter, Upcoming box), Classwork (grouped by unit like Classroom topics; click a row to expand its instructions), People (teachers + classmates with photos), a Classroom-style Course plan (topics, folders, links, your assignment status, search), and Toddle's Portfolio.
 - **To-do** (Assigned / Missing / Done) and a week **Calendar** of due work.
 - Toddle pages without a Classroom equivalent (assignment pages, attendance, school announcements…) show inside the shell, restyled. Assignment pages get Classroom's coloured title and “Your work” card.
 - Notifications: the bell opens Toddle's notification panel on the right.
