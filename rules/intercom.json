@@ -1,0 +1,9 @@
+[
+  { "id": 1, "priority": 1, "action": { "type": "block" },
+    "condition": {
+      "initiatorDomains": ["web.toddleapp.com"],
+      "requestDomains": ["intercom.io", "intercomcdn.com", "intercomassets.com", "intercom-attachments.com"],
+      "resourceTypes": ["script", "xmlhttprequest", "image", "ping", "sub_frame", "other", "websocket", "font", "stylesheet", "media"]
+    }
+  }
+]

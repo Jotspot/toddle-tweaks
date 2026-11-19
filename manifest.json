@@ -1,0 +1,93 @@
+{
+  "manifest_version": 3,
+  "name": "Toddle Tweaks",
+  "version": "2.3.0",
+  "description": "Makes Toddle faster and saner: instant cached loads, a smart to-do list, and a Google Classroom mode.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "https://web.toddleapp.com/*",
+    "https://*.toddleapp.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Toddle Tweaks",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "trackers",
+        "enabled": true,
+        "path": "rules/trackers.json"
+      },
+      {
+        "id": "intercom",
+        "enabled": false,
+        "path": "rules/intercom.json"
+      },
+      {
+        "id": "redirect",
+        "enabled": true,
+        "path": "rules/redirect.json"
+      }
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://web.toddleapp.com/*"
+      ],
+      "js": [
+        "src/page-hook.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "https://web.toddleapp.com/*"
+      ],
+      "js": [
+        "src/common.js",
+        "src/api.js",
+        "src/todo.js",
+        "src/gc/themes.js",
+        "src/gc/shell.js",
+        "src/gc/home.js",
+        "src/gc/course.js",
+        "src/gc/pages.js",
+        "src/gc/toddle-pages.js",
+        "src/gc/tour.js",
+        "src/boot.js",
+        "src/snapshot.js",
+        "src/classroom.js",
+        "src/app.js",
+        "src/extras.js"
+      ],
+      "css": [
+        "src/styles/ui.css",
+        "src/styles/classroom.css",
+        "src/styles/gc.css"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "options_page": "options/options.html"
+}

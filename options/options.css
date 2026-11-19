@@ -1,0 +1,122 @@
+:root {
+  --text: #202124; --text-2: #5f6368; --line: #dadce0; --bg: #f8f9fa; --card: #fff;
+  --blue: #1a73e8; --blue-d: #1967d2; --blue-bg: #e8f0fe; --red: #c5221f; --green: #137333;
+  font-family: Roboto, "Segoe UI", Arial, sans-serif; color: var(--text); background: var(--bg);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+
+.bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 24px; background: #fff; border-bottom: 1px solid var(--line); }
+.bar-title { font: 400 22px/1 "Google Sans", "Google Sans Flex", Roboto, Arial; color: #3c4043; }
+.ver { font: 500 12px/1 Roboto, Arial; color: var(--text-2); background: #f1f3f4; border-radius: 10px; padding: 3px 8px; margin-left: 6px; vertical-align: middle; }
+.bar-search { margin-left: auto; }
+.bar-search input { width: 280px; max-width: 40vw; border: 0; background: #f1f3f4; border-radius: 8px; padding: 10px 14px; font: 400 14px Roboto, Arial; outline: none; }
+.bar-search input:focus { background: #fff; box-shadow: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); }
+.saved { min-width: 50px; font-size: 13px; color: var(--green); }
+
+.layout { display: grid; grid-template-columns: 220px minmax(0, 860px); gap: 32px; justify-content: center; padding: 24px; }
+.toc { position: sticky; top: 88px; align-self: start; display: flex; flex-direction: column; }
+.toc a { color: #3c4043; text-decoration: none; padding: 10px 16px; border-radius: 0 20px 20px 0; font: 500 14px/20px "Google Sans", "Google Sans Flex", Roboto, Arial; }
+.toc a:hover { background: #e8eaed; }
+@media (max-width: 860px) { .layout { grid-template-columns: 1fr; } .toc { display: none; } }
+
+.sec { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 24px 12px; margin-bottom: 24px; scroll-margin-top: 88px; }
+.sec h2 { font: 400 20px/28px "Google Sans", "Google Sans Flex", Roboto, Arial; margin: 14px 0 6px; color: var(--blue-d); }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) 260px 44px; gap: 20px; align-items: center; padding: 16px 0; border-top: 1px solid #f1f3f4; }
+.row:first-of-type { border-top: 0; }
+.row.dim .txt, .row.dim .preview { opacity: .45; }
+.row.warn .note { color: #b06000; }
+@media (max-width: 700px) { .row { grid-template-columns: 1fr 44px; } .preview { grid-column: 1 / -1; grid-row: 2; } }
+.ttl { font: 500 15px/22px "Google Sans", "Google Sans Flex", Roboto, Arial; }
+.desc { font: 400 13px/19px Roboto, Arial; color: var(--text-2); margin-top: 2px; }
+.note { font: 500 12px/16px Roboto, Arial; color: var(--text-2); margin-top: 6px; }
+
+.switch { appearance: none; width: 40px; height: 24px; border-radius: 12px; background: #bdc1c6; position: relative; cursor: pointer; transition: background .15s; margin: 0; justify-self: end; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .15s; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.switch:checked { background: var(--blue); }
+.switch:checked::after { left: 19px; }
+.switch:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+.btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 8px; }
+.btn { font: 500 14px/20px "Google Sans", "Google Sans Flex", Roboto, Arial; color: var(--blue-d); background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 8px 16px; cursor: pointer; }
+.btn:hover { background: #f6fafe; border-color: #d2e3fc; }
+
+.credits { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 24px 40px; font-size: 12px; color: #80868b; text-align: center; }
+
+/* ---------------- previews ---------------- */
+.preview { height: 104px; border: 1px solid #e8eaed; border-radius: 10px; background: #fff; overflow: hidden; padding: 10px; font-size: 11px; color: #3c4043; position: relative; transition: box-shadow .15s; }
+.preview.empty { visibility: hidden; }
+.preview.on { box-shadow: 0 0 0 2px #d2e3fc; }
+.preview small { color: var(--text-2); font-size: 10px; }
+.pv-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #1a73e8; vertical-align: -2px; margin-right: 4px; }
+.pv-gc-bar { font: 400 13px "Google Sans", "Google Sans Flex", Roboto; color: #5f6368; padding-bottom: 6px; border-bottom: 1px solid #e8eaed; margin: -2px -10px 8px; padding-left: 10px; }
+.pv-gc-cards { display: flex; gap: 8px; }
+.pv-card { width: 110px; border: 1px solid #dadce0; border-radius: 6px; overflow: hidden; background: #fff; }
+.pv-card.wide { width: 100%; }
+.pv-card-h { color: #fff; font: 400 12px/1.2 "Google Sans", "Google Sans Flex", Roboto; padding: 6px 8px; height: 38px; display: flex; flex-direction: column; justify-content: space-between; }
+.pv-card-h small { color: #fff; opacity: .9; }
+.pv-card-b { padding: 4px 8px; height: 28px; display: flex; flex-direction: column; font-size: 10px; }
+.pv-card-f { border-top: 1px solid #e8eaed; padding: 3px 8px; font-size: 10px; color: #5f6368; display: flex; justify-content: space-between; }
+.pv-card-f .late { color: var(--red); font-weight: 500; }
+.pv-card-f i { font-style: normal; color: #80868b; margin-left: auto; }
+.pv-toddle { display: flex; flex-direction: column; gap: 6px; }
+.pv-t-row { border: 1px solid #e6e6e6; border-radius: 8px; padding: 6px; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.pv-t-row small { margin-left: auto; font-weight: 400; }
+.pv-sq { display: inline-flex; width: 20px; height: 20px; border-radius: 4px; background: #f3f3ff; color: #6b5bd2; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; flex: none; }
+.pv-list .pv-li { display: flex; align-items: center; gap: 8px; padding: 7px 4px; border-bottom: 1px solid #f1f3f4; }
+.pv-list.compact .pv-li { padding: 3px 4px; }
+.pv-li small { margin-left: auto; }
+.pv-ci { width: 16px; height: 16px; border-radius: 50%; background: #1a73e8; flex: none; display: inline-block; }
+.pv-cp-unit { font: 400 14px "Google Sans", "Google Sans Flex", Roboto; color: #d91a60; border-bottom: 1px solid #d91a60; padding-bottom: 4px; margin-bottom: 4px; }
+.pv-cp-item { display: flex; align-items: center; gap: 8px; padding: 6px 2px; border-bottom: 1px solid #f1f3f4; }
+.pv-cp-item small, .pv-cp-item em { margin-left: auto; font-style: normal; color: #5f6368; font-size: 10px; }
+.pv-cp.toddle .pv-cp-box { border: 1px solid #e6e6e6; border-radius: 8px; padding: 6px 8px; margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
+.pv-cp.toddle .pv-cp-box.in { margin-left: 16px; }
+.pv-cp.toddle small { margin-left: auto; }
+.pv-thumb { width: 26px; height: 18px; border-radius: 3px; background: linear-gradient(135deg, #fbbc04, #ea4335); flex: none; }
+.pv-thumb.t2 { background: linear-gradient(135deg, #34a853, #4285f4); }
+.pv-todo { display: flex; flex-direction: column; gap: 3px; }
+.pv-todo b { font: 500 11px Roboto; margin-top: 2px; }
+.pv-todo b.red { color: var(--red); }
+.pv-todo div { display: flex; border: 1px solid #e8eaed; border-radius: 6px; padding: 4px 6px; }
+.pv-todo div small { margin-left: auto; }
+.pv-todo .old { opacity: .8; }
+.pv-todo .old small { color: var(--red); }
+.pv-mouse { height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; }
+.muted { color: #80868b; }
+.pv-tab { margin-top: 30px; display: inline-flex; align-items: center; gap: 6px; background: #f1f3f4; border-radius: 8px 8px 0 0; padding: 8px 14px; font-size: 12px; min-width: 160px; }
+.pv-fav { width: 12px; height: 12px; border-radius: 50%; background: #1a73e8; }
+.pv-pal { border: 1px solid #dadce0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+.pv-pal-in { padding: 6px 8px; border-bottom: 1px solid #eee; color: #5f6368; }
+.pv-pal-r { padding: 5px 8px; display: flex; }
+.pv-pal-r.sel { background: #e8f0fe; }
+.pv-pal-r small { margin-left: auto; }
+.pv-keys { height: 100%; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; font-size: 11px; }
+.pv-keys kbd { font: 500 10px Roboto; background: #f1f3f4; border: 1px solid #dadce0; border-bottom-width: 2px; border-radius: 4px; padding: 2px 5px; }
+.pv-due { height: 100%; display: flex; align-items: center; color: #5f6368; font-size: 11px; line-height: 1.5; }
+.pv-due b { color: #1967d2; }
+.pv-load { height: 100%; display: flex; align-items: center; justify-content: center; }
+.pv-snap { border: 1px dashed #dadce0; border-radius: 6px; padding: 18px 10px 26px; position: relative; width: 100%; text-align: center; color: #5f6368; }
+.pv-snap .pill { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); background: #202124; color: #fff; border-radius: 10px; padding: 2px 8px; font-size: 9px; white-space: nowrap; }
+.pv-spin { color: #5f6368; font-size: 13px; }
+.pv-speed { margin-top: 38px; height: 10px; background: #f1f3f4; border-radius: 5px; overflow: hidden; }
+.pv-speed span { display: block; height: 100%; background: linear-gradient(90deg, #1a73e8, #8ab4f8); border-radius: 5px; transition: width .3s; }
+
+/* mode labels */
+.sec h2 { display: flex; align-items: center; gap: 10px; }
+.mode { font: 500 11px/20px Roboto, Arial; padding: 0 10px; border-radius: 10px; letter-spacing: .02em; }
+.mode.gc { background: #e8f0fe; color: #1967d2; }
+.mode.classic { background: #fce8e6; color: #c5221f; }
+.mode.both { background: #e6f4ea; color: #137333; }
+.intro { font: 400 13px/19px Roboto, Arial; color: var(--text-2); margin: 0 0 6px; }
+.toc a { display: flex; flex-direction: column; }
+.toc a small { font: 400 11px/14px Roboto, Arial; color: var(--text-2); }
+.preview.empty { display: none; }
+.row:has(.preview.empty) { grid-template-columns: minmax(0, 1fr) 44px; }
+body, .ttl, .bar-title, .sec h2, .btn, .toc a { font-family: "Google Sans", "Google Sans Flex", Roboto, "Segoe UI", Arial, sans-serif; }
+.desc, .note, .intro, .preview { font-family: Roboto, "Segoe UI", Arial, sans-serif; }
+
+.pv-banner { height: 60px; border-radius: 8px; color: #fff; font: 400 15px "Google Sans", "Google Sans Flex", Roboto; padding: 10px; position: relative; overflow: hidden; margin-bottom: 4px; background: #108a7d; }
+.pv-banner.g { background: #108a7d url("https://www.gstatic.com/classroom/themes/Biology.jpg") right center / cover; }
+.pv-banner.p::before { content: ""; position: absolute; right: -20px; top: -40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.12); }
+.pv-banner.p i { position: absolute; right: 16px; top: 12px; width: 34px; height: 34px; border-radius: 6px; background: rgba(255,255,255,.85); clip-path: polygon(40% 0, 60% 0, 60% 35%, 100% 100%, 0 100%, 40% 35%); }

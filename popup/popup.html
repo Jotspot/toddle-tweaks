@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Toddle Tweaks</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon48.png" alt="" width="28" height="28">
+    <div class="title">Toddle Tweaks</div>
+    <button id="openTodo" class="primary">Open to-do</button>
+  </header>
+
+  <section id="needAccess" class="access" hidden>
+    <b>Toddle Tweaks needs access to Toddle</b>
+    <small>Your browser asks before letting an extension work on a site. It only needs toddleapp.com.</small>
+    <button id="grantAccess" class="primary">Give access to Toddle</button>
+  </section>
+
+  <section id="upcoming">
+    <h2>Up next</h2>
+    <div id="upList" class="up-list"><div class="muted">Open Toddle once to load your assignments.</div></div>
+  </section>
+
+  <section>
+    <h2>Look &amp; feel</h2>
+    <label class="row"><span><b>Google Classroom mode</b><small>Classroom look &amp; layout: class cards, Stream/Classwork/People, To-do, Calendar</small></span><input type="checkbox" data-k="classroomMode"></label>
+  </section>
+
+  <section>
+    <h2>To-do</h2>
+    <label class="row"><span><b>Smart to-do on home</b><small>Classic mode home: replaces "Assignments and deadlines" (Missing → Today → This week…)</small></span><input type="checkbox" data-k="smartTodo"></label>
+    <label class="row"><span><b>Hide past "no submission" items</b><small>Old in-class work that can't be turned in counts as done</small></span><input type="checkbox" data-k="hidePastNoSubmission"></label>
+    <label class="row"><span><b>Open-in-new-tab on cards</b><small>Middle-click / Ctrl-click classes and assignments</small></span><input type="checkbox" data-k="realLinks"></label>
+  </section>
+
+  <section>
+    <h2>Speed</h2>
+    <label class="row"><span><b>Instant page snapshots</b><small>Shows your last view of a page immediately while Toddle loads</small></span><input type="checkbox" data-k="snapshot"></label>
+    <label class="row"><span><b>Cache settings &amp; class data</b><small>Skips re-downloading config that rarely changes</small></span><input type="checkbox" data-k="gqlCache"></label>
+    <label class="row"><span><b>Turbo cache</b><small>Caches almost everything. Fastest, but pages may be one visit out of date</small></span><input type="checkbox" data-k="turboCache"></label>
+    <label class="row"><span><b>Skip the marketing site</b><small>toddleapp.com goes straight to sign-in / your classes</small></span><input type="checkbox" data-k="redirectHome"></label>
+    <label class="row"><span><b>Block trackers</b><small>Analytics, Sentry, ad pixels</small></span><input type="checkbox" data-k="blockTrackers"></label>
+    <label class="row"><span><b>Hide Intercom chat bubble</b><small>Blocks the help-chat widget</small></span><input type="checkbox" data-k="blockIntercom"></label>
+  </section>
+
+  <footer>
+    <span id="status" class="muted">Changes apply on the next page load.</span>
+    <span><button id="allSettings" class="link">All settings &amp; previews</button></span>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>

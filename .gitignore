@@ -1,0 +1,8 @@
+# build output (recreate with: node scripts/build.mjs)
+dist/
+*.zip
+# created by Chrome when the unpacked extension is loaded
+_metadata/
+node_modules/
+.DS_Store
+Thumbs.db

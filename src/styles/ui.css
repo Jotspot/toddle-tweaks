@@ -1,0 +1,202 @@
+/* Toddle Tweaks — UI components (to-do, FAB, snapshot, Classroom home). */
+
+:root {
+  --tt-font: "Google Sans", "Google Sans Text", "Google Sans Flex", Roboto, "Segoe UI", Arial, sans-serif;
+  --tt-text: #202124;
+  --tt-text-2: #5f6368;
+  --tt-line: #dadce0;
+  --tt-bg: #ffffff;
+  --tt-bg-2: #f8f9fa;
+  --tt-hover: #f1f3f4;
+  --tt-blue: #1967d2;
+  --tt-blue-bg: #e8f0fe;
+  --tt-red: #c5221f;
+  --tt-red-bg: #fce8e6;
+  --tt-green: #137333;
+  --tt-green-bg: #e6f4ea;
+  --tt-amber: #b06000;
+  --tt-amber-bg: #fef7e0;
+  --tt-shadow: 0 1px 2px rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  --tt-shadow-2: 0 1px 3px rgba(60, 64, 67, .3), 0 4px 8px 3px rgba(60, 64, 67, .15);
+}
+
+/* ---------------- instant snapshot ---------------- */
+#tt-snapshot {
+  position: fixed; inset: 0; z-index: 2147483000;
+  background: #fff; overflow: hidden; cursor: progress;
+  transition: opacity .18s ease;
+}
+#tt-snapshot .tt-snapshot-body { position: absolute; inset: 0; overflow: auto; pointer-events: auto; }
+#tt-snapshot .tt-snapshot-body * { animation: none !important; transition: none !important; }
+#tt-snapshot.tt-snapshot-out { opacity: 0; }
+#tt-snapshot .tt-snapshot-pill {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+  background: #202124; color: #fff; font: 500 13px/1 var(--tt-font);
+  padding: 10px 16px; border-radius: 999px; box-shadow: var(--tt-shadow-2);
+  display: flex; align-items: center; gap: 8px; z-index: 2; pointer-events: none;
+}
+#tt-snapshot .tt-dot { width: 8px; height: 8px; border-radius: 50%; background: #8ab4f8; animation: tt-pulse 1s ease-in-out infinite alternate !important; }
+#tt-snapshot .tt-snapshot-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 30%; z-index: 2;
+  background: linear-gradient(90deg, #1a73e8, #8ab4f8);
+  animation: tt-bar 1.1s ease-in-out infinite !important;
+}
+@keyframes tt-bar { 0% { left: -30%; } 100% { left: 100%; } }
+@keyframes tt-pulse { from { opacity: .35; } to { opacity: 1; } }
+
+/* ---------------- shared bits ---------------- */
+.tt-ico { width: 20px; height: 20px; fill: currentColor; flex: none; }
+.tt-icon-btn {
+  border: 0; background: transparent; color: var(--tt-text-2); width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.tt-icon-btn:hover { background: var(--tt-hover); color: var(--tt-text); }
+.tt-icon-btn.spin .tt-ico { animation: tt-spin .8s linear infinite; }
+@keyframes tt-spin { to { transform: rotate(360deg); } }
+.tt-btn {
+  font: 500 14px/20px var(--tt-font); color: var(--tt-blue); background: #fff;
+  border: 1px solid var(--tt-line); border-radius: 4px; padding: 7px 16px; cursor: pointer; margin-top: 10px;
+}
+.tt-btn:hover { background: var(--tt-blue-bg); }
+.tt-btn:disabled { opacity: .6; cursor: default; }
+
+/* ---------------- to-do (panel + page) ---------------- */
+.tt-todo { font-family: var(--tt-font); color: var(--tt-text); }
+.tt-todo-header { display: flex; align-items: center; gap: 4px; }
+.tt-todo-title { flex: 1; font-size: 18px; font-weight: 500; }
+.tt-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--tt-line); margin: 6px 0 10px; }
+.tt-tab {
+  font: 500 14px/20px var(--tt-font); color: var(--tt-text-2); background: none; border: 0; cursor: pointer;
+  padding: 10px 12px 9px; border-bottom: 3px solid transparent; border-radius: 4px 4px 0 0; display: flex; align-items: center; gap: 6px;
+}
+.tt-tab:hover { background: var(--tt-hover); color: var(--tt-text); }
+.tt-tab.active { color: var(--tt-blue); border-bottom-color: var(--tt-blue); }
+.tt-tab-n { font-size: 12px; background: var(--tt-bg-2); color: var(--tt-text-2); border-radius: 10px; padding: 0 7px; line-height: 18px; }
+.tt-tab.active .tt-tab-n { background: var(--tt-blue-bg); color: var(--tt-blue); }
+.tt-tab.alert .tt-tab-n { background: var(--tt-red-bg); color: var(--tt-red); }
+.tt-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.tt-select {
+  font: 400 14px/20px var(--tt-font); color: var(--tt-text); background: #fff;
+  border: 1px solid var(--tt-line); border-radius: 4px; padding: 6px 8px; max-width: 100%; min-width: 0;
+}
+.tt-todo-body { display: flex; flex-direction: column; gap: 6px; }
+.tt-group { border-radius: 8px; }
+.tt-group-head {
+  width: 100%; display: flex; align-items: center; gap: 8px; background: none; border: 0; cursor: pointer;
+  font: 500 15px/22px var(--tt-font); color: var(--tt-text); padding: 10px 4px 8px; text-align: left;
+}
+.tt-group-head .tt-ico { color: var(--tt-text-2); transition: transform .15s; }
+.tt-group.collapsed .tt-group-head .tt-ico { transform: rotate(-90deg); }
+.tt-group-title { flex: 1; }
+.tt-g-today .tt-group-title, .tt-g-missingAll .tt-group-title { color: var(--tt-red); }
+.tt-group-count { font-size: 13px; color: var(--tt-text-2); font-weight: 400; }
+.tt-group.collapsed .tt-group-body { display: none; }
+.tt-group-body { display: flex; flex-direction: column; border: 1px solid var(--tt-line); border-radius: 8px; overflow: hidden; background: #fff; }
+.tt-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-decoration: none !important; color: inherit !important;
+  border-top: 1px solid var(--tt-line); background: #fff; min-width: 0;
+}
+.tt-item:first-child { border-top: 0; }
+.tt-item:hover { background: var(--tt-bg-2); }
+.tt-item-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; flex: none; }
+.tt-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tt-item-title { font-size: 14px; font-weight: 500; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tt-text); }
+.tt-item-meta { font-size: 12px; line-height: 16px; color: var(--tt-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tt-item-meta .tt-course { font-weight: 500; }
+.tt-item-meta .tt-sep { margin: 0 5px; }
+.tt-item-meta .tt-due.late { color: var(--tt-red); font-weight: 500; }
+.tt-item.done .tt-item-title { color: var(--tt-text-2); text-decoration: line-through; text-decoration-color: rgba(95,99,104,.5); }
+.tt-item.done .tt-item-icon { filter: grayscale(.85); opacity: .55; }
+.tt-item-chips { display: flex; gap: 4px; flex: none; }
+.tt-chip { font-size: 11px; font-weight: 500; line-height: 18px; padding: 0 7px; border-radius: 9px; background: var(--tt-bg-2); color: var(--tt-text-2); white-space: nowrap; }
+.tt-chip.test { background: var(--tt-amber-bg); color: var(--tt-amber); }
+.tt-chip.submit { background: var(--tt-blue-bg); color: var(--tt-blue); }
+.tt-chip.new { background: var(--tt-green-bg); color: var(--tt-green); }
+.tt-chip.ok { background: var(--tt-green-bg); color: var(--tt-green); }
+.tt-check {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid #bdc1c6; background: #fff; color: transparent;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex: none; padding: 0;
+}
+.tt-check .tt-ico { width: 16px; height: 16px; }
+.tt-check:hover { border-color: var(--tt-green); color: var(--tt-green); }
+.tt-check.on { background: var(--tt-green); border-color: var(--tt-green); color: #fff; }
+.tt-check:disabled { cursor: default; opacity: .8; }
+.tt-empty { color: var(--tt-text-2); font-size: 14px; padding: 18px 6px; text-align: center; }
+.tt-hint { font-size: 13px; color: var(--tt-text-2); padding: 10px 12px 12px; background: var(--tt-bg-2); border-top: 1px solid var(--tt-line); line-height: 18px; }
+.tt-foot { font-size: 12px; color: var(--tt-text-2); margin-top: 10px; text-align: right; }
+
+/* home panel */
+#tt-smart-panel {
+  background: #fff; border: 1px solid var(--tt-line); border-radius: 12px; padding: 12px 14px 10px; margin-bottom: 16px;
+  max-height: 72vh; overflow: auto;
+}
+#tt-smart-panel .tt-item-chips .tt-chip.muted { display: none; }
+[class*="StudentCourses__rightContainerV2"]:has(#tt-smart-panel) [class*="StudentCourses__deadlinesWidgetContainerV2"] { display: none !important; }
+
+/* full page */
+#tt-todo-page {
+  position: fixed; inset: 0; z-index: 2147482000; background: rgba(32, 33, 36, .4);
+  display: flex; justify-content: center; align-items: flex-start; overflow: auto; padding: 32px 16px;
+  animation: tt-fade .12s ease-out;
+}
+@keyframes tt-fade { from { opacity: 0; } }
+.tt-todo-page-inner {
+  width: min(880px, 100%); background: #fff; border-radius: 12px; box-shadow: var(--tt-shadow-2); padding: 16px 24px 20px;
+}
+.tt-todo-page .tt-todo-title { font-size: 22px; font-weight: 400; }
+.tt-todo-page .tt-group-head { font-size: 16px; }
+
+/* floating button */
+#tt-fab {
+  position: fixed; right: 92px; bottom: 22px; z-index: 2147481000;
+  display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px 0 14px;
+  border: 0; border-radius: 22px; background: #fff; color: var(--tt-blue);
+  font: 500 14px/1 var(--tt-font); box-shadow: var(--tt-shadow-2); cursor: pointer;
+}
+#tt-fab:hover { background: var(--tt-blue-bg); }
+#tt-fab .tt-fab-n:empty { display: none; }
+#tt-fab .tt-fab-n { background: var(--tt-blue); color: #fff; font-size: 12px; border-radius: 10px; padding: 3px 7px; }
+#tt-fab .tt-fab-n.red { background: var(--tt-red); }
+html.tt-hide-intercom #tt-fab { right: 22px; }
+html.tt-hide-intercom #intercom-container, html.tt-hide-intercom .intercom-lightweight-app, html.tt-hide-intercom #intercom-frame { display: none !important; }
+
+@media (max-width: 640px) {
+  .tt-todo-page-inner { padding: 12px 14px; }
+  .tt-item-chips { display: none; }
+  #tt-fab .tt-fab-label { display: none; }
+}
+
+/* Classic home: keep the smart to-do inside Toddle's right column (it used to spill past the window). */
+#tt-smart-panel { box-sizing: border-box; width: auto; max-width: 100%; min-width: 0; overflow-x: hidden; }
+#tt-smart-panel .tt-filters .tt-select { flex: 1 1 0; min-width: 0; }
+#tt-smart-panel .tt-item { min-width: 0; }
+#tt-smart-panel .tt-item-chips { max-width: 40%; overflow: hidden; }
+[class*="StudentCourses__rightContainerV2"]:has(#tt-smart-panel) { min-width: 0; overflow-x: hidden; }
+
+/* ---------------- command palette + shortcuts help ---------------- */
+.tt-pal-wrap { position: fixed; inset: 0; z-index: 2147482700; background: rgba(32,33,36,.35); display: flex; justify-content: center; align-items: flex-start; padding: 12vh 16px 16px; animation: tt-fade .1s ease-out; }
+.tt-pal { width: min(620px, 100%); background: #fff; border-radius: 12px; box-shadow: 0 12px 28px rgba(0,0,0,.25), 0 2px 6px rgba(0,0,0,.12); overflow: hidden; font-family: Roboto, "Segoe UI", Arial, sans-serif; color: #202124; }
+.tt-pal-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #e8eaed; color: #5f6368; }
+.tt-pal-head .tt-ico { width: 22px; height: 22px; }
+.tt-pal-input { flex: 1; border: 0; outline: none; font: 400 17px/24px "Google Sans", "Google Sans Flex", Roboto, Arial; color: #202124; background: transparent; }
+.tt-pal kbd, .tt-help kbd { font: 500 11px/1 Roboto, Arial; color: #5f6368; background: #f1f3f4; border: 1px solid #dadce0; border-bottom-width: 2px; border-radius: 4px; padding: 3px 6px; margin: 0 2px; }
+.tt-pal-list { max-height: 420px; overflow: auto; padding: 6px 0; }
+.tt-pal-row { width: 100%; display: flex; align-items: center; gap: 14px; padding: 10px 16px; border: 0; background: none; cursor: pointer; text-align: left; color: #3c4043; }
+.tt-pal-row .tt-ico { width: 20px; height: 20px; color: #5f6368; fill: currentColor; flex: none; }
+.tt-pal-row.sel { background: #e8f0fe; }
+.tt-pal-row.sel .tt-ico { color: #1967d2; }
+.tt-pal-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tt-pal-title { font: 500 14px/20px "Google Sans", "Google Sans Flex", Roboto, Arial; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #202124; }
+.tt-pal-sub { font: 400 12px/16px Roboto, Arial; color: #5f6368; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tt-pal-kind { font: 500 11px/18px Roboto, Arial; color: #5f6368; background: #f1f3f4; border-radius: 9px; padding: 0 8px; flex: none; }
+.tt-pal-empty { padding: 20px; text-align: center; color: #5f6368; font-size: 14px; }
+.tt-pal-foot { padding: 10px 16px; border-top: 1px solid #e8eaed; font-size: 12px; color: #5f6368; background: #f8f9fa; }
+.tt-help { padding-top: 6px; }
+.tt-help-title { display: flex; align-items: center; gap: 10px; font: 400 20px/28px "Google Sans", "Google Sans Flex", Roboto, Arial; padding: 12px 20px 8px; }
+.tt-help-title .tt-ico { width: 24px; height: 24px; color: #5f6368; fill: currentColor; }
+.tt-help-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 20px; font-size: 14px; color: #3c4043; }
+.tt-help-row > span:first-child { min-width: 110px; }
+
+/* relative due date on assignment pages */
+.tt-reldue { color: #1967d2; font-weight: 500; }
+.tt-reldue.late { color: #c5221f; }

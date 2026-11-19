@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 440px; height: 280px; overflow: hidden; }
+    body { font-family: "Google Sans Flex", "Google Sans", Roboto, Arial, sans-serif; color: #fff; position: relative;
+      background: linear-gradient(135deg, #1a73e8 0%, #1967d2 45%, #174ea6 100%); }
+    .glow { position: absolute; right: -80px; top: -90px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.10); }
+    .glow2 { position: absolute; left: -60px; bottom: -120px; width: 240px; height: 240px; border-radius: 50%; background: rgba(0,0,0,.10); }
+    .logo { position: absolute; left: 28px; top: 28px; width: 56px; height: 56px; border-radius: 14px; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+    .logo img { width: 44px; height: 44px; }
+    h1 { position: absolute; left: 28px; top: 102px; margin: 0; font-weight: 500; font-size: 29px; letter-spacing: -.01em; width: 230px; }
+    p { position: absolute; left: 28px; top: 146px; margin: 0; font: 400 14px/20px Roboto, Arial; opacity: .92; width: 205px; }
+    .cards { position: absolute; right: 18px; top: 46px; width: 150px; }
+    .card { background: #fff; border-radius: 8px; overflow: hidden; margin-bottom: 10px; box-shadow: 0 6px 16px rgba(0,0,0,.2); }
+    .card .h { height: 34px; padding: 8px 10px; font: 500 12px "Google Sans Flex", Roboto; color: #fff; }
+    .card .b { padding: 6px 10px 8px; font: 400 10px Roboto; color: #3c4043; }
+    .card .b small { display: block; color: #5f6368; font-size: 9px; }
+    .card:nth-child(2) { transform: translateX(-10px); }
+    .card:nth-child(3) { transform: translateX(-20px); }
+  </style>
+</head>
+<body>
+  <div class="glow"></div><div class="glow2"></div>
+  <div class="logo"><img src="../../icons/icon128.png" alt=""></div>
+  <h1>Toddle Tweaks</h1>
+  <p>A smarter to-do, faster pages and a cleaner layout for Toddle.</p>
+  <div class="cards">
+    <div class="card"><div class="h" style="background:#108a7d">Biology</div><div class="b"><small>Due today</small>Lab report</div></div>
+    <div class="card"><div class="h" style="background:#d91a60">Algebra II</div><div class="b"><small>Due tomorrow</small>Problem set 4.2</div></div>
+    <div class="card"><div class="h" style="background:#e8930c">World History</div><div class="b"><small>All caught up</small>&nbsp;</div></div>
+  </div>
+</body>
+</html>

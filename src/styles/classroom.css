@@ -1,0 +1,122 @@
+/*
+ * Toddle Tweaks — Google Classroom mode.
+ * Toddle is built on design tokens (--blue-400, --interactive-primary, …), so most of
+ * the restyle is just remapping those to Google's palette. Everything is scoped to
+ * html.tt-gc so turning the mode off is instant.
+ */
+
+html.tt-gc {
+  /* Google blue */
+  --blue-100: #041e49; --blue-200: #0842a0; --blue-300: #174ea6; --blue-400: #1967d2; --blue-500: #1a73e8;
+  --blue-600: #4285f4; --blue-700: #8ab4f8; --blue-800: #aecbfa; --blue-900: #d2e3fc; --blue-950: #e8f0fe;
+  /* Google greys */
+  --neutral-100: #202124; --neutral-200: #3c4043; --neutral-300: #5f6368; --neutral-400: #5f6368; --neutral-500: #80868b;
+  --neutral-600: #9aa0a6; --neutral-700: #dadce0; --neutral-800: #e8eaed; --neutral-900: #f1f3f4; --neutral-950: #f8f9fa;
+  /* Google green for success */
+  --teal-300: #0d652d; --teal-400: #137333; --teal-500: #1e8e3e; --teal-900: #ceead6; --teal-950: #e6f4ea;
+
+  --interactive-primary: #1a73e8;
+  --interactive-primary-hover: #1765cc;
+  --interactive-secondary: #1967d2;
+  --interactive-secondary-hover: #174ea6;
+  --border-brand: #1a73e8;
+  --brand-educator: #1a73e8;
+  --brand-student: #1a73e8;
+  --border-focus: #1a73e8;
+  --border-selected: #1a73e8;
+  --text-highlight: #1967d2;
+  --text-link-default: #1967d2;
+  --text-link-hover: #174ea6;
+  --surface-primary-selected: #e8f0fe;
+  --surface-secondary-selected: #d2e3fc;
+
+  --font-weight-body: 400;
+  --font-weight-label: 500;
+  --font-weight-heading: 400;
+  --font-weight-emphasis: 500;
+
+  --radius-container-large: 8px;
+  --radius-container-medium: 8px;
+  --radius-container-small: 8px;
+  --radius-height-36: 4px;
+  --radius-height-44: 4px;
+
+  --elevation-2-bottom: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+  --elevation-3-bottom: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+}
+
+/* ---------- typography ---------- */
+html.tt-gc body,
+html.tt-gc #root,
+html.tt-gc #root :where(div, span, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, select, label, li, td, th) {
+  font-family: "Google Sans", "Google Sans Text", "Google Sans Flex", Roboto, "Segoe UI", Arial, sans-serif !important;
+  letter-spacing: .01em;
+}
+html.tt-gc #root :where(.ML__container, .ML__container *, .katex, .katex *, code, pre, kbd) { font-family: revert !important; }
+html.tt-gc body { background: #fff !important; color: #3c4043; }
+
+/* ---------- top header (home) ---------- */
+html.tt-gc [class*="Header__container"] {
+  background: #fff !important;
+  border-bottom: 1px solid #dadce0 !important;
+  box-shadow: none !important;
+  min-height: 64px;
+}
+html.tt-gc [class*="PlatformSwitcher__title"] { font-size: 22px !important; font-weight: 400 !important; color: #3c4043 !important; }
+html.tt-gc [class*="PlatformSwitcher__orgName"] { color: #5f6368 !important; }
+
+/* ---------- course sidebar: navy → Classroom white rail ---------- */
+html.tt-gc [class*="SideBar__container"] {
+  background: #fff !important;
+  border-right: 1px solid #dadce0 !important;
+  color: #3c4043 !important;
+}
+html.tt-gc [class*="SideBar__container"] .icon-inverse { color: #5f6368 !important; }
+html.tt-gc [class*="SideBar__container"] :where(svg path[fill="#fff"], svg path[fill="#FFF"], svg path[fill="white"]) { fill: #5f6368 !important; }
+html.tt-gc [class*="SideBar__container"] :where(svg path[stroke="#fff"], svg path[stroke="#FFF"], svg path[stroke="white"]) { stroke: #5f6368 !important; }
+html.tt-gc [class*="SideBar__rowContainer"] {
+  background: transparent !important; color: #3c4043 !important;
+  border-radius: 0 24px 24px 0 !important; margin-right: 8px;
+}
+html.tt-gc [class*="SideBar__rowContainer"] :where(div, span) { color: inherit !important; }
+html.tt-gc [class*="SideBar__rowContainer"]:hover { background: #f1f3f4 !important; }
+html.tt-gc [class*="SideBar__activeTab"] { background: #e8f0fe !important; color: #1967d2 !important; }
+html.tt-gc [class*="SideBar__activeTab"] .icon-inverse { color: #1967d2 !important; }
+html.tt-gc [class*="SideBar__activeTab"]::before, html.tt-gc [class*="SideBar__activeTab"]::after { background: transparent !important; }
+html.tt-gc [class*="SideBar__courseSwitcherTabContainer"] { border-radius: 8px; }
+html.tt-gc [class*="CourseList__container"] { background: #fff !important; }
+html.tt-gc [class*="CourseList__courseItemContainer"]:hover { background: #f1f3f4 !important; }
+
+/* ---------- cards, lists, page chrome ---------- */
+html.tt-gc [class*="CommonHeader__container"] {
+  background: #fff !important; border-bottom: 1px solid #dadce0 !important; box-shadow: none !important;
+}
+html.tt-gc [class*="CommonHeader__container"] :where(h1, h2, h3, [class*="title"], [class*="Title"]) { font-weight: 400 !important; font-size: 22px; color: #3c4043; }
+
+/* Assignment rows in a class → Classroom "classwork" rows */
+html.tt-gc [class*="ClassroomFeed"] [class*="__container"],
+html.tt-gc [class*="AssignmentFeed"] [class*="__container"],
+html.tt-gc [class*="StudentAssignmentCard"],
+html.tt-gc [class*="FeedCard"] {
+  border-radius: 8px !important;
+  border-color: #dadce0 !important;
+  box-shadow: none !important;
+}
+html.tt-gc [class*="ClassroomFeed"] [class*="__container"]:hover,
+html.tt-gc [class*="FeedCard"]:hover { box-shadow: var(--elevation-2-bottom) !important; }
+
+/* Generic buttons with Toddle's red primary → Google blue (tokens handle most of it) */
+html.tt-gc [class*="Button__"][class*="filled"],
+html.tt-gc [class*="Button__"][class*="primary"] { border-radius: 4px !important; }
+
+/* Mark-as-done / submit bar (was teal) */
+html.tt-gc [class*="markAsDone"], html.tt-gc [class*="MarkAsDone"] { background: #1a73e8 !important; border-radius: 4px !important; }
+
+/* Scrollbars like Classroom */
+html.tt-gc ::-webkit-scrollbar { width: 12px; height: 12px; }
+html.tt-gc ::-webkit-scrollbar-thumb { background: #dadce0; border-radius: 8px; border: 3px solid #fff; }
+html.tt-gc ::-webkit-scrollbar-thumb:hover { background: #bdc1c6; }
+html.tt-gc ::-webkit-scrollbar-track { background: transparent; }
+
+/* Our own to-do panel picks up the same look */
+html.tt-gc #tt-fab { border-radius: 16px; }

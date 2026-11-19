@@ -1,0 +1,19 @@
+[
+  { "id": 1, "priority": 1, "action": { "type": "block" },
+    "condition": {
+      "initiatorDomains": ["web.toddleapp.com"],
+      "requestDomains": [
+        "sentry.io",
+        "google-analytics.com", "googletagmanager.com", "analytics.google.com",
+        "hs-scripts.com", "hs-analytics.net", "hs-banner.com", "hscollectedforms.net", "hubspot.com", "hsforms.com", "usemessages.com",
+        "connect.facebook.net", "facebook.com",
+        "redditstatic.com", "alb.reddit.com",
+        "ads-twitter.com", "analytics.twitter.com", "t.co",
+        "mixpanel.com", "mxpnl.com",
+        "clarity.ms", "hotjar.com", "hotjar.io",
+        "doubleclick.net", "googleadservices.com", "fullstory.com", "segment.io", "segment.com", "amplitude.com", "rudderlabs.com"
+      ],
+      "resourceTypes": ["script", "xmlhttprequest", "image", "ping", "sub_frame", "other", "websocket"]
+    }
+  }
+]

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" class="tt-gc tt-gc-drawer-open tt-cp-style">
+<head>
+  <meta charset="utf-8">
+  <title>Toddle Tweaks demo</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="../../src/styles/ui.css">
+  <link rel="stylesheet" href="../../src/styles/gc.css">
+  <style>html, body { margin: 0; background: #fff; } #tt-gc-shell .tt-ico { fill: currentColor; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="../../src/common.js"></script>
+  <script src="frame.js"></script>
+  <script src="../../src/todo.js"></script>
+  <script src="../../src/gc/themes.js"></script>
+  <script src="../../src/gc/shell.js"></script>
+  <script src="../../src/gc/home.js"></script>
+  <script src="../../src/gc/course.js"></script>
+  <script src="../../src/gc/pages.js"></script>
+  <script src="../../src/extras.js"></script>
+  <script>
+    (() => {
+      const { scene } = window.__TT_DEMO;
+      const gc = TT.gc;
+      const routes = {
+        home: { view: 'home', key: 'home' },
+        palette: { view: 'home', key: 'home' },
+        todo: { view: 'todo', key: 'todo' },
+        calendar: { view: 'calendar', key: 'cal' },
+        classwork: { courseId: 'c1', view: 'classwork', key: 'cw' },
+        stream: { courseId: 'c1', view: 'stream', key: 'st' },
+      };
+      gc.route = () => ({ cp: '1', ...(routes[scene] || routes.home) });
+      gc.go = () => {};
+      gc.render();
+      if (scene === 'palette') {
+        setTimeout(() => {
+          TT.openPalette();
+          const i = document.querySelector('.tt-pal-input');
+          i.value = 'bio';
+          i.dispatchEvent(new Event('input'));
+          i.blur();
+        }, 200);
+      }
+    })();
+  </script>
+</body>
+</html>
