@@ -22,44 +22,43 @@ Chrome "Summary" (max 132 chars) / AMO "Summary" (max 250 chars):
 ```
 Toddle Tweaks fixes the parts of Toddle (web.toddleapp.com) that get in your way.
 
-Use as much or as little of it as you want. Every feature has its own switch in Settings, even Classroom mode. If you like Toddle's normal look and just want a better to-do list and faster pages, turn Classroom mode off and keep the rest.
+Every feature is toggleable, even Google Classroom mode. Speaking of features:
 
-TO-DO LIST
-• Sorted by when things are actually due: Missing, Today, Tomorrow, This week, Next week, Later
+To-Do Tweaks:
+• Sorted by when things are due: Missing, Today, Tomorrow, This week, Next week, Later, etc.
 • Old in-class items you can't turn in stop clogging up the list
 • Quizzes, tests and summatives are labelled so they stand out
-• Tick things off, filter by class, or sort it seven ways
+• Tick things off, filter by class, or sort it up to seven ways!
 
-LINKS AND DATES
-• Google Docs, Slides, Sheets and Drive links open in their own tab instead of Toddle's little viewer
+Course Plan Tweaks:
+• Google Docs, Slides, Sheets and Drive links open in their own tab instead of Toddle's (horrendous) little viewer
 • "Due on 23rd Nov, 8:30 AM" also says "in 2 days"
 • Middle-click a class or assignment to open it in a new tab
 
-FASTER
-• You see a saved copy of the page straight away while Toddle loads
-• Settings, class lists and course plans load from your computer
+Speed Tweaks:
+• You see a cached copy of the page straight away while Toddle loads
+• Settings, class lists and course plans load from your computer (not the cloud :P)
 • Trackers and ad pixels are blocked
 
-CLASSROOM MODE (OPTIONAL)
-• Toddle laid out like Google Classroom: class cards with banners, plus Stream, Classwork and People for each class
-• Course plans look like Classwork, with previews of Docs and videos
-• A to-do page and a calendar of everything due, which you can export to Google, Apple or Outlook
-• Put your classes in any order, pick banners, hide the ones you don't need
+Google Classroom Mode:
+• Toddle laid out like Google Classroom: class cards with banners, plus Stream, Classwork & People for each class
+• A (good) to-do page and a calendar of everything due, exportable to Google, Apple or Outlook
+• Put your classes in any order, pick banners, hide the ones you don't
 • Not your thing? One switch turns it off
 
-LITTLE EXTRAS
-• Ctrl/⌘ + K to jump to any class, assignment or page
-• Keyboard shortcuts (press ? to see them)
-• A count in the tab title of what's missing or due soon
+Extras:
+• Ctrl/⌘ + K to jump to any class, assignment or page (this is amazing btw)
+• Keyboard shortcuts (hit ? to see em')
+• A little count in the tab title for what's missing or due soon
 
-PRIVACY
+Privacy:
 There are no Toddle Tweaks servers and no analytics, and nothing about you is collected. Your settings and cached pages stay in your browser. The extension talks to Toddle using the account you're already signed in with. Classroom banners and Doc and video previews load from Google and YouTube, like any other picture on a web page.
 
-WHICH SCHOOLS
-So far it's only been tested at Singapore American School. Other schools set up Toddle a bit differently, so some things might not work the same. If something looks off at your school, open an issue on GitHub.
+School Support:
+So far it's only been tested at Singapore American School. Other schools set up Toddle a bit differently, so some things might not work the same. If something looks off at your school, open an issue on GitHub :)
 
-FREE AND OPEN SOURCE
-Toddle Tweaks is free and open source (MIT License). You can read the code, report a bug or suggest something on GitHub:
+Free & Open Source:
+Toddle Tweaks is free and open source (MIT License)! You can read the code, report a bug or suggest something on GitHub:
 https://github.com/Jotspot/toddle-tweaks
 
 Toddle Tweaks is an independent project. It isn't affiliated with, endorsed by or sponsored by Toddle or Google.
