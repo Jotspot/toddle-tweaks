@@ -33,10 +33,10 @@ const shot = (file, query, w, h, out) => {
 
 // A slide is either the real UI in a browser frame (promo.html + scene) or a page of its own.
 const SCREENS = [
-  { scene: 'home', h: 'Your classes, at a glance', p: "Clean class cards show what's due, what's missing and who teaches it. Drag them into any order." },
   { file: 'compare.html', name: 'before-after' },
+  { scene: 'stream', name: 'class', h: 'Every class gets a proper home', p: "A banner, what's coming up and the latest posts, with Classwork and People one click away." },
   { scene: 'todo', h: 'A to-do list that makes sense', p: "Missing, Today, Tomorrow, This week. Old in-class work that can't be turned in stays out of the way." },
-  { scene: 'plan', h: 'Course plans that look like Classwork', p: 'Units become topics, Docs and videos show a preview, and every link opens in its own tab.' },
+  { scene: 'palette', name: 'search', h: 'Jump anywhere with Ctrl + K', p: 'Start typing a class, assignment or page and press Enter. No more clicking through menus.' },
   { file: 'more.html', name: 'more' },
 ];
 
