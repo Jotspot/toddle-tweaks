@@ -11,7 +11,7 @@ A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and 
 > **Verified at Singapore American School only (so far).** Other schools set up Toddle differently, so some features may behave differently. If something looks off at your school, please [open an issue](https://github.com/Jotspot/toddle-tweaks/issues).
 
 - **Chrome Web Store:** [Toddle Tweaks](https://chromewebstore.google.com/detail/toddle-tweaks/apaanjjkejkkekmbkgecnlbjmfdcgncg) (also works in Edge and Brave)
-- **Firefox:** [install Toddle Tweaks for Firefox](https://jotspot.github.io/toddle-tweaks/firefox/toddle-tweaks.xpi) (open the link in Firefox, then click **Add**). It's signed by Mozilla, so it stays installed.
+- **Firefox:** [install Toddle Tweaks for Firefox](https://jotspot.github.io/toddle-tweaks/firefox/toddle-tweaks.xpi) (open the link in Firefox, then click **Add**). It's signed by Mozilla, so it stays installed. The Firefox Add-ons listing is coming soon (Mozilla's review queue is long right now), and once it's up this install will update from there automatically.
 - **Manual install:** grab the Chrome or Firefox zip from the [latest release](https://github.com/Jotspot/toddle-tweaks/releases/latest), then follow the steps below.
 
 ### Chrome, Edge, Brave (from a release zip)
