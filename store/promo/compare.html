@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Toddle Tweaks: before and after</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <!-- Store screenshot: the same home page in regular Toddle (left, a simplified drawing with made-up classes)
+       and with Classroom mode on (right, the real extension UI from frame.html). -->
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; }
+    body { font-family: "Google Sans Flex", "Google Sans", Roboto, Arial, sans-serif; color: #202124;
+      background: radial-gradient(1000px 520px at 90% -10%, #d2e3fc 0%, rgba(210,227,252,0) 60%), radial-gradient(800px 480px at -10% 110%, #fce8e6 0%, rgba(252,232,230,0) 60%), #f8fafd; }
+    .cap { position: absolute; left: 64px; top: 40px; right: 64px; display: flex; align-items: flex-start; }
+    .cap h1 { font-weight: 500; font-size: 40px; line-height: 48px; margin: 0; letter-spacing: -.01em; }
+    .cap p { font: 400 18px/26px Roboto, Arial; color: #5f6368; margin: 8px 0 0; }
+    .brand { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 18px; color: #3c4043; padding-top: 6px; }
+    .brand img { width: 36px; height: 36px; }
+
+    /* Two floating screens, no browser frame: regular Toddle behind on the left, Classroom mode in front. */
+    .shot { position: absolute; border-radius: 14px; overflow: hidden; background: #fff; border: 1px solid rgba(0,0,0,.08); }
+    .shot.before { left: 40px; top: 156px; width: 660px; height: 700px; box-shadow: 0 12px 34px rgba(32,33,36,.16); }
+    .shot.before .t { width: 1000px; height: 1060px; transform: scale(.66); transform-origin: 0 0; }
+    .shot.after { left: 580px; top: 140px; width: 660px; height: 720px; box-shadow: 0 28px 70px rgba(32,33,36,.28), 0 4px 14px rgba(32,33,36,.12); }
+    .shot.after iframe { border: 0; width: 1080px; height: 1180px; transform: scale(.611); /* 3 class cards across, icon-rail drawer */ transform-origin: 0 0; display: block; }
+    /* ----- simplified regular Toddle (made-up data) ----- */
+    .t { position: absolute; left: 0; top: 0; display: flex; font-family: Inter, Roboto, Arial, sans-serif; background: #f6f6f8; color: #1f1f1f; }
+    .t-rail { width: 56px; background: #20212b; display: flex; flex-direction: column; align-items: center; padding-top: 12px; gap: 14px; }
+    .t-rail .lg { width: 30px; height: 30px; border-radius: 50%; background: #f75959; }
+    .t-rail i { width: 20px; height: 20px; border-radius: 5px; background: #4a4b57; display: block; }
+    .t-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .t-head { height: 56px; background: #fff; border-bottom: 1px solid #e6e6ea; display: flex; align-items: center; padding: 0 20px; font: 600 15px Inter; gap: 10px; }
+    .t-head small { display: block; font: 400 11px Inter; color: #6b6b76; }
+    .t-body { display: flex; gap: 16px; padding: 16px; flex: 1; min-height: 0; }
+    .t-col { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .t-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .t-tile { background: #fff; border: 1px solid #e6e6ea; border-radius: 8px; height: 64px; display: flex; align-items: center; gap: 10px; padding: 0 12px; font: 500 12px Inter; }
+    .t-tile b { width: 40px; height: 40px; border-radius: 8px; background: #efe9fb; flex: none; }
+    .t-card { background: #fff; border: 1px solid #e6e6ea; border-radius: 8px; padding: 12px; }
+    .t-card h4 { margin: 0 0 10px; font: 600 13px Inter; }
+    .t-cls { display: flex; align-items: center; gap: 10px; border: 1px solid #ececf0; border-radius: 8px; padding: 9px 10px; margin-bottom: 8px; font: 500 12px Inter; }
+    .t-cls span { width: 34px; height: 34px; border-radius: 6px; background: #eef0fb; color: #5a63c8; font: 600 11px/34px Inter; text-align: center; flex: none; }
+    .t-cls small { display: block; font: 400 10px Inter; color: #6b6b76; margin-top: 2px; }
+    .t-tabs { display: flex; gap: 14px; font: 500 11px Inter; color: #6b6b76; border-bottom: 1px solid #ececf0; padding-bottom: 8px; margin-bottom: 10px; }
+    .t-tabs .on { color: #1f1f1f; box-shadow: 0 9px 0 -7px #f75959; }
+    .t-grp { font: 600 11px Inter; margin: 8px 0 6px; }
+    .t-it { display: flex; gap: 8px; border: 1px solid #ececf0; border-radius: 8px; padding: 8px; margin-bottom: 6px; font: 500 11px Inter; }
+    .t-it span { width: 26px; height: 26px; border-radius: 5px; background: #e8f4f8; color: #2a7d9c; font: 600 9px/26px Inter; text-align: center; flex: none; }
+    .t-it small { display: block; color: #6b6b76; font: 400 10px Inter; margin-top: 2px; }
+    .t-it small.r { color: #d33; }
+
+    /* ----- labels + arrow ----- */
+    .lab { position: absolute; padding: 8px 16px; border-radius: 18px; font: 500 14px "Google Sans Flex", Roboto; box-shadow: 0 2px 8px rgba(0,0,0,.14); z-index: 3; }
+    .lab.b { left: 60px; top: 136px; background: #fff; color: #5f6368; }
+    .lab.a { left: 600px; top: 120px; background: #1a73e8; color: #fff; }
+    .arrow { position: absolute; left: 548px; top: 430px; width: 64px; height: 64px; border-radius: 50%; background: #fff; z-index: 4;
+      box-shadow: 0 6px 18px rgba(0,0,0,.2); display: flex; align-items: center; justify-content: center; }
+    .arrow svg { width: 34px; height: 34px; fill: #1a73e8; }
+  </style>
+</head>
+<body>
+  <div class="cap">
+    <div>
+      <h1>One switch. A whole new Toddle.</h1>
+      <p>Classroom mode gives Toddle a clean Google Classroom layout. Turn it off any time.</p>
+    </div>
+    <div class="brand"><img src="../../icons/icon128.png" alt=""><span>Toddle Tweaks</span></div>
+  </div>
+  <span class="lab b">Before: regular Toddle</span>
+  <div class="shot before">
+        <div class="t">
+          <div class="t-rail"><span class="lg"></span><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="t-main">
+            <div class="t-head"><div>Home - 2026-27<small>Riverside High School</small></div></div>
+            <div class="t-body">
+              <div class="t-col">
+                <div class="t-tiles">
+                  <div class="t-tile"><b></b>School announcements</div><div class="t-tile"><b style="background:#fdf0d5"></b>Calendar</div>
+                  <div class="t-tile"><b style="background:#fde4e1"></b>Timetable</div><div class="t-tile"><b style="background:#fff3d6"></b>Attendance</div>
+                </div>
+                <div class="t-card">
+                  <h4>My Classes</h4>
+                  <div class="t-cls"><span>AL</span><div>Algebra II 4<small>Grade 10 +3 more • Semester 1</small></div></div>
+                  <div class="t-cls"><span>BI</span><div>Biology** 2<small>Grade 9 +3 more • Semester 1 +1 more</small></div></div>
+                  <div class="t-cls"><span>CH</span><div>Chemistry 1<small>Grade 10 • Semester 1</small></div></div>
+                  <div class="t-cls"><span>EN</span><div>English 10/World Lit 3<small>Grade 10 +2 more • Semester 1</small></div></div>
+                  <div class="t-cls"><span>WH</span><div>World History 2<small>Grade 10 • Semester 1</small></div></div>
+                  <div class="t-cls"><span>SP</span><div>Spanish III 1<small>Grade 10 +1 more • Semester 1</small></div></div>
+                  <div class="t-cls"><span>CS</span><div>Computer Science 2<small>Grade 10 • Semester 1</small></div></div>
+                  <div class="t-cls"><span>AR</span><div>Art &amp; Design 3<small>Grade 9 +3 more • Semester 1</small></div></div>
+                  <div class="t-cls"><span>PE</span><div>Physical Education 10<small>Grade 10 • Semester 1</small></div></div>
+                  <div class="t-cls"><span>HR</span><div>Homeroom 10B<small>Grade 10</small></div></div>
+                </div>
+              </div>
+              <div class="t-col">
+                <div class="t-card" style="flex:1">
+                  <h4>Assignments and deadlines</h4>
+                  <div class="t-tabs"><span>All</span><span class="on">To-do</span><span>Done</span><span>Scheduled</span></div>
+                  <div class="t-grp">Overdue (14)</div>
+                  <div class="t-it"><span>LE</span><div>Class notes 1.3<small class="r">Due 14th Aug, 8:30 AM • 98 days late</small></div></div>
+                  <div class="t-it"><span>LE</span><div>Warm-up 1.2<small class="r">Due 15th Aug, 8:30 AM • 97 days late</small></div></div>
+                  <div class="t-grp">Pending (78)</div>
+                  <div class="t-it"><span>QT</span><div>Welcome survey<small>Due 19th Aug, 3:00 PM</small></div></div>
+                  <div class="t-it"><span>LE</span><div>Reading check<small>Due 21st Aug, 8:30 AM</small></div></div>
+                  <div class="t-it"><span>SA</span><div>Persuasive essay: final draft<small>Due 19th Nov, 11:59 PM</small></div></div>
+                  <div class="t-it"><span>LE</span><div>Class notes 2.1<small>Due 26th Aug, 8:30 AM</small></div></div>
+                  <div class="t-it"><span>QT</span><div>Exit ticket<small>Due 28th Aug, 3:00 PM</small></div></div>
+                  <div class="t-it"><span>LE</span><div>Warm-up 2.3<small>Due 2nd Sep, 8:30 AM</small></div></div>
+                  <div class="t-it"><span>LE</span><div>Reading check 2<small>Due 4th Sep, 8:30 AM</small></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  </div>
+  <span class="lab a">After: Classroom mode</span>
+  <div class="shot after"><iframe src="frame.html?scene=home" scrolling="no"></iframe></div>
+  <div class="arrow"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>
+</body>
+</html>

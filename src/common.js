@@ -25,13 +25,18 @@ TT.DEFAULTS = {
   googleBanners: true,     // class banners use Google Classroom's illustrations (store builds default to original art)
   gcNativeCoursePlan: true, // course plan rebuilt as a Classroom-style page (off = Toddle's own)
   gcCoursePlanStyle: true, // course plan restyled like Classroom's Classwork
-  cpThumbnails: true,      // course plan: show resource thumbnails
+  cpThumbnails: true,      // (pre-2.5) course plan thumbnails on/off; false now means cpImages = 'icons'
+  cpImages: 'preview',     // course plan pictures: 'preview' (thumbnail left) | 'card' (Classroom-style card right) | 'icons'
   cpHideNotRequired: true, // course plan: hide the "Submission not required" labels
   // Handy extras (2.2)
   tabBadge: true,          // "(3)" in the tab title = missing + due today/tomorrow
   commandPalette: true,    // Ctrl/⌘+K: jump to any class or assignment
   shortcuts: true,         // g h / g t / g c / g s, ? for help
   relativeDates: true,     // "Due on 23rd Nov…" gets "(in 4 days)" appended
+  // Links (2.5)
+  docsNewTab: true,        // Google Docs/Slides/Drive, Microsoft 365, Canva… open in a new tab, not Toddle's viewer
+  linksNewTab: false,      // every web link opens in a new tab (uploaded files still use the viewer)
+  whatsNew: true,          // "Toddle Tweaks updated" note after an update
 };
 
 TT.settings = { ...TT.DEFAULTS };
@@ -48,6 +53,13 @@ TT.loadSettings = () => new Promise((resolve) => {
       // 2.3.1: the Intercom chat bubble is hidden by default (switch it back on in Settings).
       if (!TT.settings.migratedV231) {
         TT.settings = { ...TT.settings, blockIntercom: true, migratedV231: true };
+        try { chrome.storage.sync.set({ settings: TT.settings }); } catch {}
+      }
+      // 2.5: course plan thumbnails on/off became a picture style.
+      if (!TT.settings.migratedV25) {
+        const stored = (r && r.settings) || {};
+        TT.settings = { ...TT.settings, migratedV25: true };
+        if (stored.cpThumbnails === false && !stored.cpImages) TT.settings.cpImages = 'icons';
         try { chrome.storage.sync.set({ settings: TT.settings }); } catch {}
       }
       // Mirror into page localStorage so the page-world hook can read it synchronously.
@@ -216,6 +228,16 @@ TT.ICONS = {
   book: 'M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z',
   unfold: 'M12 5.83 15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z',
   fold: 'M7.41 18.59 8.83 20 12 16.83 15.17 20l1.41-1.41L12 14l-4.59 4.59zm9.18-13.18L15.17 4 12 7.17 8.83 4 7.41 5.41 12 10l4.59-4.59z',
+  slides: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H5V8h14v8z',
+  sheet: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 8h-8v8H9v-8H5V9h4V5h2v4h8v2z',
+  form: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm8 8h-6v-2h6v2zm0-4h-6v-2h6v2zm0-4h-6V7h6v2z',
+  play: 'M8 5v14l11-7z',
+  summative: 'M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM10 17H5v-2h5v2zm0-4H5v-2h5v2zm0-4H5V7h5v2zm4.82 6L12 12.16l1.41-1.41 1.41 1.42L17.99 9l1.42 1.42L14.82 15z',
+  test: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 14v-2.47l6.88-6.88c.2-.2.51-.2.71 0l1.77 1.77c.2.2.2.51 0 .71L8.47 14H6zm12 0h-7.5l2-2H18v2z',
+  quiz: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7.01 15c-.7 0-1.26-.56-1.26-1.26 0-.71.56-1.25 1.26-1.25.71 0 1.25.54 1.25 1.25-.01.69-.54 1.26-1.25 1.26zm3.01-7.4c-.76 1.11-1.48 1.46-1.87 2.17-.16.29-.22.48-.22 1.41h-1.82c0-.49-.08-1.29.31-1.98.49-.87 1.42-1.39 1.96-2.16.57-.81.25-2.33-1.37-2.33-1.06 0-1.58.8-1.8 1.48l-1.65-.7C9.95 7.15 10.8 6 12.36 6c1.3 0 2.2.59 2.65 1.33.39.63.61 1.82-.01 2.27z',
+  close: 'M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+  video: 'M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z',
+  globe: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm6.93 6h-2.95a15.65 15.65 0 0 0-1.38-3.56A8.03 8.03 0 0 1 18.93 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 0 1 5.08 16zm2.95-8H5.08a7.99 7.99 0 0 1 4.33-3.56A15.65 15.65 0 0 0 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z',
 };
 TT.gIcon = (name, cls) => {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -293,3 +315,6 @@ TT.colorFor = (id) => {
   for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   return TT.CLASS_COLORS[h % TT.CLASS_COLORS.length];
 };
+
+// Icon for a piece of work: summatives get a checklist, tests a pencil, quizzes a question mark.
+TT.workIcon = (it) => (!it ? 'assignment' : it.kind === 'Summative' ? 'summative' : it.kind === 'Test' ? 'test' : it.kind === 'Quiz' ? 'quiz' : it.needsSubmission === false ? 'description' : 'assignment');

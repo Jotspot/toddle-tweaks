@@ -1,4 +1,4 @@
-/* Toddle Tweaks — service worker: tracker blocking toggles + toolbar badge. */
+/* Toddle Tweaks — service worker: tracker blocking toggles, toolbar badge, "what's new" after updates. */
 
 const DEFAULTS = { blockTrackers: true, blockIntercom: true };
 
@@ -17,7 +17,14 @@ async function syncRulesets() {
   }
 }
 
-chrome.runtime.onInstalled.addListener(syncRulesets);
+chrome.runtime.onInstalled.addListener((details) => {
+  syncRulesets();
+  // Remember the update so the next Toddle page can show "Toddle Tweaks updated! See what's new".
+  const version = chrome.runtime.getManifest().version;
+  if (details.reason === 'update' && details.previousVersion && details.previousVersion !== version) {
+    chrome.storage.local.set({ whatsNew: { version, from: details.previousVersion, t: Date.now() } });
+  }
+});
 chrome.runtime.onStartup.addListener(syncRulesets);
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'sync' && changes.settings) syncRulesets();

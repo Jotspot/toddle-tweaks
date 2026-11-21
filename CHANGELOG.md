@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.5.0
+- Google Docs, Slides, Sheets, Drive, Microsoft 365, Canva and similar links open in a new tab instead of Toddle's cramped built-in viewer (on by default; there's also an option for every web link)
+- Course plan looks more like Google Classroom: round colour-coded file icons, real previews of Docs, Slides and YouTube videos in place of Toddle's blank placeholder, a topic list that follows you as you scroll, and Classroom-style folders
+- New setting "Course plan pictures": Previews, Classroom-style Cards, or Icons only
+- 19 more Google Classroom banners (World history, US history, Geometry, Design, Track, Fitness, Sailing, Cycling and more), picked automatically for matching classes
+- Summatives and tests get their own icons instead of a question mark
+- Narrow windows: assignment titles no longer run off the edge, the course plan's topics become a row of chips, and class tabs scroll
+- "Toddle Tweaks updated! See what's new" note after an update, linking to the new changelog page (can be turned off)
+
 ## 2.4.1
 - Popup: the "needs access to Toddle" banner no longer shows when access is already granted, and the Give access button now explains what to do if the browser does not show a prompt
 

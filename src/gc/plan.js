@@ -12,6 +12,7 @@
 
   const TYPE = { le: 'Learning experience', SA: 'Summative', FA: 'Formative', qt: 'Quick task', worksheet: 'Worksheet', smt: 'Summative', fmt: 'Formative' };
   const safeUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : null);
+  const safeImg = (u) => (/^(https?:\/\/|data:image\/)/i.test(u || '') ? u : null);
   const host = (u) => { try { return new URL(u).host.replace(/^www\./, ''); } catch { return ''; } };
   const day = (s) => { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const fmtRange = (a, b) => {
@@ -28,13 +29,61 @@
     return now >= s && now <= new Date(e.getTime() + 864e5);
   };
 
-  const fileIcon = (n) => {
-    const m = (n.mime || '') + ' ' + (n.fileType || '') + ' ' + (n.url || '');
-    if (/image/i.test(m)) return 'image';
-    if (/audio/i.test(m)) return 'mic';
-    if (/drive\.google|docs\.google|google-apps|pdf|document|presentation|spreadsheet|msword|officedocument/i.test(m)) return 'description';
-    if (/LINK/i.test(n.fileType || '') || /^https?:/i.test(n.url || '')) return 'link';
-    return 'attach';
+  // What a file/link is, from its URL / mime type: drives the icon, its colour and the preview.
+  const KINDS = {
+    doc: ['description', '#4285f4', 'Google Docs'], slides: ['slides', '#f4b400', 'Google Slides'], sheet: ['sheet', '#0f9d58', 'Google Sheets'],
+    form: ['form', '#7248b9', 'Google Forms'], drive: ['drive', '#1a73e8', 'Google Drive'], youtube: ['play', '#ff0000', 'YouTube'],
+    pdf: ['description', '#ea4335', 'PDF'], word: ['description', '#2b579a', 'Document'], ppt: ['slides', '#d24726', 'Presentation'], excel: ['sheet', '#217346', 'Spreadsheet'],
+    video: ['video', '#d93025', 'Video'], audio: ['mic', '#e37400', 'Audio'], image: ['image', '#1e8e3e', 'Image'], link: ['link', '#5f6368', ''], file: ['attach', '#5f6368', 'File'],
+  };
+  const kindOf = (n) => {
+    const u = n.url || '';
+    const m = ((n.mime || '') + ' ' + (n.fileType || '')).toLowerCase();
+    const ext = (u.split(/[?#]/)[0].match(/\.(\w{2,7})$/) || [])[1] || '';
+    if (/docs\.google\.com\/document/.test(u)) return 'doc';
+    if (/docs\.google\.com\/presentation/.test(u)) return 'slides';
+    if (/docs\.google\.com\/spreadsheets/.test(u)) return 'sheet';
+    if (/docs\.google\.com\/forms|forms\.gle/.test(u)) return 'form';
+    if (/drive\.google\.com/.test(u)) return 'drive';
+    if (/youtube\.com|youtu\.be/.test(u)) return 'youtube';
+    if (/pdf/.test(m) || ext === 'pdf') return 'pdf';
+    if (/presentation|powerpoint/.test(m) || /^(pptx?|key)$/.test(ext)) return 'ppt';
+    if (/spreadsheet|excel/.test(m) || /^(xlsx?|csv|numbers)$/.test(ext)) return 'excel';
+    if (/msword|wordprocessing|pages/.test(m) || /^(docx?|pages)$/.test(ext)) return 'word';
+    if (/video/.test(m)) return 'video';
+    if (/audio/.test(m)) return 'audio';
+    if (/image/.test(m)) return 'image';
+    if (/link/.test(m) || /^https?:/i.test(u)) return 'link';
+    return 'file';
+  };
+  // Toddle gives most links the same placeholder picture (and some a Google logo): treat as "no picture".
+  const GENERIC_THUMB = /linkDefaultImage|\/branding\/googlelogo|\/images\/branding\//i;
+  const driveId = (u) => (/forms\/d\/e\//.test(u) ? null : ((u.match(/\/d\/([\w-]{20,})/) || u.match(/[?&]id=([\w-]{20,})/) || [])[1] || null));
+  const ytId = (u) => (u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/) || [])[1] || null;
+  // Best picture for a file/link, or null. Drive previews come from Google and only show for files
+  // your signed-in Google account can open; anything that fails falls back to the icon.
+  const previewOf = (n, kind) => {
+    const t = safeImg(n.thumb);
+    if (t && !GENERIC_THUMB.test(t)) return t;
+    const u = n.url || '';
+    if (kind === 'youtube' && ytId(u)) return `https://i.ytimg.com/vi/${ytId(u)}/mqdefault.jpg`;
+    if (/^(doc|slides|sheet|drive)$/.test(kind) && driveId(u)) return `https://drive.google.com/thumbnail?id=${driveId(u)}&sz=w400`;
+    return null;
+  };
+  // Previews that failed to load (no access, rate-limited, blank): url → when. Skipped for a week.
+  const FAIL_KEY = 'tt:cpThumbFail';
+  const failed = (() => {
+    const now = Date.now();
+    const m = TT.lsGet(FAIL_KEY, {}) || {};
+    for (const k of Object.keys(m)) if (now - m[k] > 7 * 864e5) delete m[k];
+    return m;
+  })();
+  const markFailed = (u) => { if (!u || failed[u]) return; failed[u] = Date.now(); TT.lsSet(FAIL_KEY, failed); };
+  const kindIcon = (kind, extra) => h('span', { class: 'tt-gc-work-ico tt-gc-plan-kind' + (extra ? ' ' + extra : ''), style: { background: KINDS[kind][1] } }, I(KINDS[kind][0]));
+  const imgStyle = () => {
+    const v = TT.settings.cpImages;
+    if (v === 'card' || v === 'icons' || v === 'preview') return v;
+    return TT.settings.cpThumbnails === false ? 'icons' : 'preview';
   };
 
   // Collapsed folders/units, per class.
@@ -50,7 +99,7 @@
     const myWork = work(r.courseId) || [];
     const byContent = new Map(myWork.filter((x) => x.contentId).map((x) => [x.contentId, x]));
 
-    const wrap = h('div', { class: 'tt-gc-course tt-gc-plan' });
+    const wrap = h('div', { class: 'tt-gc-course tt-gc-plan img-' + imgStyle() });
     const search = h('input', { class: 'tt-gc-plan-search', type: 'search', placeholder: 'Search the course plan', 'aria-label': 'Search the course plan' });
     const toolbar = h('div', { class: 'tt-gc-plan-bar' },
       h('span', { class: 'tt-gc-plan-searchbox' }, I('search'), search),
@@ -112,7 +161,7 @@
         const late = mine && !mine.toddleDone && mine.needsSubmission && mine.deadline && mine.deadline < Date.now();
         const status = !mine ? null : mine.toddleDone ? (mine.isEvaluated ? ['Graded', 'ok'] : ['Turned in', 'ok']) : late ? ['Missing', 'late'] : null;
         const inner = [
-          h('span', { class: 'tt-gc-work-ico', style: { background: done ? '#80868b' : color } }, I(mine && mine.isTest ? 'assignment' : 'assignment')),
+          h('span', { class: 'tt-gc-work-ico', style: { background: done ? '#80868b' : color } }, I(mine ? TT.workIcon(mine) : /^(SA|smt)$/i.test(n.aType || '') ? 'summative' : 'assignment')),
           h('span', { class: 'tt-gc-cw-main' },
             h('span', { class: 'tt-gc-cw-title' }, n.label),
             h('span', { class: 'tt-gc-cw-sub' }, [TYPE[n.aType] || 'Assessment', mine ? null : 'not assigned to you yet'].filter(Boolean).join(' · '))),
@@ -127,17 +176,40 @@
       }
       // Files and links
       const url = safeUrl(n.url);
-      const showThumb = TT.settings.cpThumbnails !== false && n.thumb && safeUrl(n.thumb);
-      const visual = showThumb
-        ? h('span', { class: 'tt-gc-plan-thumb' }, h('img', { src: n.thumb, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' }))
-        : h('span', { class: 'tt-gc-work-ico plain' }, I(fileIcon(n)));
-      if (showThumb) visual.querySelector('img').addEventListener('error', (e) => { e.target.parentElement.replaceWith(h('span', { class: 'tt-gc-work-ico plain' }, I(fileIcon(n)))); });
+      const kind = kindOf(n);
+      const style = imgStyle();
+      let pic = style === 'icons' ? null : previewOf(n, kind);
+      if (pic && failed[pic]) pic = null;
+      // The picture box; if the image fails (or is a 1px tracker), `outer` is swapped for `fallback()`.
+      const img = (cls, fallback) => {
+        const im = h('img', { src: pic, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer', decoding: 'async' });
+        const box = h('span', { class: cls }, im);
+        let outer = box;
+        // Look the wrapper up when it fails: re-renders can move this row around.
+        const fail = () => {
+          markFailed(pic);
+          const o = im.closest('.tt-gc-plan-thumbwrap, .tt-gc-plan-card') || outer;
+          if (o && o.parentNode) o.replaceWith(fallback());
+        };
+        im.addEventListener('error', fail, { once: true });
+        im.addEventListener('load', () => { if (im.naturalWidth < 24) fail(); }, { once: true });
+        return { box, wrapIn: (w) => { outer = w; return w; } };
+      };
+      let visual;
+      if (pic && style === 'preview') {
+        const t = img('tt-gc-plan-thumb', () => kindIcon(kind));
+        visual = t.wrapIn(h('span', { class: 'tt-gc-plan-thumbwrap' }, t.box, kindIcon(kind, 'badge')));
+      } else visual = kindIcon(kind);
+      const label = KINDS[kind][2];
+      const where = url ? host(url) : '';
+      const sub = /^(Google|YouTube)/.test(label) ? label : [label, where].filter(Boolean).join(' · ') || (n.fileType || 'File').toLowerCase();
       const inner = [
         visual,
         h('span', { class: 'tt-gc-cw-main' },
           h('span', { class: 'tt-gc-cw-title' }, n.label),
-          h('span', { class: 'tt-gc-cw-sub' }, url ? host(url) : (n.fileType || 'File').toLowerCase())),
-        url ? h('span', { class: 'tt-gc-plan-open' }, I('open')) : null,
+          h('span', { class: 'tt-gc-cw-sub' }, sub)),
+        pic && style === 'card' ? img('tt-gc-plan-card', () => document.createTextNode('')).box : null,
+        url ? h('span', { class: 'tt-gc-plan-open', title: 'Opens in a new tab' }, I('open')) : null,
       ];
       return url
         ? h('a', { class: 'tt-gc-plan-row', href: url, target: '_blank', rel: 'noopener noreferrer', 'data-q': q }, ...inner)
@@ -156,7 +228,7 @@
         sec.classList.toggle('collapsed');
         head.setAttribute('aria-expanded', sec.classList.contains('collapsed') ? 'false' : 'true');
       } },
-        isTopic ? null : I('folder', 'tt-gc-plan-folder-ico'),
+        isTopic ? null : h('span', { class: 'tt-gc-work-ico tt-gc-plan-folder-ico' }, I('folder')),
         h('span', { class: 'tt-gc-plan-name' }, n.label, isTopic && n.id === currentId ? h('span', { class: 'tt-gc-plan-now' }, 'Current unit') : null),
         h('span', { class: 'tt-gc-plan-meta' }, meta),
         I('expand', 'tt-gc-topic-caret'));
@@ -170,17 +242,21 @@
 
     // Sections: each root unit/folder is a topic; loose root items collect under "Resources".
     const main = h('div', { class: 'tt-gc-plan-main' });
-    const nav = h('nav', { class: 'tt-gc-plan-nav', 'aria-label': 'Topics' }, h('div', { class: 'tt-gc-plan-nav-head' }, 'Topics'));
+    const nav = h('nav', { class: 'tt-gc-plan-nav', 'aria-label': 'Topics' },
+      h('button', { class: 'tt-gc-plan-nav-item all on', onClick: () => { const v = document.getElementById('tt-gc-view'); (v || window).scrollTo({ top: 0, behavior: 'smooth' }); } }, 'All topics'));
+    const navFor = new Map();
     let loose = null;
     for (const n of roots) {
       if (n.type === 'UNIT_PLAN' || n.type === 'FOLDER') {
         loose = null;
         main.append(block(n, 0, ''));
-        nav.append(h('button', { class: 'tt-gc-plan-nav-item' + (n.id === currentId ? ' now' : ''), onClick: () => {
+        const navBtn = h('button', { class: 'tt-gc-plan-nav-item' + (n.id === currentId ? ' now' : ''), title: n.label, onClick: () => {
           const target = document.getElementById('tt-cp-' + n.id);
           if (target && target.classList.contains('collapsed')) target.querySelector('button').click();
           if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } }, n.label));
+        } }, n.label);
+        navFor.set('tt-cp-' + n.id, navBtn);
+        nav.append(navBtn);
       } else {
         if (!loose) {
           loose = h('section', { class: 'tt-gc-plan-topic' }, h('div', { class: 'tt-gc-plan-topic-head static', style: { color } }, h('span', { class: 'tt-gc-plan-name' }, 'Resources')), h('div', { class: 'tt-gc-plan-body' }));
@@ -211,7 +287,25 @@
       });
     });
 
+    main.prepend(toolbar);
     wrap.append(h('div', { class: 'tt-gc-plan-layout' }, nav, main));
     el.append(wrap);
+
+    // Highlight the topic you're reading in the topic list (like Classroom's Classwork page).
+    if (navFor.size && 'IntersectionObserver' in window) {
+      const seen = new Map();
+      const spy = new IntersectionObserver((entries) => {
+        if (!wrap.isConnected) { spy.disconnect(); return; }
+        for (const e of entries) seen.set(e.target.id, e.isIntersecting ? e.boundingClientRect.top : null);
+        const top = [...seen].filter(([, t]) => t !== null).sort((x, y) => x[1] - y[1])[0];
+        const btn = top ? navFor.get(top[0]) : null;
+        const want = btn || nav.firstChild;
+        if (want.classList.contains('on')) return;
+        nav.querySelectorAll('.on').forEach((x) => x.classList.remove('on'));
+        want.classList.add('on');
+        if (nav.scrollWidth > nav.clientWidth + 4) nav.scrollTo({ left: want.offsetLeft - 16, behavior: 'smooth' });
+      }, { rootMargin: '-80px 0px -55% 0px' });
+      main.querySelectorAll(':scope > .tt-gc-plan-topic[id]').forEach((t) => spy.observe(t));
+    }
   };
 })();

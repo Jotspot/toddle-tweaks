@@ -55,7 +55,7 @@
     return ['Assigned', ''];
   };
 
-  const kindIcon = (it) => (it.isTest ? 'assignment' : it.needsSubmission ? 'assignment' : 'description');
+  const kindIcon = (it) => (it.isTest ? TT.workIcon(it) : it.needsSubmission ? 'assignment' : 'description');
 
   const loadingNote = (txt) => h('div', { class: 'tt-gc-empty small' }, txt);
 

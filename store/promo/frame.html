@@ -18,6 +18,7 @@
   <script src="../../src/gc/shell.js"></script>
   <script src="../../src/gc/home.js"></script>
   <script src="../../src/gc/course.js"></script>
+  <script src="../../src/gc/plan.js"></script>
   <script src="../../src/gc/pages.js"></script>
   <script src="../../src/extras.js"></script>
   <script>
@@ -31,10 +32,19 @@
         calendar: { view: 'calendar', key: 'cal' },
         classwork: { courseId: 'c1', view: 'classwork', key: 'cw' },
         stream: { courseId: 'c1', view: 'stream', key: 'st' },
+        plan: { courseId: 'c1', view: 'course-plan', key: 'cp' },
       };
       gc.route = () => ({ cp: '1', ...(routes[scene] || routes.home) });
       gc.go = () => {};
       gc.render();
+      if (new URLSearchParams(location.search).get('whatsnew')) TT.showWhatsNew('2.5.0');
+      if (scene === 'plan') {
+        setTimeout(() => {
+          const v = document.getElementById('tt-gc-view');
+          const u = [...document.querySelectorAll('.tt-gc-plan-topic')].find((t) => /Cells/.test(t.textContent));
+          if (v && u) v.scrollTop = u.offsetTop - 24;
+        }, 300);
+      }
       if (scene === 'palette') {
         setTimeout(() => {
           TT.openPalette();

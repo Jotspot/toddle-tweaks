@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Toddle Tweaks",
-  "version": "2.4.1",
-  "description": "Makes Toddle faster and saner: instant cached loads, a smart to-do list, and a Google Classroom mode.",
+  "version": "2.5.0",
+  "description": "A better Toddle: a to-do list that makes sense, faster pages and an optional Google Classroom look.",
   "homepage_url": "https://github.com/Jotspot/toddle-tweaks",
   "icons": {
     "16": "icons/icon16.png",

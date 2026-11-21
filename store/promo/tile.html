@@ -4,35 +4,106 @@
   <meta charset="utf-8">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap">
+  <!-- Small promo tile (440x280). It shows up tiny in store lists, so: one idea, big type, one picture.
+       Idea: Toddle goes in on the left, a Classroom-style class page with a to-do comes out on the right. -->
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; width: 440px; height: 280px; overflow: hidden; }
-    body { font-family: "Google Sans Flex", "Google Sans", Roboto, Arial, sans-serif; color: #fff; position: relative;
-      background: linear-gradient(135deg, #1a73e8 0%, #1967d2 45%, #174ea6 100%); }
-    .glow { position: absolute; right: -80px; top: -90px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.10); }
-    .glow2 { position: absolute; left: -60px; bottom: -120px; width: 240px; height: 240px; border-radius: 50%; background: rgba(0,0,0,.10); }
-    .logo { position: absolute; left: 28px; top: 28px; width: 56px; height: 56px; border-radius: 14px; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
-    .logo img { width: 44px; height: 44px; }
-    h1 { position: absolute; left: 28px; top: 102px; margin: 0; font-weight: 500; font-size: 29px; letter-spacing: -.01em; width: 230px; }
-    p { position: absolute; left: 28px; top: 146px; margin: 0; font: 400 14px/20px Roboto, Arial; opacity: .92; width: 205px; }
-    .cards { position: absolute; right: 18px; top: 46px; width: 150px; }
-    .card { background: #fff; border-radius: 8px; overflow: hidden; margin-bottom: 10px; box-shadow: 0 6px 16px rgba(0,0,0,.2); }
-    .card .h { height: 34px; padding: 8px 10px; font: 500 12px "Google Sans Flex", Roboto; color: #fff; }
-    .card .b { padding: 6px 10px 8px; font: 400 10px Roboto; color: #3c4043; }
-    .card .b small { display: block; color: #5f6368; font-size: 9px; }
-    .card:nth-child(2) { transform: translateX(-10px); }
-    .card:nth-child(3) { transform: translateX(-20px); }
+    body { font-family: "Google Sans Flex", "Google Sans", Roboto, Arial, sans-serif; position: relative; color: #fff;
+      background: radial-gradient(260px 200px at 100% 0%, #4c8df6 0%, rgba(76,141,246,0) 70%), radial-gradient(240px 220px at 0% 100%, #0d47a1 0%, rgba(13,71,161,0) 70%), #1a62d6; }
+    .brand { position: absolute; left: 24px; top: 24px; display: flex; align-items: center; gap: 10px; }
+    .brand svg { width: 40px; height: 40px; filter: drop-shadow(0 3px 8px rgba(0,0,0,.25)); }
+    .brand span { font: 500 15px/1 "Google Sans Flex", Roboto; letter-spacing: .02em; opacity: .9; }
+    h1 { position: absolute; left: 24px; top: 96px; margin: 0; font-weight: 500; font-size: 38px; line-height: 43px; letter-spacing: -.02em; width: 240px; }
+    h1 em { white-space: nowrap; }
+    h1 em { font-style: normal; }
+    .fine { position: absolute; left: 24px; bottom: 12px; margin: 0; font: 400 9px/1 Roboto, Arial; color: rgba(255,255,255,.55); }
+    .sub { position: absolute; left: 24px; top: 200px; margin: 0; width: 220px; font: 500 16px/21px "Google Sans Flex", Roboto; color: rgba(255,255,255,.9); }
+    /* Solid white pills with dark text: they have to survive being shown at a fraction of this size. */
+    .chips { position: absolute; left: 24px; bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
+    .chip { display: inline-flex; align-items: center; gap: 7px; font: 700 15px/1 Roboto, Arial; color: #0b3d91; background: #fff; padding: 6px 13px 6px 8px; border-radius: 16px; width: max-content; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
+    .chip b { width: 18px; height: 18px; border-radius: 50%; background: #1a62d6; display: inline-flex; align-items: center; justify-content: center; }
+    .chip b svg { width: 13px; height: 13px; fill: #fff; }
+
+    /* the "app" */
+    .app { position: absolute; left: 252px; top: 26px; width: 200px; height: 236px; background: #fff; border-radius: 14px; overflow: hidden; color: #3c4043;
+      box-shadow: 0 18px 40px rgba(0,0,0,.35); transform: rotate(-4deg); }
+    .bar { height: 26px; display: flex; align-items: center; gap: 6px; padding: 0 10px; border-bottom: 1px solid #e8eaed; font: 500 10px "Google Sans Flex", Roboto; }
+    .bar svg { width: 14px; height: 14px; }
+    .bar .tabs { margin-left: 8px; display: flex; gap: 8px; color: #5f6368; font-weight: 500; font-size: 8px; }
+    .bar .tabs .on { color: #1967d2; box-shadow: 0 2px 0 #1967d2; padding-bottom: 2px; }
+    .banner { margin: 8px; height: 58px; border-radius: 8px; padding: 9px 10px; color: #fff; position: relative; overflow: hidden;
+      background: radial-gradient(circle at 88% 20%, rgba(255,255,255,.2) 0 14px, transparent 15px), radial-gradient(circle at 74% 110%, rgba(255,255,255,.15) 0 26px, transparent 27px), #108a7d; }
+    .banner b { display: block; font: 500 14px/16px "Google Sans Flex", Roboto; }
+    .banner small { font: 400 8px Roboto; opacity: .9; }
+    .row { display: flex; align-items: center; gap: 7px; margin: 0 8px; padding: 6px 4px; border-bottom: 1px solid #f1f3f4; font: 500 9px/11px "Google Sans Flex", Roboto; }
+    .row .ic { width: 18px; height: 18px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; }
+    .row .ic svg { width: 10px; height: 10px; fill: #fff; }
+    .row small { display: block; font: 400 7.5px Roboto; color: #5f6368; }
+    .row .due { margin-left: auto; font: 500 7.5px Roboto; color: #5f6368; white-space: nowrap; }
+    .row .due.red { color: #c5221f; }
+    .sec { margin: 6px 12px 0; font: 500 8px Roboto; color: #c5221f; letter-spacing: .04em; text-transform: uppercase; }
+    .sec.n { color: #1967d2; }
+
+    /* floating due-date card: one big, readable idea instead of a tiny checklist */
+    .due-card { position: absolute; left: 286px; top: 192px; white-space: nowrap; display: flex; align-items: center; gap: 10px; background: #fff; color: #202124; border-radius: 14px; padding: 10px 14px 10px 10px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.3); transform: rotate(3deg); font: 500 13px/16px "Google Sans Flex", Roboto; }
+    .due-card b { width: 34px; height: 34px; border-radius: 50%; background: #e8f0fe; display: flex; align-items: center; justify-content: center; flex: none; }
+    .due-card b svg { width: 22px; height: 22px; fill: #1a73e8; }
+    .due-card span { display: block; font: 700 18px/22px "Google Sans Flex", Roboto; color: #1967d2; }
+    /* old floating to-do badge (unused) */
+    .todo { position: absolute; left: 318px; top: 172px; background: #fff; color: #202124; border-radius: 12px; padding: 9px 11px; width: 112px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.3); transform: rotate(3deg); font: 500 10px/13px "Google Sans Flex", Roboto; }
+    .todo .t { display: flex; align-items: center; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+    .todo .t span { background: #d93025; color: #fff; border-radius: 9px; font: 500 9px/16px Roboto; padding: 0 6px; }
+    .todo div.i { display: flex; align-items: center; gap: 6px; font: 400 9px/14px Roboto; color: #3c4043; }
+    .todo div.i b { width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid #1a73e8; flex: none; }
+    .todo div.i.done b { background: #1a73e8; }
+    .todo div.i.done span { text-decoration: line-through; color: #80868b; }
   </style>
 </head>
 <body>
-  <div class="glow"></div><div class="glow2"></div>
-  <div class="logo"><img src="../../icons/icon128.png" alt=""></div>
-  <h1>Toddle Tweaks</h1>
-  <p>A smarter to-do, faster pages and a cleaner layout for Toddle.</p>
-  <div class="cards">
-    <div class="card"><div class="h" style="background:#108a7d">Biology</div><div class="b"><small>Due today</small>Lab report</div></div>
-    <div class="card"><div class="h" style="background:#d91a60">Algebra II</div><div class="b"><small>Due tomorrow</small>Problem set 4.2</div></div>
-    <div class="card"><div class="h" style="background:#e8930c">World History</div><div class="b"><small>All caught up</small>&nbsp;</div></div>
+  <div class="brand">
+    <svg viewBox="0 0 100 100"><path fill="#fff" d="M16.1 2.37C-4.7 14.28-4.7 85.72 16.1 97.64c20.81 11.91 83.28-23.79 83.28-47.62S36.91-9.55 16.1 2.37Z"/><path fill="#1a62d6" d="M48.82 62.52c.28 0 .67-.08 1.07-.12.44-.08.55-.08.79-.08 1.7 0 2.61 1.25 2.61 2.59 0 1.06-.63 2-1.66 2.51-.91.47-2.1.74-3.32.74-7.2 0-8.79-4.43-8.79-9.68V45.71h-2.21c-2.61 0-3.05-1.84-3.05-2.74s.44-2.75 3.05-2.75h2.21v-4.7c0-3.14 2.22-3.72 3.33-3.72 1.14 0 3.32.55 3.32 3.72v4.7h4.27c2.61 0 3.05 1.84 3.05 2.75s-.44 2.74-3.05 2.74h-4.27v12.7c.04 2.7.99 4.11 2.65 4.11Z"/></svg>
+    <span>Toddle Tweaks</span>
   </div>
+  <h1 id="h">Toddle,<br>but better.</h1>
+  <p class="sub">Or your money back.*</p>
+  <p class="fine">*not really</p>
+
+  <div class="app">
+    <div class="bar">
+      <svg viewBox="0 0 100 100"><path fill="#1a73e8" d="M16.1 2.37C-4.7 14.28-4.7 85.72 16.1 97.64c20.81 11.91 83.28-23.79 83.28-47.62S36.91-9.55 16.1 2.37Z"/></svg>Biology
+      <span class="tabs"><span class="on">Stream</span><span>Classwork</span><span>People</span></span>
+    </div>
+    <div class="banner"><b>Biology</b><small>Ms. Rivera</small></div>
+    <div class="sec">Missing</div>
+    <div class="row"><span class="ic" style="background:#d93025"><svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></span><span>Reading questions<small>Biology</small></span><span class="due red">Yesterday</span></div>
+    <div class="sec n">Today</div>
+    <div class="row"><span class="ic" style="background:#108a7d"><svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></span><span>Cell lab report<small>Biology</small></span><span class="due">11:30 PM</span></div>
+    <div class="row"><span class="ic" style="background:#d91a60"><svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></span><span>Problem set 4.2<small>Algebra II</small></span><span class="due">11:59 PM</span></div>
+  </div>
+  <div class="todo">
+    <div class="t">To-do <span>3</span></div>
+    <div class="i done"><b></b><span>Moles practice</span></div>
+    <div class="i"><b></b><span>Lab report</span></div>
+    <div class="i"><b></b><span>Problem set 4.2</span></div>
+  </div>
+  <script>
+    // Try other headlines: tile.html?h=Toddle, but|*usable.*  ("|" = line break, *word* = highlighted)
+    const q = new URLSearchParams(location.search).get('h');
+    if (q) {
+      const el = document.getElementById('h');
+      el.textContent = '';
+      q.split('|').forEach((line, i) => {
+        if (i) el.append(document.createElement('br'));
+        line.split(/(\*[^*]+\*)/).forEach((part) => {
+          if (!part) return;
+          if (part.startsWith('*')) { const em = document.createElement('em'); em.textContent = part.slice(1, -1); el.append(em); }
+          else el.append(part);
+        });
+      });
+    }
+  </script>
 </body>
 </html>

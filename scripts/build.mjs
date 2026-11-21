@@ -19,6 +19,9 @@ const INCLUDE = ['manifest.json', 'background.js', 'icons', 'popup', 'options', 
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
 const version = manifest.version;
 
+// Keep the "See what's new" page (docs/changelog.html) in step with CHANGELOG.md.
+execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'build-changelog.mjs')], { stdio: 'inherit' });
+
 const stripDev = (code) => code.replace(/[ \t]*\/\/ @dev-start[\s\S]*?\/\/ @dev-end[^\n]*\n?/g, '');
 
 const copyTree = (src, dst) => {

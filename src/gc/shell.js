@@ -136,6 +136,7 @@
       + '</svg>', 'image/svg+xml').documentElement.childNodes].map((n) => document.importNode(n, true)));
     return s;
   };
+  TT.logoSvg = logo;
 
   const build = () => {
     if (shell) return;

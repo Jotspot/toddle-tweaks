@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Toddle Tweaks: and so much more</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap">
+  <!-- Store screenshot: the smaller features, each with a tiny drawn mockup (made-up data).
+       Every mockup is the same white panel (230px, 10px radius, one shadow) so the grid reads as one set. -->
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; }
+    body { font-family: "Google Sans Flex", "Google Sans", Roboto, Arial, sans-serif; color: #202124;
+      background: radial-gradient(900px 500px at 100% 0%, #d2e3fc 0%, rgba(210,227,252,0) 60%), radial-gradient(800px 500px at 0% 100%, #e6f4ea 0%, rgba(230,244,234,0) 60%), #f8fafd; }
+    .cap { position: absolute; left: 64px; top: 40px; right: 64px; display: flex; align-items: flex-start; }
+    .cap h1 { font-weight: 500; font-size: 40px; line-height: 48px; margin: 0; letter-spacing: -.01em; }
+    .cap h1 span { color: #1a73e8; }
+    .cap p { font: 400 18px/26px Roboto, Arial; color: #5f6368; margin: 8px 0 0; }
+    .brand { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 18px; color: #3c4043; padding-top: 6px; }
+    .brand img { width: 36px; height: 36px; }
+
+    .grid { position: absolute; left: 64px; right: 64px; top: 160px; bottom: 40px; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; gap: 20px; }
+    .card { background: #fff; border-radius: 16px; border: 1px solid #e3e6ea; box-shadow: 0 1px 2px rgba(60,64,67,.12), 0 4px 14px rgba(60,64,67,.08); display: flex; flex-direction: column; overflow: hidden; }
+    .demo { flex: 1; background: #f1f4f9; margin: 10px 10px 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .txt { padding: 12px 18px 16px; }
+    .txt b { display: block; font: 500 17px/22px "Google Sans Flex", Roboto; }
+    .txt span { display: block; font: 400 13px/18px Roboto, Arial; color: #5f6368; margin-top: 3px; }
+
+    /* the one panel style */
+    .panel { width: 230px; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(60,64,67,.12); overflow: hidden; font: 400 12px/16px Roboto, Arial, sans-serif; color: #3c4043; }
+    .row { display: flex; align-items: center; gap: 8px; padding: 9px 12px; }
+    .row + .row { border-top: 1px solid #f1f3f4; }
+    .row small { margin-left: auto; color: #80868b; font-size: 11px; white-space: nowrap; }
+    .row.sel { background: #e8f0fe; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+    .pill { margin-left: auto; font: 500 11px/20px Roboto; padding: 0 8px; border-radius: 10px; background: #e8f0fe; color: #1967d2; white-space: nowrap; }
+    .pill.red { background: #fce8e6; color: #c5221f; }
+    .muted { color: #80868b; }
+    kbd { font: 500 11px/1 Roboto; background: #f8f9fa; border: 1px solid #dadce0; border-bottom-width: 2px; border-radius: 5px; padding: 3px 6px; color: #3c4043; }
+    .head { padding: 9px 12px; border-bottom: 1px solid #f1f3f4; display: flex; align-items: center; gap: 6px; font-weight: 500; color: #202124; }
+    .head .r { margin-left: auto; display: flex; gap: 3px; }
+
+    /* specifics */
+    .tabs { display: flex; gap: 2px; padding: 6px 6px 0; background: #e8eaed; }
+    .tab { flex: 1; min-width: 0; height: 26px; border-radius: 6px 6px 0 0; padding: 0 8px; display: flex; align-items: center; gap: 6px; font-size: 11px; color: #5f6368; white-space: nowrap; overflow: hidden; }
+    .tab.on { background: #fff; color: #202124; }
+    .sq { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+    .page { padding: 12px 14px 14px; }
+    .page i { display: block; height: 7px; border-radius: 4px; background: #e8eaed; margin: 7px 0; }
+    .page i.t { width: 55%; height: 10px; background: #4285f4; }
+    .cal { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; padding: 8px 10px 10px; }
+    .cal div { height: 32px; border-radius: 4px; background: #f8f9fa; font-size: 9px; color: #80868b; padding: 2px 3px; }
+    .cal div i { display: block; height: 6px; border-radius: 2px; margin-top: 2px; }
+    .th { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; }
+    .th span { height: 30px; border-radius: 5px; background-size: cover; background-position: right center; }
+    .th span.sel { outline: 2px solid #1a73e8; outline-offset: 1px; }
+    .ok { width: 16px; height: 16px; border-radius: 50%; background: #e6f4ea; color: #137333; font: 700 10px/16px Roboto; text-align: center; flex: none; }
+  </style>
+</head>
+<body>
+  <div class="cap">
+    <div>
+      <h1>And there's <span>so much more.</span></h1>
+      <p>The little things that make school days easier. Switch any of them off in Settings.</p>
+    </div>
+    <div class="brand"><img src="../../icons/icon128.png" alt=""><span>Toddle Tweaks</span></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="demo"><div class="panel">
+        <div class="head">bio<span class="r"><kbd>Ctrl</kbd><kbd>K</kbd></span></div>
+        <div class="row sel"><span class="dot" style="background:#108a7d"></span>Biology<small>Class</small></div>
+        <div class="row"><span class="dot" style="background:#108a7d"></span>Cell lab report<small>Today</small></div>
+        <div class="row"><span class="dot" style="background:#108a7d"></span>Unit 3 summative<small>Dec 3</small></div>
+      </div></div>
+      <div class="txt"><b>Find anything fast</b><span>Press Ctrl + K and start typing. Classes, assignments, pages.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="demo"><div class="panel">
+        <div class="tabs"><span class="tab"><span class="dot" style="background:#1a73e8;width:10px;height:10px"></span>Classroom</span><span class="tab on"><span class="sq" style="background:#4285f4"></span>Essay - Docs</span></div>
+        <div class="page"><i class="t"></i><i></i><i style="width:88%"></i><i style="width:94%"></i><i style="width:62%"></i></div>
+      </div></div>
+      <div class="txt"><b>Docs get their own tab</b><span>No more squinting at a Google Doc squeezed inside Toddle.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="demo"><div class="panel">
+        <div class="row"><span class="dot" style="background:#1a73e8"></span><b style="color:#c5221f;font-weight:500">(3)</b>Classroom</div>
+        <div class="row muted"><span class="dot" style="background:#ea4335"></span>Inbox</div>
+        <div class="row muted"><span class="dot" style="background:#fbbc04"></span>Essay notes</div>
+      </div></div>
+      <div class="txt"><b>Know without looking</b><span>Your Toddle tab shows how many things need you.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="demo"><div class="panel">
+        <div class="row">Persuasive essay<span class="pill">in 2 days</span></div>
+        <div class="row">Reading journal<span class="pill">tomorrow</span></div>
+        <div class="row">Lab report<span class="pill red">2 days ago</span></div>
+      </div></div>
+      <div class="txt"><b>Due dates in plain words</b><span>"In 2 days" instead of "23rd Nov 2026, 8:30 AM".</span></div>
+    </div>
+
+    <div class="card">
+      <div class="demo"><div class="panel">
+        <div class="head">November<span class="pill">Export</span></div>
+        <div class="cal">
+          <div>17<i style="background:#d91a60"></i></div><div>18</div><div>19<i style="background:#108a7d"></i><i style="background:#e8930c"></i></div><div>20</div><div>21<i style="background:#863a95"></i></div>
+          <div>24<i style="background:#0678be"></i></div><div>25</div><div>26<i style="background:#108a7d"></i></div><div>27</div><div>28<i style="background:#d91a60"></i></div>
+        </div>
+      </div></div>
+      <div class="txt"><b>Your whole week at once</b><span>Every class on one calendar. Add it to Google or Apple Calendar.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="demo"><div class="panel">
+        <div class="row"><kbd>g</kbd><kbd>h</kbd><small>Home</small></div>
+        <div class="row"><kbd>g</kbd><kbd>t</kbd><small>To-do</small></div>
+        <div class="row"><kbd>g</kbd><kbd>c</kbd><small>Calendar</small></div>
+        <div class="row"><kbd>?</kbd><small>Every shortcut</small></div>
+      </div></div>
+      <div class="txt"><b>Keyboard shortcuts</b><span>Hop around Toddle without touching the mouse.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="demo"><div class="panel"><div class="th" id="themes"></div></div></div>
+      <div class="txt"><b>Make every class yours</b><span>Pick from 50+ Classroom banners, then reorder and rename.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="demo"><div class="panel">
+        <div class="row"><span class="ok">✓</span>Pages load from cache</div>
+        <div class="row"><span class="ok">✓</span>Ad and analytics trackers blocked</div>
+        <div class="row"><span class="ok">✓</span>No account, nothing collected</div>
+      </div></div>
+      <div class="txt"><b>Quick and private</b><span>Free and open source. Your data stays in your browser.</span></div>
+    </div>
+  </div>
+  <script>
+    const T = ['img_birthday', 'Biology', 'USHistory', 'img_cycling', 'Chemistry', 'img_code', 'img_sailing', 'Design', 'Math', 'img_concert', 'WorldHistory', 'img_kayaking'];
+    const box = document.getElementById('themes');
+    T.forEach((t, i) => { const s = document.createElement('span'); s.style.backgroundImage = `url(https://www.gstatic.com/classroom/themes/${t}.jpg)`; if (i === 2) s.className = 'sel'; box.append(s); });
+  </script>
+</body>
+</html>

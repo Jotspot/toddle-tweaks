@@ -31,16 +31,21 @@ const shot = (file, query, w, h, out) => {
   console.log('✔', path.relative(ROOT, out));
 };
 
+// A slide is either the real UI in a browser frame (promo.html + scene) or a page of its own.
 const SCREENS = [
-  { scene: 'home', h: 'Your classes, at a glance', p: 'Clean class cards show what\'s due, what\'s missing and who teaches it. Drag them into any order.' },
-  { scene: 'todo', h: 'A to-do list that makes sense', p: 'Missing, Today, Tomorrow, This week. Old in-class work that can\'t be turned in stays out of the way.' },
-  { scene: 'classwork', h: 'Every class, organized', p: 'Stream, Classwork and People for each class, with what needs you first and status at a glance.' },
-  { scene: 'palette', h: 'Jump anywhere with Ctrl + K', p: 'Search every class, assignment and page. Keyboard shortcuts, a due count in your tab, and more.' },
-  { scene: 'settings', h: 'Make it yours', p: 'Every tweak can be switched on or off, with a preview of what it does. Everything stays in your browser.' },
+  { scene: 'home', h: 'Your classes, at a glance', p: "Clean class cards show what's due, what's missing and who teaches it. Drag them into any order." },
+  { file: 'compare.html', name: 'before-after' },
+  { scene: 'todo', h: 'A to-do list that makes sense', p: "Missing, Today, Tomorrow, This week. Old in-class work that can't be turned in stays out of the way." },
+  { scene: 'plan', h: 'Course plans that look like Classwork', p: 'Units become topics, Docs and videos show a preview, and every link opens in its own tab.' },
+  { file: 'more.html', name: 'more' },
 ];
 
 for (const browser of ['chrome', 'firefox']) {
-  SCREENS.forEach((s, i) => shot('promo.html', { browser, scene: s.scene, h: s.h, p: s.p }, 1280, 800, path.join(OUT, browser, `screenshot-${i + 1}-${s.scene}.png`)));
+  SCREENS.forEach((s, i) => {
+    const out = path.join(OUT, browser, `screenshot-${i + 1}-${s.name || s.scene}.png`);
+    if (s.file) shot(s.file, null, 1280, 800, out);
+    else shot('promo.html', { browser, scene: s.scene, h: s.h, p: s.p }, 1280, 800, out);
+  });
 }
 shot('tile.html', null, 440, 280, path.join(OUT, 'chrome', 'promo-small-440x280.png'));
 shot('marquee.html', null, 1400, 560, path.join(OUT, 'chrome', 'promo-marquee-1400x560.png'));

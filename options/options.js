@@ -2,8 +2,9 @@
 const DEFAULTS = {
   snapshot: true, gqlCache: true, turboCache: false, blockTrackers: true, blockIntercom: true,
   smartTodo: true, hidePastNoSubmission: true, todoButton: false, classroomMode: true, redirectHome: true, realLinks: true,
-  cacheCoursePlan: true, googleBanners: true, gcNativeCoursePlan: true, gcCardInfo: true, gcCompact: false, gcCoursePlanStyle: true, cpThumbnails: true, cpHideNotRequired: true,
+  cacheCoursePlan: true, googleBanners: true, gcNativeCoursePlan: true, gcCardInfo: true, gcCompact: false, gcCoursePlanStyle: true, cpThumbnails: true, cpImages: 'preview', cpHideNotRequired: true,
   tabBadge: true, commandPalette: true, shortcuts: true, relativeDates: true,
+  docsNewTab: true, linksNewTab: false, whatsNew: true,
 };
 
 // Mini previews (made-up example classes), only where seeing it helps.
@@ -18,6 +19,14 @@ const P = {
   cpStyle: (on) => on
     ? `<div class="pv-cp"><div class="pv-cp-unit">Unit 3: Cells</div><div class="pv-cp-item"><span class="pv-ci" style="background:#108a7d"></span>Cell diagram worksheet</div><div class="pv-cp-item"><span class="pv-ci" style="background:#108a7d"></span>Unit 3 test</div></div>`
     : `<div class="pv-cp toddle"><div class="pv-cp-box">▾ Unit 3: Cells<small>Unit • 4 items</small></div><div class="pv-cp-box in"><span class="pv-sq">LE</span>Cell diagram worksheet</div></div>`,
+  cpImages: (v) => {
+    const pic = (c) => `<span class="pv-pic ${c}"></span>`;
+    const ico = (c) => `<span class="pv-ico" style="background:${c}"></span>`;
+    const row = (name, kind, color, cls) => v === 'icons' ? `<div class="pv-cp-item">${ico(color)}${name}<small>${kind}</small></div>`
+      : v === 'card' ? `<div class="pv-cp-item">${ico(color)}${name}<small>${kind}</small>${pic(cls + ' card')}</div>`
+      : `<div class="pv-cp-item">${pic(cls)}${name}<small>${kind}</small></div>`;
+    return `<div class="pv-cp">${row('Unit 3 notes', 'Google Slides', '#f4b400', 's')}${row('Cells video', 'YouTube', '#ff0000', 'y')}</div>`;
+  },
   thumbs: (on) => `<div class="pv-cp"><div class="pv-cp-item">${on ? '<span class="pv-thumb"></span>' : ''}Course syllabus<small>Link</small></div><div class="pv-cp-item">${on ? '<span class="pv-thumb t2"></span>' : ''}Class textbook<small>Link</small></div></div>`,
   notRequired: (on) => `<div class="pv-cp"><div class="pv-cp-item"><span class="pv-sq">LE</span>Warm-up 1.1${on ? '' : '<em>Submission not required</em>'}</div><div class="pv-cp-item"><span class="pv-sq">SA</span>Unit 1 test${on ? '' : '<em>Submission not required</em>'}</div></div>`,
   smartTodo: (on) => on
@@ -27,6 +36,9 @@ const P = {
   tabBadge: (on) => `<div class="pv-tab"><span class="pv-fav"></span>${on ? '<b>(3)</b> ' : ''}Classroom</div>`,
   palette: (on) => on ? `<div class="pv-pal"><div class="pv-pal-in">⌕ bio</div><div class="pv-pal-r sel">Biology <small>Class</small></div><div class="pv-pal-r">Biology lab report <small>Assignment</small></div></div>` : `<div class="pv-mouse muted">Ctrl+K does nothing</div>`,
   banners: (on) => on ? '<div class="pv-banner g"><span>Biology</span></div><small>Google Classroom illustration</small>' : '<div class="pv-banner p"><span>Biology</span><i></i></div><small>Original pattern</small>',
+  newTab: (on) => on
+    ? `<div class="pv-tab"><span class="pv-fav"></span>Toddle</div><div class="pv-tab g"><span class="pv-fav g"></span>Essay draft - Google Docs</div>`
+    : `<div class="pv-viewer"><span>Essay draft</span><i>✕</i><div></div></div>`,
   relDates: (on) => `<div class="pv-due">Submission open • Due on 23rd Nov, 8:30 AM${on ? ' <b>· in 4 days</b>' : ''}</div>`,
 };
 
@@ -38,7 +50,8 @@ const SECTIONS = [
     { k: 'gcCardInfo', t: 'Class cards show what\'s due', d: 'Up to three due items plus a "missing / due this week" summary on each card.', pv: P.cardInfo },
     { k: 'gcNativeCoursePlan', t: 'Course plan as a Classroom page', d: "Units become topics with their dates, links open directly, and assignments show your status. Off: Toddle's own course plan.", pv: P.cpStyle },
     { k: 'gcCoursePlanStyle', t: "Restyle Toddle's course plan", d: "When you open Toddle's own course plan (Classic view), give it Classroom-style headings and rows." },
-    { k: 'cpThumbnails', t: 'Course plan thumbnails', d: 'Show the little preview images next to links and files.', pv: P.thumbs },
+    { k: 'cpImages', t: 'Course plan pictures', d: 'Previews: a picture of each Doc, slide deck or video next to it. Cards: Classroom-style cards on the right. Icons: coloured file icons only (nothing loaded from Google or YouTube).', pv: P.cpImages,
+      choices: [['preview', 'Previews'], ['card', 'Cards'], ['icons', 'Icons']] },
     { k: 'cpHideNotRequired', t: 'Hide "Submission not required"', d: 'Removes the repeated label from course plan rows.', pv: P.notRequired },
     { k: 'googleBanners', t: 'Use Google Classroom banner art', d: "Class banners use Google Classroom's own illustrations, loaded from Google's servers. Off: original Toddle Tweaks patterns in the same colours.", pv: P.banners },
   ] },
@@ -52,7 +65,10 @@ const SECTIONS = [
     { k: 'commandPalette', t: 'Quick jump (Ctrl/⌘ + K)', d: 'Search every class, assignment and page and jump straight there.', pv: P.palette },
     { k: 'relativeDates', t: 'Relative due dates', d: 'Adds "in 4 days" or "2 days ago" next to due dates on assignment pages.', pv: P.relDates },
     { k: 'shortcuts', t: 'Keyboard shortcuts', d: 'g h home, g t to-do, g c calendar, g s settings, ? for the full list.' },
+    { k: 'docsNewTab', t: 'Open Google Docs in a new tab', d: "Google Docs, Slides, Sheets, Drive, Microsoft 365, Canva and similar links (and sites Toddle can't show anyway) open in their own tab instead of Toddle's built-in viewer.", pv: P.newTab },
+    { k: 'linksNewTab', t: 'Open every link in a new tab', d: "Any web link skips Toddle's viewer. Uploaded files (PDFs, images, videos) still open in the viewer." },
     { k: 'realLinks', t: 'Open in a new tab', d: 'Middle-click or Ctrl-click class and assignment cards to open them in a new tab.' },
+    { k: 'whatsNew', t: '"What\'s new" after updates', d: 'A small note in Toddle after Toddle Tweaks updates, with a link to the changelog.' },
   ] },
   { id: 'speed', title: 'Speed & privacy', mode: 'both', items: [
     { k: 'gqlCache', t: 'Cache settings & class data', d: 'Config that rarely changes loads from your computer and refreshes in the background.', reload: true },
@@ -94,9 +110,9 @@ const render = () => {
     box.append(h2);
     if (sec.intro) box.append(el('p', { className: 'intro', textContent: sec.intro }));
     for (const it of sec.items) {
-      const row = el('div', { className: 'row' });
+      const row = el('div', { className: 'row' + (it.choices ? ' choice' : '') });
       row.dataset.search = (it.t + ' ' + it.d).toLowerCase();
-      const on = !!settings[it.k];
+      const on = it.choices ? settings[it.k] : !!settings[it.k];
       const disabled = !it.master && ((sec.mode === 'gc' && !settings.classroomMode) || (sec.mode === 'classic' && settings.classroomMode));
       const text = el('div', { className: 'txt' });
       text.append(el('div', { className: 'ttl', textContent: it.t }), el('div', { className: 'desc', textContent: it.d }));
@@ -105,11 +121,21 @@ const render = () => {
       const pv = el('div', { className: 'preview' + (on ? ' on' : '') });
       if (it.pv) pv.append(...parse(it.pv(on)));
       else pv.classList.add('empty');
-      const sw = el('input', { type: 'checkbox', className: 'switch', checked: on, ariaLabel: it.t });
-      sw.addEventListener('change', async () => {
-        await save({ [it.k]: sw.checked });
-        render();
-      });
+      let sw;
+      if (it.choices) {
+        sw = el('div', { className: 'seg', role: 'radiogroup', ariaLabel: it.t });
+        for (const [val, label] of it.choices) {
+          const b = el('button', { type: 'button', className: 'seg-b' + (on === val ? ' on' : ''), textContent: label, role: 'radio', ariaChecked: String(on === val) });
+          b.addEventListener('click', async () => { await save({ [it.k]: val }); render(); });
+          sw.append(b);
+        }
+      } else {
+        sw = el('input', { type: 'checkbox', className: 'switch', checked: on, ariaLabel: it.t });
+        sw.addEventListener('change', async () => {
+          await save({ [it.k]: sw.checked });
+          render();
+        });
+      }
       row.append(text, pv, sw);
       if (disabled) row.classList.add('dim');
       if (it.warn && on) row.classList.add('warn');

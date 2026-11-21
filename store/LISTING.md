@@ -11,7 +11,7 @@ Images are in `store/images/chrome/` and `store/images/firefox/`. Upload zips ar
 ## Short description
 Chrome "Summary" (max 132 chars) / AMO "Summary" (max 250 chars):
 
-> Make Toddle faster and easier: a smart to-do list, instant page loads, quick search, and a clean Classroom-style layout. Free and open source.
+> A better Toddle: a to-do list that makes sense, faster pages and an optional Google Classroom look. Turn any part of it on or off.
 
 ## Category
 - Chrome Web Store: **Education** (alternative: Productivity → Tools)
@@ -20,48 +20,49 @@ Chrome "Summary" (max 132 chars) / AMO "Summary" (max 250 chars):
 ## Full description
 
 ```
-Toddle Tweaks makes the Toddle learning platform (web.toddleapp.com) faster and much easier to live with.
+Toddle Tweaks fixes the parts of Toddle (web.toddleapp.com) that get in your way.
 
-SMART TO-DO
-• See what actually needs you: Missing, Today, Tomorrow, This week, Next week, Later
-• Old in-class items that can't be turned in no longer pile up at the top
-• Labels for quizzes, tests and work that needs turning in
-• Tick things off, filter by class, sort seven different ways
-• One click to clear past "no submission needed" items in Toddle too (asks first)
+Use as much or as little of it as you want. Every feature has its own switch in Settings, even Classroom mode. If you like Toddle's normal look and just want a better to-do list and faster pages, turn Classroom mode off and keep the rest.
 
-CLASSROOM-STYLE MODE
-• A clean, familiar layout: class cards with banners and teacher photos
-• Stream, Classwork (grouped by unit) and People pages for every class
-• A To-do page and a week Calendar of everything due
-• Drag cards into any order, pick banner themes, hide classes you don't need
-• A short guided tour to show you around
+TO-DO LIST
+• Sorted by when things are actually due: Missing, Today, Tomorrow, This week, Next week, Later
+• Old in-class items you can't turn in stop clogging up the list
+• Quizzes, tests and summatives are labelled so they stand out
+• Tick things off, filter by class, or sort it seven ways
+
+LINKS AND DATES
+• Google Docs, Slides, Sheets and Drive links open in their own tab instead of Toddle's little viewer
+• "Due on 23rd Nov, 8:30 AM" also says "in 2 days"
+• Middle-click a class or assignment to open it in a new tab
 
 FASTER
-• Instant page snapshots while Toddle loads
+• You see a saved copy of the page straight away while Toddle loads
 • Settings, class lists and course plans load from your computer
-• Trackers and ad pixels blocked
+• Trackers and ad pixels are blocked
 
-HANDY EXTRAS
+CLASSROOM MODE (OPTIONAL)
+• Toddle laid out like Google Classroom: class cards with banners, plus Stream, Classwork and People for each class
+• Course plans look like Classwork, with previews of Docs and videos
+• A to-do page and a calendar of everything due, which you can export to Google, Apple or Outlook
+• Put your classes in any order, pick banners, hide the ones you don't need
+• Not your thing? One switch turns it off
+
+LITTLE EXTRAS
 • Ctrl/⌘ + K to jump to any class, assignment or page
 • Keyboard shortcuts (press ? to see them)
-• Relative due dates ("in 4 days") on assignment pages
-• Due count in the tab title
-• Export due dates to your calendar (.ics)
-• Middle-click to open classes and assignments in new tabs
+• A count in the tab title of what's missing or due soon
 
-PRIVATE BY DESIGN
-Everything stays in your browser. Toddle Tweaks has no servers and no analytics. It only talks to Toddle, using the account you're already signed in with.
+PRIVACY
+There are no Toddle Tweaks servers and no analytics, and nothing about you is collected. Your settings and cached pages stay in your browser. The extension talks to Toddle using the account you're already signed in with. Classroom banners and Doc and video previews load from Google and YouTube, like any other picture on a web page.
 
-Every feature can be switched on or off in Settings, with a preview of what it does.
-
-SCHOOL SUPPORT
-So far Toddle Tweaks has only been verified with Singapore American School's Toddle. Other schools set Toddle up differently, so some features may not work the same. If something doesn't look right at your school, please open an issue on GitHub.
+WHICH SCHOOLS
+So far it's only been tested at Singapore American School. Other schools set up Toddle a bit differently, so some things might not work the same. If something looks off at your school, open an issue on GitHub.
 
 FREE AND OPEN SOURCE
-Toddle Tweaks is free and open-source software (MIT License). Read every line of the code, report a bug, suggest a feature or contribute on GitHub:
+Toddle Tweaks is free and open source (MIT License). You can read the code, report a bug or suggest something on GitHub:
 https://github.com/Jotspot/toddle-tweaks
 
-Toddle Tweaks is an independent project. It is not affiliated with, endorsed by, or sponsored by Toddle or Google.
+Toddle Tweaks is an independent project. It isn't affiliated with, endorsed by or sponsored by Toddle or Google.
 ```
 
 ## Single purpose (Chrome)
@@ -105,7 +106,8 @@ What it does:
 - src/page-hook.js runs in the page context (world: MAIN) to wrap fetch: it caches a small allowlist of slow, rarely-changing GraphQL queries in IndexedDB and notices Toddle's own task filters. It never sends data anywhere new.
 - Isolated content scripts read assignments/classes from Toddle's GraphQL API using the session token Toddle already stores in localStorage, and render an alternative UI.
 - rules/*.json are static declarativeNetRequest rules: block analytics/trackers, optionally hide Intercom, redirect toddleapp.com's marketing homepage to the web app.
-- No remote code, no analytics, no external servers. Fonts come from Google Fonts (stylesheet only).
+- No remote code, no analytics, no external servers. Fonts come from Google Fonts (stylesheet only). Images only: Classroom banner art (www.gstatic.com) and course-plan previews of Google Docs/YouTube links (drive.google.com/thumbnail, i.ytimg.com), loaded as <img>.
+- When a Google Docs/Drive link opens in Toddle's viewer, src/extras.js clicks Toddle's own "Open in Google Docs" button and closes the viewer (setting: docsNewTab).
 - Announcement/assignment HTML from Toddle is sanitized with an allow-list (TT.sanitize in src/common.js) before display.
 ```
 

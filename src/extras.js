@@ -4,6 +4,8 @@
  *  - Command palette: Ctrl/⌘+K to jump to any class, assignment or page.
  *  - Keyboard shortcuts: g h / g t / g c / g s, and ? for help.
  *  - Relative due dates on Toddle's assignment pages.
+ *  - Google Docs & co. (or every web link) open in a new tab instead of Toddle's viewer.
+ *  - "Toddle Tweaks updated! See what's new" after an update.
  */
 (() => {
   const TT = window.TT;
@@ -167,4 +169,81 @@
   // ---------------- relative due dates (both modes) ----------------
   const tick = TT.debounce(() => { if (/\/classroom-details\//.test(location.pathname) && TT.addRelativeDue) TT.addRelativeDue(); }, 200);
   TT.waitFor('body', 20000).then((b) => b && new MutationObserver(tick).observe(b, { childList: true, subtree: true }));
+  // ---------------- links in a new tab (both modes) ----------------
+  // Toddle opens links and Drive files in its full-screen "theatre" viewer. For Docs & co. that's a
+  // cramped iframe (often signed out), so when the viewer opens on one of these we press Toddle's
+  // own "Open in …" button (same window.open Toddle uses, still inside the click's user activation)
+  // and close the viewer. Uploaded files (PDFs, images, video) keep using the viewer.
+  const DOC_HOSTS = /(^|\.)((docs|drive|sheets|slides|forms|sites|jamboard|script|colab\.research|earth|maps|mail|calendar|classroom|meet|keep)\.google\.com|forms\.gle|sharepoint\.com|onedrive\.live\.com|1drv\.ms|office\.com|office365\.com|live\.com|canva\.com|figma\.com|padlet\.com|notion\.so|notion\.site|quizlet\.com|kahoot\.it|kahoot\.com|desmos\.com|geogebra\.org|edpuzzle\.com|nearpod\.com|flip\.com|wakelet\.com|miro\.com|prezi\.com|genial\.ly|dropbox\.com|box\.com)$/i;
+  // Viewers Toddle (or Google) use to *render uploaded files*: never treat those as links.
+  const FILE_VIEWERS = /docs\.google\.com\/(viewer|gview)|view\.officeapps\.live\.com|toddleapp\.com|amazonaws\.com|cloudfront\.net/i;
+  const hostOf = (u) => { try { return new URL(u, location.href).hostname; } catch { return ''; } };
+  const isDocUrl = (u) => !!u && /^https?:/i.test(u) && !FILE_VIEWERS.test(u) && DOC_HOSTS.test(hostOf(u));
+  const isWebUrl = (u) => !!u && /^https?:/i.test(u) && !FILE_VIEWERS.test(u) && hostOf(u) !== location.hostname;
+  const wantsNewTab = (u) => (TT.settings.linksNewTab === true ? isWebUrl(u) : TT.settings.docsNewTab !== false && isDocUrl(u));
+  TT.wantsNewTab = wantsNewTab;
+
+  const handled = new WeakSet();
+  const checkTheatre = () => {
+    if (TT.settings.docsNewTab === false && TT.settings.linksNewTab !== true) return;
+    for (const box of document.querySelectorAll('[class*="TheatreModeV2__container"]')) {
+      if (handled.has(box)) continue;
+      const frame = box.querySelector('[class*="FileViewer__container"] iframe, [class*="TheatreModeV2__viewerContainer"] iframe');
+      const src = frame && frame.src;
+      // Sites that can't be embedded get Toddle's "Open in new tab" card instead of an iframe.
+      const linkCard = box.querySelector('[class*="ViewerComponent__openNewTabViewContainer"]');
+      if (!src && !linkCard) continue; // still loading; the next mutation will tell
+      handled.add(box);
+      // No iframe = a site Toddle can't embed, so its viewer is only an extra click: always skip it.
+      const go = src ? wantsNewTab(src) : true;
+      if (!go) continue;
+      const openBtn = [...box.querySelectorAll('button')].find((b) => /^open in /i.test((b.innerText || '').trim()));
+      const overlay = box.closest('.ReactModal__Overlay');
+      if (overlay) overlay.style.visibility = 'hidden'; // no flash of the viewer
+      if (openBtn) openBtn.click();
+      else if (src) window.open(src, '_blank', 'noopener');
+      const close = box.querySelector('[aria-label="Close theatre mode"]') || document.querySelector('[aria-label="Close theatre mode"]');
+      if (close) close.click();
+      else if (overlay) overlay.style.visibility = ''; // couldn't close it: at least don't leave it invisible
+    }
+  };
+  // Plain <a> links Toddle renders (instructions, comments): give matching ones a new tab too.
+  document.addEventListener('click', (e) => {
+    const a = e.target && e.target.closest && e.target.closest('a[href]');
+    if (!a || a.target === '_blank' || e.defaultPrevented || e.button !== 0) return;
+    if (!wantsNewTab(a.href)) return;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+  }, true);
+  TT.waitFor('body', 20000).then((b) => {
+    if (!b) return;
+    // Cheap check: the viewer only exists while a ReactModal is open.
+    new MutationObserver(() => { if (document.body.classList.contains('ReactModal__Body--open')) checkTheatre(); })
+      .observe(b, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
+  });
+  // ---------------- "what's new" after an update ----------------
+  const CHANGELOG = 'https://jotspot.github.io/toddle-tweaks/changelog.html';
+  const forgetWhatsNew = () => { try { chrome.storage.local.remove('whatsNew'); } catch {} };
+  // Same quiet snackbar as Classroom mode's "Take a tour" offer: bottom centre, two text buttons.
+  TT.showWhatsNew = (version) => {
+    document.querySelectorAll('.tt-whatsnew').forEach((x) => x.remove());
+    const close = () => { bar.remove(); forgetWhatsNew(); };
+    const bar = h('div', { class: 'tt-gc-tour-offer tt-whatsnew', role: 'status' },
+      h('span', null, `Toddle Tweaks updated to ${version}.`),
+      h('button', { class: 'tt-gc-btn text light', type: 'button', onClick: close }, 'Dismiss'),
+      h('a', { class: 'tt-gc-btn text light strong', href: `${CHANGELOG}#v${String(version).replace(/\./g, '-')}`, target: '_blank', rel: 'noopener', onClick: () => setTimeout(close, 50) }, "See what's new"));
+    // Never stack on top of the tour offer; wait for it to go.
+    const place = () => (document.querySelector('.tt-gc-tour-offer:not(.tt-whatsnew), .tt-tour') ? setTimeout(place, 1500) : document.body.append(bar));
+    place();
+    return bar;
+  };
+  try {
+    chrome.storage.local.get('whatsNew', (r) => {
+      const w = r && r.whatsNew;
+      if (!w || !w.version) return;
+      if (TT.settings.whatsNew === false || Date.now() - (w.t || 0) > 14 * 864e5) { forgetWhatsNew(); return; }
+      // Give Toddle a moment to draw so the note doesn't land on a blank page.
+      TT.waitFor('body', 20000).then((b) => b && setTimeout(() => TT.showWhatsNew(w.version), 2500));
+    });
+  } catch {}
 })();
