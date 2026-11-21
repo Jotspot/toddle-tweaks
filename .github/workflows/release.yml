@@ -1,0 +1,71 @@
+# Builds the Chrome and Firefox zips and publishes a GitHub release.
+# Trigger: push a tag that matches manifest.json's version, e.g.
+#   git tag v2.5.0 && git push origin v2.5.0
+# Release notes come from that version's section in CHANGELOG.md.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v2.5.0); created on the current commit if missing'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check tag matches manifest version
+        id: ver
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          VERSION=$(node -p "require('./manifest.json').version")
+          if [ "$TAG" != "v$VERSION" ]; then
+            echo "::error::Tag $TAG does not match manifest.json version $VERSION"
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Syntax check
+        run: for f in src/*.js src/gc/*.js background.js popup/*.js options/*.js; do node --check "$f"; done
+
+      - name: Build zips
+        run: node scripts/build.mjs
+
+      - name: Lint Firefox build
+        run: npx --yes web-ext lint -s dist/firefox
+
+      - name: Release notes from CHANGELOG.md
+        run: |
+          awk -v v="${{ steps.ver.outputs.version }}" '
+            /^## / { if (on) exit; on = ($2 == v) ; next }
+            on' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::No '## ${{ steps.ver.outputs.version }}' section in CHANGELOG.md"
+            exit 1
+          fi
+          printf '\nFull changelog: https://jotspot.github.io/toddle-tweaks/changelog.html\n' >> notes.md
+          cat notes.md
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.ver.outputs.tag }}" \
+            dist/toddle-tweaks-chrome-${{ steps.ver.outputs.version }}.zip \
+            dist/toddle-tweaks-firefox-${{ steps.ver.outputs.version }}.zip \
+            --title "Toddle Tweaks ${{ steps.ver.outputs.version }}" \
+            --notes-file notes.md \
+            --target "${{ github.sha }}"

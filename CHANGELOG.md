@@ -6,8 +6,10 @@
 - New setting "Course plan pictures": Previews, Classroom-style Cards, or Icons only
 - 19 more Google Classroom banners (World history, US history, Geometry, Design, Track, Fitness, Sailing, Cycling and more), picked automatically for matching classes
 - Summatives and tests get their own icons instead of a question mark
+- Course plan previews that can't load (no access, blocked) are skipped for a week instead of being fetched again on every visit
 - Narrow windows: assignment titles no longer run off the edge, the course plan's topics become a row of chips, and class tabs scroll
 - "Toddle Tweaks updated! See what's new" note after an update, linking to the new changelog page (can be turned off)
+- Release zips on GitHub are now built automatically for each version
 
 ## 2.4.1
 - Popup: the "needs access to Toddle" banner no longer shows when access is already granted, and the Give access button now explains what to do if the browser does not show a prompt

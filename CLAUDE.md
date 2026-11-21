@@ -58,4 +58,4 @@ The two worlds communicate only through the shared DOM: `localStorage` keys pref
 
 - Build DOM with `TT.h(tag, attrs, ...children)` and icons with `TT.gIcon(name)` (Material paths in `TT.ICONS`). Don't use `innerHTML`: the Firefox linter flags it. Use `TT.sanitize()` for Toddle-provided HTML and `DOMParser` for our own static markup.
 - Most user-facing CSS is scoped under `html.tt-gc` / `html.tt-gc-shell` so turning a mode off is instant without a reload.
-- Bump `version` in `manifest.json` and add a line to `CHANGELOG.md` before each store upload.
+- Bump `version` in `manifest.json` and add a line to `CHANGELOG.md` before each store upload. Pushing a tag `v<version>` runs `.github/workflows/release.yml`, which builds both zips and publishes a GitHub release with that version's changelog section as notes.
