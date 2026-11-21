@@ -11,7 +11,7 @@ A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and 
 > **Verified at Singapore American School only (so far).** Other schools set up Toddle differently, so some features may behave differently. If something looks off at your school, please [open an issue](https://github.com/Jotspot/toddle-tweaks/issues).
 
 - **Chrome Web Store:** [Toddle Tweaks](https://chromewebstore.google.com/detail/toddle-tweaks/apaanjjkejkkekmbkgecnlbjmfdcgncg) (also works in Edge and Brave)
-- **Firefox Add-ons:** coming soon
+- **Firefox:** [install Toddle Tweaks for Firefox](https://jotspot.github.io/toddle-tweaks/firefox/toddle-tweaks.xpi) (open the link in Firefox, then click **Add**). It's signed by Mozilla, so it stays installed. Not on Firefox Add-ons yet: join [toddle-tweaks-firefox](https://groups.google.com/g/toddle-tweaks-firefox) to hear when it's listed there.
 - **Manual install:** grab the Chrome or Firefox zip from the [latest release](https://github.com/Jotspot/toddle-tweaks/releases/latest), then follow the steps below.
 
 ### Chrome, Edge, Brave (from a release zip)
@@ -23,13 +23,15 @@ A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and 
 
 To update, download the new zip, replace the folder's contents, and click ↻ on the extension card.
 
-### Firefox 128+ (from a release zip)
+### Firefox 128+ (temporary, from a release zip)
+
+Only needed for testing; for everyday use, [install the signed version](https://jotspot.github.io/toddle-tweaks/firefox/toddle-tweaks.xpi) instead.
 
 1. Download `toddle-tweaks-firefox-<version>.zip` from the [latest release](https://github.com/Jotspot/toddle-tweaks/releases/latest).
 2. Open `about:debugging` → **This Firefox** → **Load Temporary Add-on…** and pick the zip.
 3. Open (or reload) Toddle.
 
-Firefox removes temporary add-ons when it restarts, because the release zip isn't signed by Mozilla. For a permanent install, use Firefox Add-ons once it's listed.
+Firefox removes temporary add-ons when it restarts, because the release zip isn't signed by Mozilla.
 
 ## Screenshots
 
