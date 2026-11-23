@@ -24,8 +24,12 @@
     let m;
     if (/^\/platform\/\d+\/courses$/.test(p)) {
       const tt = q.get('tt');
-      return { cp, view: tt === 'todo' ? 'todo' : tt === 'calendar' ? 'calendar' : 'home', key: 'home:' + (tt || '') };
+      const v = { todo: 'todo', calendar: 'calendar', finals: 'finals' }[tt] || 'home';
+      return { cp, view: v, key: 'home:' + (tt || '') };
     }
+    // Timetable (a whole week) and Attendance get Classroom pages; ?tt=classic shows Toddle's.
+    if (/^\/platform\/\d+\/timetable$/.test(p) && q.get('tt') !== 'classic' && TT.settings.gcTimetable !== false) return { cp, view: 'timetable', key: 'timetable' };
+    if (/^\/platform\/\d+\/attendance-summary$/.test(p) && q.get('tt') !== 'classic' && TT.settings.gcAttendance !== false) return { cp, view: 'attendance', key: 'attendance' };
     if ((m = p.match(/^\/platform\/\d+\/courses\/(\d+)(?:\/(home|classroom))?$/))) {
       const courseId = m[1];
       let view = m[2] === 'classroom' ? 'classwork' : 'stream';
@@ -191,7 +195,7 @@
         h('span', { class: 'tt-gc-crumb-title' }, c.title),
         t ? h('span', { class: 'tt-gc-crumb-sub' }, TT.personName(t)) : null));
     } else {
-      const titles = { todo: 'To-do', calendar: 'Calendar' };
+      const titles = { todo: 'To-do', calendar: 'Calendar', timetable: 'Timetable', attendance: 'Attendance', finals: 'Finals' };
       if (titles[r.view]) left.append(h('span', { class: 'tt-gc-crumb-sep' }, I('right')), h('span', { class: 'tt-gc-page-title' }, titles[r.view]));
     }
 
@@ -212,6 +216,8 @@
     }
 
     const right = h('div', { class: 'tt-gc-bar-right' });
+    const chip = gc.nextClassChip && gc.nextClassChip();
+    if (chip) right.append(chip);
     right.append(link(`${gc.base()}/courses?tt=todo`, { class: 'tt-gc-iconbtn', title: 'To-do' }, I('todo')));
     // Toddle's notification panel only exists on its home page; open it there (it's pinned on the right by CSS).
     const tb = document.querySelector('[aria-label="Notification"]');
@@ -286,7 +292,20 @@
     const b = gc.base();
     drawer.append(
       navItem(`${b}/courses`, 'home', 'Home', r.view === 'home'),
-      navItem(`${b}/courses?tt=calendar`, 'calendar', 'Calendar', r.view === 'calendar'),
+      navItem(`${b}/courses?tt=calendar`, 'calendar', 'Calendar', r.view === 'calendar'));
+    // Finals: only in the weeks before exams (Settings → Finals).
+    const fs = TT.school && TT.school.finalsStatus();
+    if (fs && fs.show) {
+      const it = navItem(`${b}/courses?tt=finals`, 'summative', 'Finals', r.view === 'finals', { class: 'tt-gc-nav tt-gc-nav-finals' + (r.view === 'finals' ? ' active' : '') });
+      const when = fs.phase === 'during' ? 'Happening now' : fs.daysUntil != null ? (fs.daysUntil === 1 ? 'Tomorrow' : `In ${fs.daysUntil} days`) : 'Semester ending';
+      it.querySelector('.tt-gc-nav-label').append(h('small', null, when));
+      drawer.append(it);
+    }
+    if (TT.heatmapOn && TT.heatmapOn('sidebar')) {
+      const mini = TT.heatmap({ mini: true });
+      if (mini) drawer.append(link(`${b}/courses?tt=calendar`, { class: 'tt-gc-nav tt-gc-nav-hm', title: 'This week’s workload: open Calendar' }, h('span', { class: 'tt-gc-nav-ico' }, I('trend')), h('span', { class: 'tt-gc-nav-label' }, mini)));
+    }
+    drawer.append(
       h('div', { class: 'tt-gc-nav-div' }),
       h('div', { class: 'tt-gc-nav-head' }, 'Enrolled'),
       navItem(`${b}/courses?tt=todo`, 'todo', 'To-do', r.view === 'todo'));
@@ -303,7 +322,7 @@
       h('div', { class: 'tt-gc-nav-head' }, 'School'),
       navItem(`${b}/circulars`, 'campaign', 'School announcements', /\/circulars/.test(location.pathname)),
       navItem(`${b}/courses/my-calendar`, 'schedule', 'School calendar', /my-calendar/.test(location.pathname)),
-      navItem(`${b}/timetable`, 'calendar', 'Timetable', /\/timetable/.test(location.pathname)),
+      navItem(`${b}/timetable`, 'event', 'Timetable', /\/timetable/.test(location.pathname)),
       navItem(`${b}/attendance-summary`, 'attendance', 'Attendance', /attendance/.test(location.pathname)),
       navItem(`${b}/educatorcenter_v2`, 'description', 'Policies & resources', /educatorcenter/.test(location.pathname)),
       h('div', { class: 'tt-gc-nav-div' }),
@@ -357,8 +376,13 @@
   };
 
   // Redraw the current native view in place (data arrived), keeping scroll position.
+  // Something arrived in the background: don't yank a text box out from under you while you type.
+  let forceNext = false;
+  const typingInView = () => { const a = document.activeElement; return !!(a && view && view.contains(a) && /^(INPUT|TEXTAREA)$/.test(a.tagName) && a.type !== 'checkbox'); };
   gc.rerender = TT.debounce(() => {
     if (!gc.active()) return;
+    if (!forceNext && typingInView()) { setTimeout(() => gc.rerender(), 1500); return; }
+    forceNext = false;
     const r = gc.route();
     if (!r) return;
     swapIfChanged(barEl, (el) => renderBar(r, el));
@@ -374,6 +398,11 @@
     view.scrollTop = st;
   }, 60);
 
+  // Redraw just the bar (the next-class chip's minutes).
+  gc.rerenderBar = () => { if (gc.active()) { const r = gc.route(); if (r) swapIfChanged(barEl, (el) => renderBar(r, el)); } };
+  // Redraw the current view now (week arrows, checkboxes). Also used by the classic-mode page overlay.
+  gc.refreshView = () => { if (gc.overlayRefresh && gc.overlayRefresh()) return; forceNext = true; gc.rerender(); };
+
   gc.start = () => {
     gc.render();
     window.addEventListener('tt:route', () => gc.render());
@@ -381,6 +410,7 @@
     TT.onRoute(() => gc.render());
     window.addEventListener('tt:settings', () => { gc.render(); currentKey = null; gc.render(); });
     TT.onTodo(() => gc.rerender());
+    if (TT.school) TT.school.on(() => gc.rerender());
     gc.loadShared();
     setTimeout(() => TT.refreshTodo(false), 400);
   };

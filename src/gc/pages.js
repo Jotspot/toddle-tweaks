@@ -42,6 +42,8 @@
     if (gc.toast) gc.toast(`Saved ${items.length} due date${items.length === 1 ? '' : 's'} — open the file to add them to your calendar`);
   };
 
+  gc.exportDue = () => exportIcs('all');
+
   gc.views.calendar = (el) => {
     const d = TT.todoData();
     const now = new Date();
@@ -59,10 +61,10 @@
     const head = h('div', { class: 'tt-gc-cal-head' },
       sel,
       h('div', { class: 'tt-gc-cal-nav' },
-        h('button', { class: 'tt-gc-iconbtn', title: 'Previous week', onClick: () => { weekOffset--; gc.rerender(); } }, I('left')),
+        h('button', { class: 'tt-gc-iconbtn', title: 'Previous week', onClick: () => { weekOffset--; gc.refreshView(); } }, I('left')),
         h('span', { class: 'tt-gc-cal-range' }, range),
-        h('button', { class: 'tt-gc-iconbtn', title: 'Next week', onClick: () => { weekOffset++; gc.rerender(); } }, I('right')),
-        weekOffset ? h('button', { class: 'tt-gc-btn text', onClick: () => { weekOffset = 0; gc.rerender(); } }, 'Today') : null),
+        h('button', { class: 'tt-gc-iconbtn', title: 'Next week', onClick: () => { weekOffset++; gc.refreshView(); } }, I('right')),
+        weekOffset ? h('button', { class: 'tt-gc-btn text', onClick: () => { weekOffset = 0; gc.refreshView(); } }, 'Today') : null),
       h('button', { class: 'tt-gc-btn outlined tt-gc-cal-export', title: 'Download every upcoming due date as a calendar file (works with Google Calendar, Apple Calendar, Outlook)', onClick: () => exportIcs(calCourse) }, I('download'), 'Export to calendar (.ics)'));
 
     const items = (d ? d.items : []).filter((x) => x.deadline && x.deadline >= start.getTime() && x.deadline < end.getTime() && (calCourse === 'all' || x.courseId === calCourse));
@@ -83,7 +85,8 @@
             h('span', { class: 'who' }, TT.courseName(it.courseId, it.courseTitle)));
         }))));
     }
-    el.append(h('div', { class: 'tt-gc-calendar' }, head, grid,
+    const hm = TT.heatmapOn && TT.heatmapOn('calendar') ? TT.heatmap({ week: TT.dates.addDays(start, 1), place: 'calendar', onDay: (d) => { const sun = (x) => TT.dates.addDays(new Date(x.getFullYear(), x.getMonth(), x.getDate()), -x.getDay()); const w = Math.round((sun(d) - sun(new Date())) / (7 * DAY)); if (w !== weekOffset) { weekOffset = w; gc.refreshView(); } } }) : null;
+    el.append(h('div', { class: 'tt-gc-calendar' }, head, hm, grid,
       !d ? h('div', { class: 'tt-gc-empty small' }, 'Loading…') : null));
   };
 })();

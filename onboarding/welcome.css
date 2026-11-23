@@ -1,0 +1,74 @@
+:root { --text: #202124; --text-2: #5f6368; --line: #dadce0; --bg: #fff; --bg-2: #f8f9fa; --blue: #1a73e8; --blue-bg: #e8f0fe; }
+html.dark { --text: #e8eaed; --text-2: #9aa0a6; --line: #3c4043; --bg: #202124; --bg-2: #292a2d; --blue: #8ab4f8; --blue-bg: #263248; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 14px/20px Roboto, "Segoe UI", Arial, sans-serif; }
+h1, h2, b, .bar-title, .btn { font-family: "Google Sans", "Google Sans Flex", Roboto, "Segoe UI", Arial, sans-serif; }
+
+.bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 16px 0 20px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar-title { font-size: 22px; color: var(--text-2); flex: 1; }
+
+.btn { border: 0; border-radius: 4px; padding: 0 16px; height: 36px; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; text-decoration: none; }
+.btn.text { background: none; color: var(--blue); }
+.btn.text:hover { background: var(--blue-bg); }
+.btn.filled { background: var(--blue); color: #fff; }
+html.dark .btn.filled { color: #202124; }
+.btn.filled:hover { box-shadow: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); }
+.btn.big { height: 44px; padding: 0 28px; font-size: 15px; border-radius: 22px; }
+#skip { border: 1px solid var(--line); }
+
+main { max-width: 960px; margin: 0 auto; padding: 32px 24px 48px; }
+.hero h1 { font-size: 36px; line-height: 44px; font-weight: 400; margin: 8px 0 8px; }
+.hero p { font-size: 16px; line-height: 24px; color: var(--text-2); margin: 0; max-width: 640px; }
+.access { margin-top: 20px; padding: 14px 16px; border-radius: 8px; background: #fef7e0; color: #3c4043; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.access .muted { flex-basis: 100%; font-size: 13px; color: #5f6368; }
+.muted { color: var(--text-2); }
+
+.block { margin-top: 36px; }
+.block h2 { font-size: 20px; font-weight: 400; margin: 0 0 14px; }
+
+.looks { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.look { text-align: left; border: 2px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--text); padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; font: inherit; }
+.look:hover { border-color: #aecbfa; }
+.look.on { border-color: var(--blue); background: var(--blue-bg); }
+.look b { font-size: 16px; font-weight: 500; margin-top: 10px; }
+.look small { color: var(--text-2); font-size: 13px; line-height: 18px; }
+.look-pv { position: relative; height: 110px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); overflow: hidden; display: block; }
+.look-pv i { position: absolute; display: block; }
+.pv-bar { left: 0; right: 0; top: 0; height: 16px; border-bottom: 1px solid var(--line); }
+.gc .pv-card { top: 28px; width: 28%; height: 70px; border-radius: 6px; border: 1px solid var(--line); background: linear-gradient(#1967d2 0 40%, transparent 40%); }
+.gc .c1 { left: 4%; } .gc .c2 { left: 36%; background: linear-gradient(#137333 0 40%, transparent 40%); } .gc .c3 { left: 68%; background: linear-gradient(#e37400 0 40%, transparent 40%); }
+.classic .pv-row { left: 6%; right: 6%; height: 18px; border-radius: 4px; background: var(--bg-2); border: 1px solid var(--line); }
+.classic .pv-row:nth-child(2) { top: 28px; } .classic .pv-row:nth-child(3) { top: 54px; } .classic .pv-row:nth-child(4) { top: 80px; }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; flex-wrap: wrap; }
+.row b { display: block; font-size: 15px; font-weight: 500; }
+.row small { color: var(--text-2); font-size: 13px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.seg button { border: 0; background: none; color: var(--text); padding: 0 14px; height: 34px; font: 500 13px/34px "Google Sans", "Google Sans Flex", Roboto, Arial; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--blue-bg); color: var(--blue); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.feat { border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.feat-ico { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 4px; }
+.feat-ico svg { width: 22px; height: 22px; fill: #fff; }
+.feat b { font-size: 15px; font-weight: 500; }
+.feat small { color: var(--text-2); font-size: 13px; line-height: 19px; }
+
+.keylist { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.key { display: flex; align-items: center; gap: 10px; color: var(--text-2); }
+kbd { font: 500 12px/22px Roboto, Arial, sans-serif; color: var(--text); background: var(--bg-2); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 7px; }
+
+.end { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); }
+@media (max-width: 640px) { .looks { grid-template-columns: 1fr; } .bar-title { font-size: 18px; } #skip { padding: 0 10px; } .hero h1 { font-size: 28px; line-height: 36px; } }
+[hidden] { display: none !important; }
+.block .row:first-of-type { margin-top: 0; }
+.block .row + .row { margin-top: 10px; }
+.row > div:first-child { flex: 1; min-width: 220px; }
+.switch { appearance: none; width: 36px; height: 20px; border-radius: 10px; background: #bdc1c6; position: relative; cursor: pointer; flex: none; margin: 0; transition: background .15s; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: left .15s; }
+.switch:checked { background: var(--blue); }
+.switch:checked::after { left: 18px; }
+.note { margin: 14px 0 0; padding: 10px 14px; border-radius: 8px; background: var(--bg-2); color: var(--text-2); font-size: 13px; line-height: 19px; }
+.block .note + .row { margin-top: 14px; }
+.go { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 20px; }

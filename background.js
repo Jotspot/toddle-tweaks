@@ -21,6 +21,8 @@ chrome.runtime.onInstalled.addListener((details) => {
   syncRulesets();
   // Remember the update so the next Toddle page can show "Toddle Tweaks updated! See what's new".
   const version = chrome.runtime.getManifest().version;
+  // First install only (not updates): the welcome page with the main features and two quick choices.
+  if (details.reason === 'install') chrome.tabs.create({ url: chrome.runtime.getURL('onboarding/welcome.html') });
   if (details.reason === 'update' && details.previousVersion && details.previousVersion !== version) {
     chrome.storage.local.set({ whatsNew: { version, from: details.previousVersion, t: Date.now() } });
   }
@@ -31,7 +33,12 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg && msg.type === 'openOptions') { chrome.runtime.openOptionsPage(); return; }
+  if (msg && msg.type === 'openOptions') {
+    // A section ("#heatmap") opens the settings page scrolled to it.
+    if (msg.section && /^[a-z-]+$/.test(msg.section)) chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html#' + msg.section) });
+    else chrome.runtime.openOptionsPage();
+    return;
+  }
   // @dev-start
   if (msg && msg.type === 'devReload' && !('update_url' in chrome.runtime.getManifest())) {
     chrome.runtime.reload();

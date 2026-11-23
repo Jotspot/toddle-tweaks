@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Toddle Tweaks",
-  "version": "2.5.0",
-  "description": "A better Toddle: a to-do list that makes sense, faster pages and an optional Google Classroom look.",
+  "version": "2.6.0",
+  "description": "A better Toddle: a smarter to-do, a whole-week timetable, faster pages and an optional Google Classroom look.",
   "homepage_url": "https://github.com/Jotspot/toddle-tweaks",
   "icons": {
     "16": "icons/icon16.png",
@@ -67,13 +67,18 @@
       "js": [
         "src/common.js",
         "src/api.js",
+        "src/school.js",
         "src/todo.js",
+        "src/heatmap.js",
         "src/gc/themes.js",
         "src/gc/shell.js",
         "src/gc/home.js",
         "src/gc/course.js",
         "src/gc/plan.js",
         "src/gc/pages.js",
+        "src/gc/timetable.js",
+        "src/gc/finals.js",
+        "src/gc/attendance.js",
         "src/gc/toddle-pages.js",
         "src/gc/tour.js",
         "src/boot.js",
@@ -85,7 +90,8 @@
       "css": [
         "src/styles/ui.css",
         "src/styles/classroom.css",
-        "src/styles/gc.css"
+        "src/styles/gc.css",
+        "src/styles/v26.css"
       ],
       "run_at": "document_start",
       "all_frames": false

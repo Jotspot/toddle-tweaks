@@ -26,7 +26,7 @@ After `tt:dev-reload`, reload the tab so new content scripts inject.
 
 **Two JS worlds.**
 - `src/page-hook.js` runs in the page's own context (`"world": "MAIN"`, document_start). It wraps `window.fetch` for Toddle's GraphQL endpoint (stale-while-revalidate cache in IndexedDB `toddle-tweaks`, loaded into memory once), records the filters Toddle uses for its task queries into `localStorage['tt:taskFilters']`, patches `history.pushState/replaceState` to fire a `tt:route` event, and dispatches `tt:page` events (string `detail`) after mutations.
-- Everything else is an isolated content script sharing one global, `window.TT`, loaded in manifest order: `common → api → todo → gc/themes → gc/shell → gc/home → gc/course → gc/pages → gc/toddle-pages → gc/tour → boot → snapshot → classroom → app → extras`. All run at `document_start`; code that needs Toddle's DOM waits (`TT.waitFor('#root')`).
+- Everything else is an isolated content script sharing one global, `window.TT`, loaded in manifest order: `common → api → school → todo → heatmap → gc/themes → gc/shell → gc/home → gc/course → gc/plan → gc/pages → gc/timetable → gc/finals → gc/attendance → gc/toddle-pages → gc/tour → boot → snapshot → classroom → app → extras`. All run at `document_start`; code that needs Toddle's DOM waits (`TT.waitFor('#root')`).
 
 The two worlds communicate only through the shared DOM: `localStorage` keys prefixed `tt:`, IndexedDB, and DOM events.
 
@@ -34,11 +34,17 @@ The two worlds communicate only through the shared DOM: `localStorage` keys pref
 
 **Data.** `src/api.js` calls Toddle's GraphQL directly with the session JWT from `localStorage.userInfo` (endpoint taken from what the hook observed). Results are cached in `localStorage` (`tt:todoCache`, `tt:coursesCache`, `tt:teachers`, `tt:cw:<courseId>`, `tt:ann:<courseId>`, `tt:people:<courseId>`) and rendered from cache first, then refreshed. `TT.categorize` in `src/todo.js` is the smart-to-do logic shared by every view.
 
+**School data (`src/school.js`).** `TT.school` reads the timetable (`enrolledPeriodsV2`, per week in `tt:ttw:<monday>`), school calendar (holidays), grading periods (semester dates), bell-schedule names (`routineDates`, e.g. "Final Exams-Periods3&4", which is how finals are found); `TT.school.dayLetter` combines the rotation (A/B) with the bell name ("Day: C/D …") into the school's A/B/C/D day and attendance, all cache-then-refresh; `TT.school.on(fn)` fires when something arrives. `TT.dates` has the local-date helpers. `src/heatmap.js` is `TT.heatmap({ week, place })`, shown where `TT.heatmapOn(place)` says (`hm_*` settings).
+
 **Classroom mode (`src/gc/`).** `shell.js` draws a top bar, drawer and `#tt-gc-view` at document_start and routes on `location`:
-- *Native views* (`gc.views.home/stream/classwork/people/todo/calendar` and `course-plan` in `gc/plan.js`, built from one `ttCoursePlan` query) replace Toddle's page: `html.tt-gc-native` hides `#root`. Custom pages use query params on real Toddle routes (`/courses?tt=todo`, `/courses/<id>/home?tt=people`) so a reload still works.
+- *Native views* (`gc.views.home/stream/classwork/people/todo/calendar/finals`, `timetable` (`/timetable`), `attendance` (`/attendance-summary`), and `course-plan` in `gc/plan.js`, built from one `ttCoursePlan` query; `?tt=classic` shows Toddle's own page) replace Toddle's page: `html.tt-gc-native` hides `#root`. Custom pages use query params on real Toddle routes (`/courses?tt=todo`, `/courses/<id>/home?tt=people`) so a reload still works.
 - *Passthrough* routes show Toddle's own page inside the shell: `#root` is repositioned with CSS, and `gc/toddle-pages.js` restyles or augments it (course plan, assignment page "Add or create").
 - `gc.rerender()` renders off-screen and only swaps the DOM if the HTML changed, which avoids flicker and image reloads.
+- In regular Toddle, `TT.openView(name)` (extras.js) draws the same views in a full-screen sheet; views call `gc.refreshView()` so they redraw in either place.
+- Dark mode is switched off (`DARK_MODE = false` in `boot.js`, not in Settings). When on, it is `html.tt-dark`: one `filter: invert()` on the root element (the only element where a filter doesn't break `position: fixed`), with media flipped back, in `styles/v26.css`.
 - Per-user customizations (order, hidden, themes, overrides from Advanced class settings) live in `localStorage['tt:gc']`. Banner themes and their colours are in `gc/themes.js`; `googleBanners` switches between Google's hotlinked art and generated SVG patterns.
+
+**Welcome page.** `onboarding/welcome.html` opens once on install (`background.js`, `reason === 'install'`) and is linked from Settings; it only writes `classroomMode`.
 
 **Store tooling.** `store/promo/frame.html` runs the real extension modules with fake data from `store/promo/frame.js` (stubbed `TT.api`) to produce the screenshots; `store/LISTING.md` has the listing copy, permission justifications and reviewer notes. `scripts/build.mjs` derives the Firefox manifest (`background.scripts`, `options_ui`, gecko id, `data_collection_permissions`).
 

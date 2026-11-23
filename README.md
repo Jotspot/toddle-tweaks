@@ -11,7 +11,7 @@ A Chrome and Firefox extension that makes Toddle (web.toddleapp.com) faster and 
 > **Verified at Singapore American School only (so far).** Other schools set up Toddle differently, so some features may behave differently. If something looks off at your school, please [open an issue](https://github.com/Jotspot/toddle-tweaks/issues).
 
 - **Chrome Web Store:** [Toddle Tweaks](https://chromewebstore.google.com/detail/toddle-tweaks/apaanjjkejkkekmbkgecnlbjmfdcgncg) (also works in Edge and Brave)
-- **Firefox:** [install Toddle Tweaks for Firefox](https://jotspot.github.io/toddle-tweaks/firefox/toddle-tweaks.xpi) (open the link in Firefox, then click **Add**). It's signed by Mozilla, so it stays installed. The Firefox Add-ons listing is coming soon (Mozilla's review queue is long right now), and once it's up this install will update from there automatically.
+- **Firefox Add-ons:** [Toddle Tweaks](https://addons.mozilla.org/firefox/addon/toddle-tweaks/) (Firefox 128+)
 - **Manual install:** grab the Chrome or Firefox zip from the [latest release](https://github.com/Jotspot/toddle-tweaks/releases/latest), then follow the steps below.
 
 ### Chrome, Edge, Brave (from a release zip)
@@ -25,7 +25,7 @@ To update, download the new zip, replace the folder's contents, and click ↻ on
 
 ### Firefox 128+ (temporary, from a release zip)
 
-Only needed for testing; for everyday use, [install the signed version](https://jotspot.github.io/toddle-tweaks/firefox/toddle-tweaks.xpi) instead.
+Only needed for testing; for everyday use, [install it from Firefox Add-ons](https://addons.mozilla.org/firefox/addon/toddle-tweaks/) instead.
 
 1. Download `toddle-tweaks-firefox-<version>.zip` from the [latest release](https://github.com/Jotspot/toddle-tweaks/releases/latest).
 2. Open `about:debugging` → **This Firefox** → **Load Temporary Add-on…** and pick the zip.
@@ -68,10 +68,19 @@ Toddle's “Pending” list is every assignment since August, oldest first. 54 o
 - Groups work by **Missing → Today → Tomorrow → This week → Next week → Later → No due date**.
 - Treats past **“submission not required”** items as done (“Auto-done”), so they don't bury real work.
 - Tags **Quiz / Test / Summative**, **Turn in** (needs a submission) and **New** (posted in the last 3 days).
-- Lets you tick items off locally, with filters by class, plus sort by class or by recently assigned.
+- The checkbox marks an in-class item as done in Toddle itself, with an Undo note (nothing is sent until the note closes). Work that needs turning in is finished on Toddle. Filter by class, too.
 - Shows up on the classic home page (replacing “Assignments and deadlines”), as the To-do page in Classroom mode, with **Alt+T**, and in the toolbar popup with a badge count.
 - Sort by smart buckets, due date (either direction), recently assigned, class, type (tests first) or A–Z.
 - **Bulk “Mark as done” in Toddle:** under *Done → Auto-done*, a button marks every past “no submission needed” item as done in Toddle. It makes the same call as Toddle's own “Mark as done” button (verified against it), never sends response text, refuses items that take a real submission, and asks first.
+
+### Timetable, finals and attendance
+- **Timetable** for the whole week (Monday to Friday) with your school's A/B/C/D days, blocks like A1 or B3, holidays, finals days, the class you're in now, and what's due in each class that day.
+- **Export to Google Calendar**: every class meeting for the semester or the year as an .ics file, written out one by one so holidays and late starts are right, with import steps for Google, Apple and Outlook.
+- **Finals**: about 45 days before exams (adjustable) a Finals page appears in the menu with a day count, the exam schedule found from your school's bell schedule, and what's due before finals. Rename a final or mark a class as having none; dates can also be set by hand.
+- **Workload heatmap**: your week coloured by how much is due, on the Calendar by default (Timetable, Home, To-do and the menu are options), with a six-week view and insights you can pick.
+- **Attendance**: your percentage, a breakdown, the year at a glance, every class, and each period you weren't marked present.
+- **Next class** in the top bar (off by default).
+- In regular Toddle these open over the page from Ctrl/⌘ + K or the shortcuts.
 
 ### Google Classroom mode
 Turn it on in the popup. Toddle gets wrapped in a Classroom-style shell, drawn at document_start from cached data, so the old Toddle UI never flashes:
@@ -84,9 +93,9 @@ Turn it on in the popup. Toddle gets wrapped in a Classroom-style shell, drawn a
 - The avatar menu → “Switch to classic Toddle” turns it off.
 
 ### Handy extras (each one can be switched off)
-- **Settings page**, grouped into Classroom mode / Regular Toddle / Both modes, with previews where they help: popup → “All settings & previews”, the drawer's “Toddle Tweaks settings”, or `g` `s`.
-- **Quick jump**: Ctrl/⌘ + K searches every class, assignment and page.
-- **Keyboard shortcuts**: `g h` home, `g t` to-do, `g c` calendar, `g s` settings, `?` for help.
+- **Settings page**, grouped by what each setting is for, with previews where they help: popup → “All settings & previews”, the drawer's “Toddle Tweaks settings”, or `g` `s`.
+- **Quick jump**: Ctrl/⌘ + K searches every class, assignment, page, action and setting, with the class you're in now first.
+- **Keyboard shortcuts**: `g h` home, `g t` to-do, `g c` calendar, `g w` timetable, `g a` attendance, `g f` finals, `g 1`–`g 9` a class, `[` / `]` a class's sections, `{` / `}` previous or next class, `g s` settings, `?` for help.
 - **Tab badge**: “(3) …” in the tab title = missing + due today/tomorrow.
 - **Relative due dates** on assignment pages (“· in 4 days”).
 - **Export to calendar**: Calendar page → “Export to calendar (.ics)” for Google/Apple/Outlook, with a reminder 12 hours before each due date.

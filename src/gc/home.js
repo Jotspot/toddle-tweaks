@@ -223,6 +223,7 @@
     }
     const grid = h('div', { class: 'tt-gc-cards' }, courses.map((c) => card(c, due, false)));
     enableDnD(grid);
+    if (TT.heatmapOn && TT.heatmapOn('home')) { const hm = TT.heatmap({ place: 'home', onDay: () => gc.go(`${gc.base()}/courses?tt=calendar`) }); if (hm) wrap.append(hm); }
     wrap.append(grid);
     if (hiddenList.length) {
       wrap.append(h('button', { class: 'tt-gc-btn text tt-gc-hidden-toggle', onClick: () => { showHidden = !showHidden; gc.rerender(); } },

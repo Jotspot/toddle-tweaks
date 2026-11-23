@@ -28,7 +28,14 @@
     root.classList.toggle('tt-cp-style', s.gcCoursePlanStyle !== false);
     root.classList.toggle('tt-cp-nothumbs', s.cpThumbnails === false);
     root.classList.toggle('tt-cp-hidenr', s.cpHideNotRequired !== false);
+    // Dark mode: on, off, or follow the computer.
+    // Dark mode is switched off for now (styles kept in v26.css). Set DARK_MODE to bring it back.
+    const dark = DARK_MODE && (s.darkMode === 'on' || (s.darkMode === 'system' && darkQuery && darkQuery.matches));
+    root.classList.toggle('tt-dark', !!dark);
   };
+  const DARK_MODE = false;
+  const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener('change', () => applyClasses(TT.settings));
 
   const early = TT.settingsSync();
   TT.settings = early;

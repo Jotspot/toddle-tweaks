@@ -37,6 +37,26 @@ TT.DEFAULTS = {
   docsNewTab: true,        // Google Docs/Slides/Drive, Microsoft 365, Canva… open in a new tab, not Toddle's viewer
   linksNewTab: false,      // every web link opens in a new tab (uploaded files still use the viewer)
   whatsNew: true,          // "Toddle Tweaks updated" note after an update
+  // 2.6
+  darkMode: 'off',         // 'off' | 'on' | 'system'
+  gcTimetable: true,       // Timetable as a Classroom page (a whole week)
+  gcAttendance: true,      // Attendance as a Classroom page
+  periodNames: 'block',    // 'block' (A1, B3: rotation day + period) | 'period' (P1, as Toddle shows it)
+  nextClass: false,        // "Next: Chemistry in 12 min" in the top bar
+  nextClassRoom: true,     //   …with the room
+  finalsMode: true,        // Finals page in the menu before exams
+  finalsLead: '45',        // days before finals it appears
+  finalsStart: '',         // set exam dates by hand ('' = find them automatically)
+  finalsEnd: '',
+  finalsReviewDays: '7',   // "Start reviewing" suggestion, days before each exam
+  heatmap: true,           // workload heatmap
+  hm_calendar: true, hm_timetable: false, hm_home: false, hm_todo: false, hm_sidebar: false, // where it shows
+  hmExpanded: false,       // open with six weeks + insights showing
+  hmWeekends: false,       // always show Saturday and Sunday
+  hmWeightTests: true,     // tests count double
+  hmGrid: true,            // six-week grid when expanded
+  hmInsights: true,        // insights when expanded
+  hmiBusiest: true, hmiLightest: true, hmiTests: true, hmiClass: true, hmiTotal: true, hmiOff: true, hmiMissing: true, hmiFinals: true,
 };
 
 TT.settings = { ...TT.DEFAULTS };
@@ -114,7 +134,7 @@ TT.h = (tag, attrs, ...kids) => {
     for (const [k, v] of Object.entries(attrs)) {
       if (v == null || v === false) continue;
       if (k === 'class') el.className = v;
-      else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+      else if (k === 'style' && typeof v === 'object') { for (const [sk, sv] of Object.entries(v)) { if (sv == null) continue; if (sk.startsWith('--')) el.style.setProperty(sk, sv); else el.style[sk] = sv; } }
       else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
       else el.setAttribute(k, v === true ? '' : v);
     }
@@ -237,6 +257,13 @@ TT.ICONS = {
   quiz: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7.01 15c-.7 0-1.26-.56-1.26-1.26 0-.71.56-1.25 1.26-1.25.71 0 1.25.54 1.25 1.25-.01.69-.54 1.26-1.25 1.26zm3.01-7.4c-.76 1.11-1.48 1.46-1.87 2.17-.16.29-.22.48-.22 1.41h-1.82c0-.49-.08-1.29.31-1.98.49-.87 1.42-1.39 1.96-2.16.57-.81.25-2.33-1.37-2.33-1.06 0-1.58.8-1.8 1.48l-1.65-.7C9.95 7.15 10.8 6 12.36 6c1.3 0 2.2.59 2.65 1.33.39.63.61 1.82-.01 2.27z',
   close: 'M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
   video: 'M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z',
+  refresh: 'M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z',
+  event: 'M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z',
+  trend: 'M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z',
+  spa: 'M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z',
+  checkbox: 'M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+  doneToddle: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+  dark: 'M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z',
   globe: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm6.93 6h-2.95a15.65 15.65 0 0 0-1.38-3.56A8.03 8.03 0 0 1 18.93 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 0 1 5.08 16zm2.95-8H5.08a7.99 7.99 0 0 1 4.33-3.56A15.65 15.65 0 0 0 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z',
 };
 TT.gIcon = (name, cls) => {

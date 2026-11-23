@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
-const INCLUDE = ['manifest.json', 'background.js', 'icons', 'popup', 'options', 'rules', 'src'];
+const INCLUDE = ['manifest.json', 'background.js', 'icons', 'popup', 'options', 'onboarding', 'rules', 'src'];
 
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
 const version = manifest.version;

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome to Toddle Tweaks</title>
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <header class="bar">
+    <img src="../icons/icon48.png" alt="" width="32" height="32">
+    <div class="bar-title">Toddle Tweaks</div>
+    <button id="skip" class="btn text" type="button">Skip and continue with defaults</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Welcome to Toddle Tweaks</h1>
+      <p>A calmer, faster Toddle. Pick how it looks, then have a look at the best bits. Everything can be changed later in Settings.</p>
+      <div id="access" class="access" hidden>
+        <div><b>One more step:</b> Toddle Tweaks needs permission to run on web.toddleapp.com.</div>
+        <button id="grant" class="btn filled" type="button">Give access</button>
+        <div id="accessHelp" class="muted" hidden></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Pick your look</h2>
+      <div class="looks" role="radiogroup" aria-label="Look">
+        <button class="look" type="button" role="radio" data-mode="gc">
+          <span class="look-pv gc"><i class="pv-bar"></i><i class="pv-card c1"></i><i class="pv-card c2"></i><i class="pv-card c3"></i></span>
+          <b>Google Classroom style</b>
+          <small>Class cards, Stream / Classwork / People, To-do, Calendar, a whole-week Timetable. Recommended.</small>
+        </button>
+        <button class="look" type="button" role="radio" data-mode="classic">
+          <span class="look-pv classic"><i class="pv-bar"></i><i class="pv-row"></i><i class="pv-row"></i><i class="pv-row"></i></span>
+          <b>Regular Toddle</b>
+          <small>Toddle as you know it, with the smart to-do on the home page and every shortcut.</small>
+        </button>
+      </div>
+      <p class="note">Some features only work in Google Classroom style: the class pages, the Classroom-style course plan, the next class in the top bar and the heatmap in the menu. Calendar, Timetable, Attendance and Finals still open from Ctrl/⌘ + K in regular Toddle.</p>
+      <div class="go">
+        <a id="settings" class="btn text" href="../options/options.html">All settings</a>
+        <button id="done" class="btn filled big" type="button">Open Toddle</button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>The best bits</h2>
+      <div class="grid" id="features"></div>
+    </section>
+
+    <section class="block keys">
+      <h2>Handy keys</h2>
+      <div class="keylist" id="keys"></div>
+    </section>
+  </main>
+
+  <script src="welcome.js"></script>
+</body>
+</html>

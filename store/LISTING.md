@@ -11,7 +11,9 @@ Images are in `store/images/chrome/` and `store/images/firefox/`. Upload zips ar
 ## Short description
 Chrome "Summary" (max 132 chars) / AMO "Summary" (max 250 chars):
 
-> A better Toddle: a to-do list that makes sense, faster pages and an optional Google Classroom look. Turn any part of it on or off.
+> A better Toddle: a smarter to-do, a whole-week timetable, faster pages and an optional Google Classroom look.
+
+(Chrome takes this from `description` in `manifest.json`, so the two are kept the same.)
 
 ## Category
 - Chrome Web Store: **Education** (alternative: Productivity → Tools)
@@ -28,7 +30,16 @@ To-Do Tweaks:
 • Sorted by when things are due: Missing, Today, Tomorrow, This week, Next week, Later, etc.
 • Old in-class items you can't turn in stop clogging up the list
 • Quizzes, tests and summatives are labelled so they stand out
-• Tick things off, filter by class, or sort it up to seven ways!
+• Tick an in-class item and it's marked done in Toddle, with an Undo button in case you slip
+• Filter by class, or sort it up to seven ways!
+
+Schedule Tweaks:
+• A Timetable that shows your whole week, with your school's A/B/C/D days, blocks like A1 and B3, holidays and what's due in each class
+• Export every class meeting to Google Calendar, Apple Calendar or Outlook for the whole semester. Holidays are skipped and late starts get their real times, with step-by-step import help
+• A calm Finals page that shows up a few weeks before exams: a day count, your exam schedule, and what's due before finals start
+• A workload heatmap so you can see which days are heavy at a glance
+• Attendance at a glance: your percentage, each class, and any period you weren't marked present
+• Optional: your next class in the top bar
 
 Course Plan Tweaks:
 • Google Docs, Slides, Sheets and Drive links open in their own tab instead of Toddle's (horrendous) little viewer
@@ -47,8 +58,9 @@ Google Classroom Mode:
 • Not your thing? One switch turns it off
 
 Extras:
-• Ctrl/⌘ + K to jump to any class, assignment or page (this is amazing btw)
-• Keyboard shortcuts (hit ? to see em')
+• Ctrl/⌘ + K to jump to any class, assignment, page or setting, with the class you're in right now at the top (this is amazing btw)
+• Keyboard shortcuts, including [ and ] to move between a class's sections (hit ? to see em')
+• Timetable, Calendar, Attendance and Finals work in regular Toddle too, from Ctrl/⌘ + K
 • A little count in the tab title for what's missing or due soon
 
 Privacy:
@@ -65,7 +77,7 @@ Toddle Tweaks is an independent project. It isn't affiliated with, endorsed by o
 ```
 
 ## Single purpose (Chrome)
-> Toddle Tweaks improves the Toddle learning platform (web.toddleapp.com): it reorganizes assignments into a smarter to-do list, offers an alternative layout, and speeds up page loads. It only runs on toddleapp.com.
+> Toddle Tweaks improves the Toddle learning platform (web.toddleapp.com): it reorganizes assignments into a smarter to-do list, shows the student's timetable, finals and attendance more clearly, offers an alternative layout, and speeds up page loads. It only runs on toddleapp.com.
 
 ## Permission justifications (Chrome "Privacy practices" tab)
 
@@ -82,7 +94,7 @@ Toddle Tweaks is an independent project. It isn't affiliated with, endorsed by o
 Tick these data types (they are *handled locally*, never sent to the developer):
 - **Personally identifiable information**: the user's name and profile picture shown in the account menu, teacher and classmate names from Toddle.
 - **Authentication information**: the user's existing Toddle session token is used to call Toddle's API on their behalf. It is never stored elsewhere or transmitted anywhere except Toddle.
-- **Website content**: assignments, announcements and class information from Toddle, cached locally for speed.
+- **Website content**: assignments, announcements, class information, the timetable, the school calendar and the student's attendance from Toddle, cached locally for speed.
 
 Certify all three:
 - ✅ I do not sell or transfer user data to third parties, outside of the approved use cases
@@ -108,11 +120,17 @@ What it does:
 - No remote code, no analytics, no external servers. Fonts come from Google Fonts (stylesheet only). Images only: Classroom banner art (www.gstatic.com) and course-plan previews of Google Docs/YouTube links (drive.google.com/thumbnail, i.ytimg.com), loaded as <img>.
 - When a Google Docs/Drive link opens in Toddle's viewer, src/extras.js clicks Toddle's own "Open in Google Docs" button and closes the viewer (setting: docsNewTab).
 - Announcement/assignment HTML from Toddle is sanitized with an allow-list (TT.sanitize in src/common.js) before display.
+- src/school.js reads the student's timetable, school calendar, grading periods, bell schedules and attendance from the same Toddle API (read-only) to draw the Timetable, Finals and Attendance pages.
+- The only write to Toddle is the student's own "Mark as done" on an assignment with nothing to turn in (api.markDone in src/api.js), sent only when the student ticks it and doesn't press Undo.
+- Calendar export builds an .ics file in the page and downloads it. Nothing is uploaded.
+- On first install, background.js opens onboarding/welcome.html (an extension page). It only saves the layout choice and, on Firefox, offers a button that calls permissions.request for web.toddleapp.com.
 ```
 
 ## Support / homepage
 - Support URL: https://github.com/Jotspot/toddle-tweaks/issues
 - Homepage: https://github.com/Jotspot/toddle-tweaks
+- Chrome Web Store: https://chromewebstore.google.com/detail/toddle-tweaks/apaanjjkejkkekmbkgecnlbjmfdcgncg
+- Firefox Add-ons: https://addons.mozilla.org/firefox/addon/toddle-tweaks/
 
 ## Images checklist
 

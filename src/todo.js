@@ -166,39 +166,95 @@
   };
   TT.icon = icon;
 
+  // The checkbox does one thing: Toddle's own "Mark as done" (only possible for items with nothing
+  // to turn in). Work that needs turning in is finished on Toddle. Items checked off locally by
+  // older versions still show (and can be unchecked) but new ones aren't made.
+  const canToddle = (it) => !it.needsSubmission && !!it.submissionId && !it.toddleDone;
+  const toast = (msg) => { if (TT.gc && TT.gc.toast) TT.gc.toast(msg); };
+  // Snackbar with Undo (same look as the "Take a tour" offer). Returns { close }.
+  TT.snack = (msg, opts = {}) => {
+    document.querySelectorAll('.tt-snack').forEach((x) => x.ttClose && x.ttClose(true));
+    let closed = false;
+    const bar = h('div', { class: 'tt-gc-tour-offer tt-snack', role: 'status' }, h('span', null, msg));
+    const close = (silent) => {
+      if (closed) return; closed = true;
+      clearTimeout(timer); bar.remove();
+      if (opts.onClose) opts.onClose(silent === 'undo');
+    };
+    bar.ttClose = () => close();
+    if (opts.undo) bar.append(h('button', { class: 'tt-gc-btn text light strong', type: 'button', onClick: () => { opts.undo(); close('undo'); } }, 'Undo'));
+    bar.append(h('button', { class: 'tt-gc-iconbtn small light', type: 'button', title: 'Close', 'aria-label': 'Close', onClick: () => close() }, TT.gIcon('close')));
+    document.body.append(bar);
+    const timer = setTimeout(() => close(), opts.duration || 6000);
+    return { close };
+  };
+
+  // "Mark as done in Toddle" waits until the snackbar goes away, so Undo really undoes it
+  // (nothing is sent to Toddle until then). Leaving the page sends it straight away.
+  const pending = new Map();
+  const sendToToddle = async (it) => {
+    pending.delete(it.id);
+    try {
+      await TT.api.markDone(it);
+      setLocalDone(it.id, false);
+      TT.refreshTodo(true);
+    } catch (e) {
+      setLocalDone(it.id, false);
+      toast("Couldn't mark it done in Toddle. Try again, or use Toddle's own button");
+      console.warn('[TT] markDone', e);
+      TT.refreshTodo(true);
+    }
+  };
+  window.addEventListener('pagehide', () => { for (const it of pending.values()) sendToToddle(it); });
+  const markInToddle = (it, rerender) => {
+    setLocalDone(it.id, true); // shows as done right away
+    pending.set(it.id, it);
+    rerender();
+    TT.snack('Marked as done in Toddle', {
+      undo: () => { pending.delete(it.id); setLocalDone(it.id, false); rerender(); },
+      onClose: (undone) => { if (!undone && pending.has(it.id)) sendToToddle(it); },
+    });
+  };
   const itemRow = (it, rerender) => {
-    const ld = localDone();
     const done = !!it.doneReason;
     const color = courseColor(it.courseId, it.courseTitle);
     const kind = it.kind === 'Summative' ? 'summative' : it.kind === 'Test' ? 'test' : it.isTest ? 'quiz' : it.needsSubmission ? 'assignment' : 'material';
 
-    const box = h('button', {
-      class: 'tt-check' + (done ? ' on' : ''),
-      title: done ? (it.doneReason === 'you' ? 'Mark as not done' : it.doneReason === 'toddle' ? 'Done in Toddle' : 'Auto-done: past, no submission needed') : 'Mark as done (just for you)',
-      'aria-label': done ? 'Mark as not done' : 'Mark as done',
-      disabled: it.doneReason === 'toddle' ? true : null,
-      onClick: (e) => {
-        e.preventDefault(); e.stopPropagation();
-        if (it.doneReason === 'auto') {
-          // un-auto: force it back into the list
-          const m = TT.lsGet('tt:forceShow', {}); m[it.id] = 1; TT.lsSet('tt:forceShow', m);
-        } else setLocalDone(it.id, !ld[it.id]);
-        rerender();
-      },
-    }, icon('check'));
+    let box = null;
+    if (it.doneReason === 'toddle') {
+      box = h('span', { class: 'tt-check toddle on', title: it.isEvaluated ? 'Done in Toddle (graded)' : it.needsSubmission ? 'Done in Toddle (turned in)' : 'Done in Toddle', role: 'img', 'aria-label': 'Done in Toddle' }, TT.gIcon('doneToddle'));
+    } else if (it.doneReason === 'auto' || it.doneReason === 'you') {
+      box = h('button', {
+        class: 'tt-check on' + (it.doneReason === 'auto' ? ' auto' : ''),
+        title: it.doneReason === 'auto' ? 'Checked off automatically: past, nothing to turn in. Click to put it back' : 'Checked off on this computer. Click to uncheck',
+        'aria-label': 'Uncheck',
+        onClick: (e) => {
+          e.preventDefault(); e.stopPropagation();
+          if (it.doneReason === 'auto') { const m = TT.lsGet('tt:forceShow', {}); m[it.id] = 1; TT.lsSet('tt:forceShow', m); }
+          else setLocalDone(it.id, false);
+          rerender();
+        },
+      }, icon('check'));
+    } else {
+      box = canToddle(it)
+        ? h('button', { class: 'tt-check', title: 'Mark as done in Toddle', 'aria-label': 'Mark as done in Toddle',
+          onClick: (e) => { e.preventDefault(); e.stopPropagation(); markInToddle(it, rerender); } }, icon('check'))
+        : h('span', { class: 'tt-check locked', title: 'Turn this in on Toddle to finish it', role: 'img', 'aria-label': 'Turned in on Toddle' });
+    }
 
     const meta = [
       h('span', { class: 'tt-course', style: { color } }, TT.courseName ? TT.courseName(it.courseId, it.courseTitle) : it.courseTitle),
       h('span', { class: 'tt-sep' }, '·'),
-      h('span', { class: 'tt-due' + (it.bucket === 'missing' ? ' late' : '') }, fmtDue(it.deadline)),
+      h('span', { class: 'tt-due' + (it.bucket === 'missing' ? ' late' : '') }, done && it.deadline && it.deadline < Date.now() ? 'Due ' + TT.fmtDate(it.deadline) : fmtDue(it.deadline)),
     ];
     const chips = [
       it.kind && chip(it.kind, 'test'),
       it.needsSubmission && !done && chip('Turn in', 'submit'),
       !it.needsSubmission && !done && chip('In class', 'muted'),
       it.isNew && !done && chip('New', 'new'),
-      it.doneReason === 'auto' && chip('Auto-done', 'muted'),
-      it.doneReason === 'toddle' && chip(it.isEvaluated ? 'Graded' : 'Turned in', 'ok'),
+      it.doneReason === 'auto' && chip('Checked off automatically', 'muted'),
+      it.doneReason === 'you' && chip('Checked off here', 'mine'),
+      it.doneReason === 'toddle' && chip(it.isEvaluated ? 'Graded' : it.needsSubmission ? 'Turned in' : 'Done in Toddle', 'ok'),
     ];
 
     const a = TT.spaLink(h('a', { class: 'tt-item' + (done ? ' done' : ''), href: it.url, 'data-id': it.id },
@@ -249,6 +305,12 @@
           lastError === 'NEED_HOME_VISIT' ? 'Open your Toddle home page once so Toddle Tweaks can learn your classes.'
             : lastError ? `Couldn't load assignments: ${lastError}` : 'Loading your assignments…'));
         return;
+      }
+
+      // Workload heatmap: on the To-do page (Settings → Heatmap), or on the classic home widget.
+      if (TT.heatmap && !opts.courseId && ((mode !== 'panel' && TT.heatmapOn('todo')) || (mode === 'panel' && TT.heatmapOn('home')))) {
+        const hm = TT.heatmap({ place: mode === 'panel' ? 'home' : 'todo' });
+        if (hm) container.append(hm);
       }
 
       // Re-apply "force show" overrides for auto-done items.
@@ -324,13 +386,16 @@
         else body.append(group('missingAll', 'Past due — still needs you', cat.missing, rerender));
       } else {
         const auto = cat.done.filter((x) => x.doneReason === 'auto');
-        const rest = cat.done.filter((x) => x.doneReason !== 'auto');
+        const mine = cat.done.filter((x) => x.doneReason === 'you');
+        const inToddle = cat.done.filter((x) => x.doneReason === 'toddle');
+        if (inToddle.length) body.append(group('doneAll', 'Done in Toddle', inToddle, rerender, { defaultCollapsed: false }));
+        if (mine.length) body.append(group('doneMine', 'Checked off on this computer', mine, rerender, { defaultCollapsed: false }));
         if (auto.length) {
           const footer = h('div', { class: 'tt-hint' });
-          footer.append('These are past items that never took a submission, so Toddle Tweaks already treats them as done. You can also clear them out of Toddle itself:');
+          footer.append('Past items that never took a submission, so Toddle Tweaks checks them off for you. Toddle still lists them; you can mark them done there too:');
           const targets = auto.filter((x) => !x.needsSubmission && x.submissionId);
           const btn = h('button', { class: 'tt-btn', onClick: async () => {
-            if (!confirm(`Mark ${targets.length} past "no submission needed" items as done in Toddle?\n\nThis is the same as clicking Toddle's "Mark as done" on each one. Your teachers will see them as done.`)) return;
+            if (!confirm(`Mark ${targets.length} past "no submission needed" items as done in Toddle?\n\nThis is the same as clicking Toddle's own "Mark as done" button on each one.`)) return;
             btn.disabled = true;
             let ok = 0;
             for (const it of targets) {
@@ -341,9 +406,8 @@
             TT.refreshTodo(true);
           } }, `Mark all ${targets.length} as done in Toddle`);
           footer.append(h('div', null, btn));
-          body.append(group('auto', 'Auto-done (past, nothing to turn in)', auto, rerender, { defaultCollapsed: true, footer }));
+          body.append(group('auto', 'Checked off automatically (past, nothing to turn in)', auto, rerender, { defaultCollapsed: true, footer }));
         }
-        if (rest.length) body.append(group('doneAll', 'Turned in / done', rest, rerender, { defaultCollapsed: false }));
         if (!cat.done.length) body.append(h('div', { class: 'tt-empty' }, 'Nothing here yet.'));
       }
 
