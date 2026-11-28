@@ -13,6 +13,8 @@ Chrome "Summary" (max 132 chars) / AMO "Summary" (max 250 chars):
 
 > A better Toddle: a smarter to-do, a whole-week timetable, faster pages and an optional Google Classroom look.
 
+AMO currently uses a longer version: "A better Toddle: a smarter to-do, a whole-week timetable, all your grades on one page, faster pages and an optional Google Classroom look. Turn any part of it on or off."
+
 (Chrome takes this from `description` in `manifest.json`, so the two are kept the same.)
 
 ## Category
