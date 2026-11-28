@@ -34,18 +34,141 @@
     return c;
   };
 
+  // The class's own home page in Toddle: description, quick links, the teacher's banner picture.
+  const homeOf = (id) => {
+    const c = TT.api.cachedCourseHome(id);
+    if (!fresh(c, 6 * 3600e3)) load('home', id, TT.api.getCourseHome);
+    return c;
+  };
+
   gc.courseData = { work, fresh, load, failedAt };
 
+  // ---------------- remembered UI state (this browser tab) ----------------
+  // Announcements you expanded and Classwork rows you opened stay that way when the page redraws
+  // (new data, switching browser tabs) and when you come back from somewhere else in Toddle.
+  const sessionSet = (key) => {
+    let s;
+    try { s = new Set(JSON.parse(sessionStorage.getItem(key) || '[]')); } catch { s = new Set(); }
+    const save = () => { try { sessionStorage.setItem(key, JSON.stringify([...s].slice(-300))); } catch {} };
+    return { has: (k) => s.has(k), toggle: (k) => { if (s.has(k)) s.delete(k); else s.add(k); save(); return s.has(k); } };
+  };
+  const expandedPosts = sessionSet('tt:openPosts');
+  const longPosts = new Map(); // post id → taller than the clamp (measured once)
+
+  // ---------------- Stream layout (Customize → Layout) ----------------
+  const MODULES = { upcoming: 'Upcoming', about: 'About this class', links: 'Quick links' };
+  gc.streamLayout = () => {
+    const s = TT.gcPrefs().stream || {};
+    const order = (s.order || []).filter((k) => MODULES[k]);
+    for (const k of Object.keys(MODULES)) if (!order.includes(k)) order.push(k);
+    return {
+      order,
+      hidden: new Set(s.hidden || []),
+      place: s.place === 'top' ? 'top' : 'side',              // About & links: left column, or a strip above the posts
+      banner: ['theme', 'teacher', 'slim'].includes(s.banner) ? s.banner : 'theme',
+      filter: s.filter !== false,                              // the All / Announcements / Classwork chips
+      workPosts: s.workPosts !== false,                        // "posted a new assignment" cards in the feed
+    };
+  };
+  const saveLayout = (patch) => {
+    const p = TT.gcPrefs();
+    p.stream = { ...(p.stream || {}), ...patch };
+    TT.gcSavePrefs(p);
+    gc.refreshView();
+  };
+
+  gc.customizeStream = (course) => {
+    const dlg = h('div', { class: 'tt-gc-dialog-wrap', onClick: (e) => { if (e.target === dlg) dlg.remove(); } });
+    const body = h('div');
+    const draw = () => {
+      const L = gc.streamLayout();
+      const rows = L.order.map((k, i) => h('div', { class: 'tt-gc-layout-row' },
+        h('label', null, h('input', { type: 'checkbox', checked: L.hidden.has(k) ? null : true, onChange: (e) => {
+          const hid = new Set(L.hidden); if (e.target.checked) hid.delete(k); else hid.add(k);
+          saveLayout({ hidden: [...hid] }); draw();
+        } }), MODULES[k]),
+        h('button', { class: 'tt-gc-iconbtn', title: 'Move up', 'aria-label': `Move ${MODULES[k]} up`, disabled: i === 0 ? true : null, onClick: () => {
+          const o = L.order.slice(); [o[i - 1], o[i]] = [o[i], o[i - 1]]; saveLayout({ order: o }); draw();
+        } }, I('up')),
+        h('button', { class: 'tt-gc-iconbtn', title: 'Move down', 'aria-label': `Move ${MODULES[k]} down`, disabled: i === L.order.length - 1 ? true : null, onClick: () => {
+          const o = L.order.slice(); [o[i + 1], o[i]] = [o[i], o[i + 1]]; saveLayout({ order: o }); draw();
+        } }, I('down'))));
+      const choice = (key, val, opts) => h('div', { class: 'tt-gc-layout-choice' }, opts.map(([v, label]) => h('button', {
+        class: 'tt-gc-chip-f' + (val === v ? ' on' : ''), 'aria-pressed': val === v ? 'true' : 'false', onClick: () => { saveLayout({ [key]: v }); draw(); },
+      }, label)));
+      const toggle = (key, val, label) => h('div', { class: 'tt-gc-layout-row' }, h('label', null,
+        h('input', { type: 'checkbox', checked: val ? true : null, onChange: (e) => { saveLayout({ [key]: e.target.checked }); draw(); } }), label));
+      body.replaceChildren(
+        h('div', { class: 'tt-gc-layout-sec' }, 'Side panels'),
+        h('div', { class: 'tt-gc-layout-list' }, rows),
+        h('div', { class: 'tt-gc-layout-sec' }, 'About & quick links'),
+        choice('place', L.place, [['side', 'In the left column'], ['top', 'Above the posts']]),
+        h('div', { class: 'tt-gc-layout-sec' }, 'Banner'),
+        choice('banner', L.banner, [['theme', 'Theme'], ['teacher', "Teacher's picture"], ['slim', 'Slim']]),
+        h('div', { class: 'tt-gc-layout-sec' }, 'Posts'),
+        h('div', { class: 'tt-gc-layout-list' },
+          toggle('filter', L.filter, 'Show the All / Announcements / Classwork filter'),
+          toggle('workPosts', L.workPosts, 'Show "posted a new assignment" cards')));
+    };
+    draw();
+    dlg.append(h('div', { class: 'tt-gc-dialog', role: 'dialog', 'aria-label': 'Customize the Stream' },
+      h('div', { class: 'tt-gc-dialog-title' }, 'Customize the Stream'),
+      h('div', { class: 'tt-gc-dialog-sub' }, 'Applies to every class. The theme picker changes this class\'s colours.'),
+      body,
+      h('div', { class: 'tt-gc-dialog-actions' },
+        h('button', { class: 'tt-gc-btn text', onClick: () => { dlg.remove(); gc.pickTheme(course); } }, 'Change theme'),
+        h('button', { class: 'tt-gc-btn text', onClick: () => dlg.remove() }, 'Done'))));
+    document.body.append(dlg);
+  };
+
   // ---------------- shared pieces ----------------
-  const banner = (course, big) => {
+  const banner = (course, big, home) => {
     const theme = TT.themes.forCourse(course);
     const t = gc.teachers(course.id)[0];
-    return h('div', { class: 'tt-gc-banner' + (big ? '' : ' small'), style: { backgroundImage: `url("${TT.themes.url(theme)}")`, backgroundColor: TT.themes.color(course) } },
-      h('div', { class: 'tt-gc-banner-title' }, course.title),
-      course.section ? h('div', { class: 'tt-gc-banner-sub' }, course.section) : null,
-      t ? h('div', { class: 'tt-gc-banner-sub small' }, TT.personName(t)) : null,
-      h('div', { class: 'tt-gc-banner-btns' },
-        h('button', { class: 'tt-gc-banner-btn', title: 'Change theme', onClick: () => gc.pickTheme(course) }, I('palette'), h('span', null, 'Customize'))));
+    const L = gc.streamLayout();
+    const teacherPic = big && L.banner === 'teacher' && home && home.banner;
+    const slim = big && L.banner === 'slim';
+    return h('div', { class: 'tt-gc-banner' + (big ? '' : ' small') + (teacherPic ? ' teacher' : '') + (slim ? ' slim' : ''),
+      style: { backgroundImage: `url("${teacherPic ? home.banner.replace(/"/g, '%22') : TT.themes.url(theme)}")`, backgroundColor: TT.themes.color(course) } },
+    h('div', { class: 'tt-gc-banner-title' }, course.title),
+    course.section ? h('div', { class: 'tt-gc-banner-sub' }, course.section) : null,
+    t ? h('div', { class: 'tt-gc-banner-sub small' }, TT.personName(t)) : null,
+    h('div', { class: 'tt-gc-banner-btns' },
+      h('button', { class: 'tt-gc-banner-btn', title: 'Change theme', onClick: () => gc.pickTheme(course) }, I('palette'), h('span', null, 'Theme')),
+      big ? h('button', { class: 'tt-gc-banner-btn', title: 'Choose what the Stream shows', onClick: () => gc.customizeStream(course) }, I('tune'), h('span', null, 'Customize')) : null));
+  };
+
+  // "About this class" and "Quick links", from the class's Toddle home page.
+  const aboutCard = (home, place) => {
+    if (!home || !home.description) return null;
+    const body = TT.sanitize(home.description);
+    body.className = 'tt-gc-about-body';
+    // The teacher's widget starts with its own "Course description" heading; the card has a title.
+    const first = body.firstElementChild;
+    if (first && /^H\d$/.test(first.tagName) && /course description|about/i.test(first.textContent)) first.remove();
+    if (!body.textContent.trim()) return null;
+    const key = 'about:' + place;
+    const long = body.textContent.length > (place === 'top' ? 520 : 260);
+    const card = h('section', { class: 'tt-gc-mod tt-gc-about' }, h('div', { class: 'tt-gc-mod-title' }, 'About this class'), body);
+    if (long) {
+      const open = expandedPosts.has(key);
+      body.classList.toggle('clamped', !open);
+      const more = h('button', { class: 'tt-gc-btn text', 'aria-expanded': open ? 'true' : 'false', onClick: () => {
+        const now = expandedPosts.toggle(key);
+        body.classList.toggle('clamped', !now);
+        more.textContent = now ? 'Show less' : 'Read more';
+        more.setAttribute('aria-expanded', now ? 'true' : 'false');
+      } }, open ? 'Show less' : 'Read more');
+      card.append(more);
+    }
+    return card;
+  };
+  const linksCard = (home) => {
+    if (!home || !home.links || !home.links.length) return null;
+    const host = (u) => { try { return new URL(u).host.replace(/^www\./, ''); } catch { return ''; } };
+    return h('section', { class: 'tt-gc-mod tt-gc-qlinks' }, h('div', { class: 'tt-gc-mod-title' }, 'Quick links'),
+      home.links.map((l) => h('a', { class: 'tt-gc-qlink', href: l.url, target: '_blank', rel: 'noopener noreferrer', title: l.description || l.url },
+        h('span', { class: 'tt-gc-qlink-txt' }, h('b', null, l.title), h('small', null, l.description || host(l.url))))));
   };
 
   const statusOf = (it) => {
@@ -88,7 +211,7 @@
       upItems.push(gc.link(it.url, { class: 'tt-gc-upcoming-item' },
         h('span', { class: 'what' }, new Date(it.deadline).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' – ' + it.title)));
     }
-    const side = h('div', { class: 'tt-gc-upcoming' },
+    const upcomingCard = h('div', { class: 'tt-gc-upcoming' },
       h('div', { class: 'tt-gc-upcoming-title' }, 'Upcoming'),
       missing.length ? gc.link(`${gc.base()}/courses/${r.courseId}/classroom`, { class: 'tt-gc-upcoming-missing', onClick: () => TT.lsSet('tt:cwView', { ...(TT.lsGet('tt:cwView', {}) || {}), show: 'missing' }) },
         `${missing.length} missing assignment${missing.length > 1 ? 's' : ''}`) : null,
@@ -96,14 +219,29 @@
         : upItems.length ? upItems : h('div', { class: 'tt-gc-upcoming-none' }, 'Woohoo, no work due soon!'),
       h('div', { class: 'tt-gc-upcoming-foot' }, gc.link(`${gc.base()}/courses/${r.courseId}/classroom`, { class: 'tt-gc-btn text' }, 'View all')));
 
+    // Side panels / About strip, in the order you chose (Customize → Layout).
+    const L = gc.streamLayout();
+    const home = homeOf(r.courseId);
+    const sideMods = [];
+    const topMods = [];
+    for (const k of L.order) {
+      if (L.hidden.has(k)) continue;
+      if (k === 'upcoming') sideMods.push(upcomingCard);
+      else {
+        const card = k === 'about' ? aboutCard(home, L.place) : linksCard(home);
+        if (card) (L.place === 'top' ? topMods : sideMods).push(card);
+      }
+    }
+    const side = sideMods.length ? h('div', { class: 'tt-gc-stream-side' }, sideMods) : null;
+
     // Merge announcements + "posted a new assignment" items, newest first.
     const items = [];
     for (const p of posts || []) items.push({ t: Date.parse(p.publishedAt), kind: 'ann', p });
-    for (const it of list || []) if (it.publishedAt) items.push({ t: it.publishedAt, kind: 'work', it });
+    if (L.workPosts) for (const it of list || []) if (it.publishedAt) items.push({ t: it.publishedAt, kind: 'work', it });
     items.sort((a, b) => b.t - a.t);
 
     // Dedicated Announcements view: All / Announcements / Classwork posts (remembered).
-    const show = TT.lsGet('tt:streamShow', 'all') || 'all';
+    const show = (L.filter && L.workPosts && TT.lsGet('tt:streamShow', 'all')) || 'all';
     const nAnn = items.filter((x) => x.kind === 'ann').length;
     const nUnread = (posts || []).filter((p) => !p.isRead).length;
     const nWork = items.length - nAnn;
@@ -111,13 +249,13 @@
       class: 'tt-gc-chip-f' + (show === k ? ' on' : ''), 'aria-pressed': show === k ? 'true' : 'false',
       onClick: () => { TT.lsSet('tt:streamShow', k); gc.rerender(); },
     }, k === 'ann' ? I('campaign') : k === 'work' ? I('assignment') : null, label, h('span', { class: 'n' }, String(n)), extra || null);
-    const filters = h('div', { class: 'tt-gc-stream-filters', role: 'group', 'aria-label': 'Show' },
+    const filters = L.filter && L.workPosts ? h('div', { class: 'tt-gc-stream-filters', role: 'group', 'aria-label': 'Show' },
       chip('all', 'All', items.length),
       chip('ann', 'Announcements', nAnn, nUnread ? h('span', { class: 'dot', title: `${nUnread} unread` }) : null),
-      chip('work', 'Classwork posts', nWork));
+      chip('work', 'Classwork posts', nWork)) : null;
     const shown = show === 'ann' ? items.filter((x) => x.kind === 'ann') : show === 'work' ? items.filter((x) => x.kind === 'work') : items;
 
-    const feed = h('div', { class: 'tt-gc-feed' }, filters);
+    const feed = h('div', { class: 'tt-gc-feed' }, topMods.length ? h('div', { class: 'tt-gc-about-strip' }, topMods) : null, filters);
     if (list == null && posts == null) feed.append(loadingNote('Loading stream…'));
     else if (!shown.length) feed.append(h('div', { class: 'tt-gc-feed-empty' }, show === 'ann' ? 'No announcements from your teacher yet.' : show === 'work' ? 'Nothing has been posted yet.' : 'This is where you can talk to your class. Nothing posted yet.'));
     for (const x of shown.slice(0, show === 'ann' ? 200 : 60)) {
@@ -132,15 +270,28 @@
             TT.avatar(who, 40, color),
             h('div', null, h('div', { class: 'tt-gc-post-who' }, TT.personName(who)), h('div', { class: 'tt-gc-post-when' }, TT.fmtDate(x.t)))),
           body);
-        // Long announcements collapse like Classroom's.
+        // Long announcements collapse like Classroom's. Whether a post is long is measured once;
+        // after that every redraw builds it the same way, and one you expanded stays expanded.
         feed.append(card);
-        requestAnimationFrame(() => {
-          if (body.scrollHeight > 260) {
-            body.classList.add('clamped');
-            const more = h('button', { class: 'tt-gc-btn text', onClick: () => { body.classList.toggle('clamped'); more.textContent = body.classList.contains('clamped') ? 'Show more' : 'Show less'; } }, 'Show more');
-            card.append(more);
-          }
-        });
+        const clampUi = () => {
+          const open = expandedPosts.has(p.id);
+          body.classList.toggle('clamped', !open);
+          const more = h('button', { class: 'tt-gc-btn text', 'aria-expanded': open ? 'true' : 'false', onClick: () => {
+            const now = expandedPosts.toggle(p.id);
+            body.classList.toggle('clamped', !now);
+            more.textContent = now ? 'Show less' : 'Show more';
+            more.setAttribute('aria-expanded', now ? 'true' : 'false');
+          } }, open ? 'Show less' : 'Show more');
+          card.append(more);
+        };
+        if (longPosts.get(p.id)) clampUi();
+        else if (!longPosts.has(p.id)) {
+          requestAnimationFrame(() => {
+            if (!body.isConnected || longPosts.has(p.id)) return;
+            longPosts.set(p.id, body.scrollHeight > 260);
+            if (longPosts.get(p.id)) clampUi();
+          });
+        }
       } else {
         const it = x.it;
         const who = it.by ? it.by.name : 'Your teacher';
@@ -152,11 +303,16 @@
       }
     }
 
-    el.append(h('div', { class: 'tt-gc-course' }, banner(course, true), h('div', { class: 'tt-gc-stream' }, side, feed)));
+    const wide = sideMods.some((m) => m !== upcomingCard);
+    el.append(h('div', { class: 'tt-gc-course' }, banner(course, true, home),
+      h('div', { class: 'tt-gc-stream' + (side ? (wide ? ' side-wide' : '') : ' no-side') }, side, feed),
+      h('div', { class: 'tt-gc-stream-foot' }, h('button', { class: 'tt-gc-btn text', onClick: () => gc.customizeStream(course) }, I('tune'), 'Customize this page'))));
   };
 
   // ---------------- Classwork ----------------
-  const open = new Set();
+  // Rows you opened stay open (this browser tab), through redraws and coming back to the page.
+  const openRows = sessionSet('tt:openRows');
+  const open = { has: (id) => openRows.has(id), add: (id) => { if (!openRows.has(id)) openRows.toggle(id); }, delete: (id) => { if (openRows.has(id)) openRows.toggle(id); } };
   gc.views.classwork = (el, r) => {
     const course = gc.course(r.courseId);
     const color = TT.themes.color(course);

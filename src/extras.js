@@ -41,7 +41,7 @@
   // Settings you can flip from Ctrl/⌘+K (they only show up when you type).
   const TOGGLES = [
     ['heatmap', 'Workload heatmap'], ['nextClass', 'Next class in the top bar'],
-    ['finalsMode', 'Finals in the menu'], ['classroomMode', 'Google Classroom mode'], ['gcCompact', 'Compact spacing'],
+    ['finalsMode', 'Finals in the menu'], ['classroomMode', 'Google Classroom mode'], ['gcCompact', 'Compact spacing'], ['gcDrawerHover', 'Open the collapsed menu on hover'], ['gradesOverview', 'Grades overview'],
     ['tabBadge', 'Count in the tab title'], ['relativeDates', 'Relative due dates'], ['docsNewTab', 'Open Google Docs in a new tab'],
     ['hidePastNoSubmission', 'Hide past "no submission" items'], ['gcCardInfo', "Class cards show what's due"], ['shortcuts', 'Keyboard shortcuts'],
   ];
@@ -54,6 +54,7 @@
       { kind: 'Page', title: 'Calendar', icon: 'calendar', action: view('calendar'), sub: 'Due dates by week', keys: 'g c' },
       { kind: 'Page', title: 'Timetable', icon: 'event', action: view('timetable'), sub: 'Your whole week', keys: 'g w' },
       { kind: 'Page', title: 'Attendance', icon: 'attendance', action: view('attendance'), keys: 'g a' },
+      { kind: 'Page', title: 'Grades', icon: 'grade', action: view('grades'), sub: 'Every graded assessment on one page', keys: 'g r' },
       { kind: 'Page', title: 'Finals', icon: 'summative', action: view('finals'), sub: fs.show ? (fs.daysUntil > 0 ? `Starts in ${fs.daysUntil} days` : fs.phase === 'during' ? 'Happening now' : '') : 'Exam schedule and checklist', boost: fs.show ? 2 : 0, quiet: !fs.show, keys: 'g f' },
       { kind: 'Page', title: 'School announcements', icon: 'campaign', url: `${base()}/circulars` },
       { kind: 'Page', title: 'School calendar', icon: 'schedule', url: `${base()}/courses/my-calendar`, quiet: true },
@@ -192,6 +193,7 @@
         inGc() ? row(['g', 't'], 'To-do') : null,
         inGc() ? row(['g', 'c'], 'Calendar') : null,
         row(['g', 'w'], 'Timetable (week)'),
+        row(['g', 'r'], 'Grades'),
         row(['g', 'a'], 'Attendance'),
         row(['g', 'f'], 'Finals'),
         row(['g', 's'], 'Toddle Tweaks settings'),
@@ -231,6 +233,7 @@
         w: () => TT.openView('timetable'),
         a: () => TT.openView('attendance'),
         f: () => TT.openView('finals'),
+        r: () => TT.openView('grades'),
         s: () => TT.openSettings(),
       };
       if (map[e.key]) { e.preventDefault(); map[e.key](); return; }
@@ -267,8 +270,8 @@
   // ---------------- pages in classic mode ----------------
   // Calendar, Timetable, Attendance and Finals are Classroom-mode pages. In regular Toddle they
   // open as a full-screen sheet over Toddle (Esc or ✕ closes it).
-  const VIEW_URL = { calendar: '/courses?tt=calendar', timetable: '/timetable', attendance: '/attendance-summary', finals: '/courses?tt=finals' };
-  const VIEW_TITLE = { calendar: 'Calendar', timetable: 'Timetable', attendance: 'Attendance', finals: 'Finals' };
+  const VIEW_URL = { calendar: '/courses?tt=calendar', timetable: '/timetable', attendance: '/attendance-summary', finals: '/courses?tt=finals', grades: '/courses?tt=grades' };
+  const VIEW_TITLE = { calendar: 'Calendar', timetable: 'Timetable', attendance: 'Attendance', finals: 'Finals', grades: 'Grades' };
   let sheet = null;
   const closeSheet = () => { if (sheet) { sheet.cleanup(); sheet.el.remove(); sheet = null; } if (TT.gc) TT.gc.overlayRefresh = null; };
   TT.openView = (name) => {
@@ -277,7 +280,7 @@
     closeSheet();
     const body = h('div', { class: 'tt-sheet-body' });
     const el = h('div', { class: 'tt-sheet', role: 'dialog', 'aria-label': VIEW_TITLE[name] },
-      h('div', { class: 'tt-sheet-bar' }, h('span', { class: 'tt-sheet-title' }, I(name === 'finals' ? 'summative' : name === 'timetable' ? 'event' : name === 'attendance' ? 'attendance' : 'calendar'), VIEW_TITLE[name]),
+      h('div', { class: 'tt-sheet-bar' }, h('span', { class: 'tt-sheet-title' }, I(name === 'finals' ? 'summative' : name === 'grades' ? 'grade' : name === 'timetable' ? 'event' : name === 'attendance' ? 'attendance' : 'calendar'), VIEW_TITLE[name]),
         h('button', { class: 'tt-gc-iconbtn', title: 'Close (Esc)', 'aria-label': 'Close', onClick: closeSheet }, I('close'))),
       body);
     const draw = () => {

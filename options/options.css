@@ -109,6 +109,7 @@ body { margin: 0; background: var(--bg); }
 .mode.classic { background: #fce8e6; color: #c5221f; }
 .mode.both { background: #e6f4ea; color: #137333; }
 .intro { font: 400 13px/19px Roboto, Arial; color: var(--text-2); margin: 0 0 6px; }
+.hl-seg { display: flex; width: max-content; margin: 12px 0 16px; }
 .toc a { display: flex; flex-direction: column; }
 .toc a small { font: 400 11px/14px Roboto, Arial; color: var(--text-2); }
 .preview.empty { display: none; }
@@ -166,9 +167,8 @@ body, .ttl, .bar-title, .sec h2, .btn, .toc a { font-family: "Google Sans", "Goo
 .pv-cb { width: 14px; height: 14px; border-radius: 3px; border: 2px solid #9aa0a6; flex: none; }
 .pv-cb.on { background: #1a73e8; border-color: #1a73e8; }
 .pv-cb.toddle { border-radius: 50%; background: #1e8e3e; border-color: #1e8e3e; }
-.pv-next { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #dadce0; border-radius: 16px; padding: 4px 12px; font-size: 12px; color: #5f6368; }
-.pv-next i { width: 8px; height: 8px; border-radius: 50%; background: #e37400; }
-.pv-next small { font-size: 9px; letter-spacing: .5px; }
+.pv-next { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; font-size: 12px; color: #5f6368; }
+.pv-next i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid #5f6368; box-sizing: border-box; }
 .pv-next b { color: #3c4043; font-weight: 500; }
 .pv-week { display: flex; gap: 4px; width: 100%; }
 .pv-week span { flex: 1; border: 1px solid #dadce0; border-radius: 4px; padding: 3px; display: flex; flex-direction: column; gap: 3px; }

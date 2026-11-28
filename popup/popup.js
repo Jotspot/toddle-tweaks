@@ -109,7 +109,7 @@ async function renderUpcoming(s) {
   const upcoming = open.filter((x) => !missing.includes(x) && x.deadline && x.deadline >= sod.getTime()).sort((a, b) => a.deadline - b.deadline);
   const show = [...missing.slice(0, 3), ...upcoming].slice(0, 6);
   list.textContent = '';
-  if (!show.length) { const m = document.createElement('div'); m.className = 'muted'; m.textContent = 'Nothing due. 🎉'; list.append(m); return; }
+  if (!show.length) { const m = document.createElement('div'); m.className = 'muted'; m.textContent = 'Nothing due.'; list.append(m); return; }
   for (const it of show) {
     const a = document.createElement('a');
     a.className = 'up' + (missing.includes(it) ? ' late' : '');

@@ -262,10 +262,9 @@
         : `${pick.date === D().iso(D().addDays(now, 1)) ? 'Tomorrow' : D().parseIso(pick.date).toLocaleDateString([], { weekday: 'short' })} ${time(pick.date, pick.start)}`;
     const showRoom = TT.settings.nextClassRoom !== false && pick.room;
     return gc.link(`${gc.base()}/timetable`, { class: 'tt-next' + (cur ? ' now' : ''), title: `${cur ? 'Now' : 'Next'}: ${name}\n${range(pick)}${pick.room ? '\n' + pick.room : ''}\nOpen timetable`, style: { '--c': TT.themes.color(gc.course(pick.courseId)) } },
-      h('span', { class: 'tt-next-dot' }),
-      h('span', { class: 'tt-next-k' }, cur ? 'Now' : 'Next'),
-      h('span', { class: 'tt-next-name' }, name),
-      h('span', { class: 'tt-next-when' }, when + (showRoom ? ` · ${pick.room}` : '')));
+      TT.gIcon('schedule', 'tt-next-ico'),
+      h('span', { class: 'tt-next-name' }, `${cur ? 'Now' : 'Next'}: `, h('b', null, name)),
+      h('span', { class: 'tt-next-when' }, `${when}${showRoom ? ` · ${pick.room}` : ''}`));
   };
   // Keep the chip's minutes current.
   setInterval(() => { if (gc.active && gc.active() && TT.settings.nextClass !== false) gc.rerenderBar && gc.rerenderBar(); }, 30e3);

@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.7.0
+- Grades on one page, laid out like Classwork: every graded assessment in every class with your standard levels, learning behaviors, scores, rubric and checklist rows, and your teacher's comments (shown like private comments). No more clicking a class, then an icon, to see one level
+- Overview at the top of Grades: how many assessments are graded and missing, and how your standard levels and learning behaviors add up for the term and class you picked (can be turned off in Settings)
+- Standards tab: each class as a table of its standards with every level you've had on each one, oldest to newest, and the most recent. Filter by semester, class or summatives, and search assessments, standards and comments
+- Toddle's gradebook links open the new Grades page (on the class you clicked); "Toddle's gradebook" still opens Toddle's own for final grades. In regular Toddle it opens from Ctrl/⌘ + K or g r
+- Class Stream shows the class's description (About this class) and the teacher's quick links from Toddle
+- Customize the Stream: turn Upcoming, About this class and Quick links on or off and reorder them, put About and links above the posts, use the teacher's banner picture or a slim banner, and hide the post filter or "posted a new assignment" cards
+- New "Grades (Middle School)" section in Settings: the Grades page's look, level names, whether learning behaviors and comments show, and a Grades button on Toddle's gradebook in regular Toddle
+- Level names: keep the new scale (NE · EM · DE · ME · MWD), call just the top level Exemplary, or go back to the old Below · Approaching · Meets · Exemplary. Applies to the Grades page and (switchable) to Toddle's own rubrics, assignments and gradebook, in Classroom mode and regular Toddle
+- PowerSchool-style look for Grades (Settings → Grades (Middle School) → Grades look), modelled on SAS's PowerSchool student portal: Grades and Attendance (classes in expression order like 1(A) or 3(A-B), "Email Last, First - Rm:" under each class, a grade per semester with shaded terms you're not in and [ i ] for nothing graded), a Scores page for each class when you click a grade (final level, section description, every assignment with flag icons, score, %, grade and comments), and Standards Grades (Learning Behaviors per term, then Academic Standards per class with a column per semester, written out like "Meets Expectations" with the old names). Each class's Scores page has its own address, so Back returns to Grades and Attendance
+- Grades: Collapse all / Expand all for the classes, and the usual level next to each class is bigger, with a book icon in the menu
+- Settings opens on Highlights: the settings people at your school go looking for (middle school: old level names, PowerSchool-style grades and more; high school: finals, timetable, next class). It finds your school from Toddle, and you can switch to see the others
+- Settings: "Finals (High School)", and shorter Level names choices that fit on one line
+- Next class in the top bar is plain text with a clock icon ("Next: Chemistry in 12 min · H306") instead of a pill
+- Dragging class cards: the others slide out of the way, the card leaves a dashed slot, gaps between cards work, letting go anywhere keeps the new order, and Esc cancels
+- New setting: the folded-up menu slides open when you rest the mouse on it (off by default)
+- Course plan: the topic list on the left folds away to give the plan more room (remembered)
+- Assignments open over the page you opened them from (Grades, Stream, To-do…) instead of flashing the class's Classwork first. Closing one no longer flashes Toddle's old Assignments page, and Toddle's back arrow returns to the page you came from instead of Home
+- Announcements you expanded and Classwork items you opened stay open when you switch browser tabs or come back from elsewhere in Toddle, and pages remember where you'd scrolled
+- Assignments you've turned in or marked done no longer show a red "11 days ago" next to the due date
+- Small cleanups: no emoji in empty to-do messages, plain headings in the popup
+
 ## 2.6.0
 - New welcome page after installing: the main features in one place, plus a choice of Classroom or regular look. Skip it to keep the defaults; it's also in Settings
 - Timetable shows your whole week (Monday to Friday) with your school's A/B/C/D days, class blocks like A1 or B3, holidays, finals days, the class you're in now, and what's due in each class that day

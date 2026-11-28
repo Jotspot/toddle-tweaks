@@ -349,7 +349,7 @@
 
       if (view.tab === 'todo') {
         const list = cat.todo.filter((x) => x.bucket !== 'missing');
-        if (!list.length) body.append(h('div', { class: 'tt-empty' }, '🎉 Nothing assigned. Enjoy it.'));
+        if (!list.length) body.append(h('div', { class: 'tt-empty' }, 'Nothing assigned right now.'));
         if (view.sort === 'smart') {
           for (const [k, label] of BUCKETS.slice(1)) {
             const g = list.filter((x) => x.bucket === k);

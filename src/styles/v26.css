@@ -134,13 +134,13 @@ html:not(.tt-gc-shell) {
 .tt-tt-other p { margin: 6px 0 0; line-height: 19px; }
 
 /* ---------------- next class chip ---------------- */
-.tt-next { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 10px; margin-right: 4px; border-radius: 18px; border: 1px solid var(--gc-line); color: var(--gc-text) !important; text-decoration: none !important; font: 400 13px/18px var(--gc-body); white-space: nowrap; max-width: 380px; min-width: 0; }
-.tt-next:hover { background: var(--gc-hover); }
-.tt-next-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
-.tt-next.now .tt-next-dot { box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
-.tt-next-k { font: 500 11px/16px var(--gc-font); color: var(--gc-text-2); text-transform: uppercase; letter-spacing: .6px; }
-.tt-next-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.tt-next-when { color: var(--gc-text-2); overflow: hidden; text-overflow: ellipsis; }
+/* Next class: plain text in the top bar, like Google's own header text. */
+.tt-next { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; margin-right: 4px; border-radius: 4px; color: var(--gc-text-2) !important; text-decoration: none !important; font: 400 14px/20px var(--gc-body); white-space: nowrap; max-width: 400px; min-width: 0; }
+.tt-next:hover { background: var(--gc-hover); color: var(--gc-text) !important; }
+.tt-next-ico { width: 18px !important; height: 18px !important; fill: currentColor; flex: none; }
+.tt-next-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tt-next-name b { font-weight: 500; color: var(--gc-text); }
+.tt-next-when { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 1250px) { .tt-next-when { display: none; } }
 @media (max-width: 1000px) { .tt-next { display: none; } }
 

@@ -24,8 +24,14 @@
     let m;
     if (/^\/platform\/\d+\/courses$/.test(p)) {
       const tt = q.get('tt');
-      const v = { todo: 'todo', calendar: 'calendar', finals: 'finals' }[tt] || 'home';
-      return { cp, view: v, key: 'home:' + (tt || '') };
+      const v = { todo: 'todo', calendar: 'calendar', finals: 'finals', grades: 'grades' }[tt] || 'home';
+      // A class's Scores page in PowerSchool-style Grades has its own address (&class=), so Back works.
+      return { cp, view: v, key: 'home:' + (tt || '') + (v === 'grades' && q.get('class') ? `:${q.get('class')}:${q.get('term') || ''}` : '') };
+    }
+    // Toddle's gradebook → everything on one page (?tt=classic shows Toddle's).
+    if ((m = p.match(/^\/platform\/\d+\/student-progress-summary(?:\/|$)/)) && q.get('tt') !== 'classic' && TT.settings.gcGrades !== false) {
+      const lc = (p.match(/\/all-assessments\/(\d+)/) || [])[1] || null;
+      return { cp, view: 'grades', lc, key: 'grades:' + (lc || '') };
     }
     // Timetable (a whole week) and Attendance get Classroom pages; ?tt=classic shows Toddle's.
     if (/^\/platform\/\d+\/timetable$/.test(p) && q.get('tt') !== 'classic' && TT.settings.gcTimetable !== false) return { cp, view: 'timetable', key: 'timetable' };
@@ -34,11 +40,17 @@
       const courseId = m[1];
       let view = m[2] === 'classroom' ? 'classwork' : 'stream';
       if (q.get('tt') === 'people' || (forced && forced.path === p && forced.view === 'people')) view = 'people';
-      if (q.get('tt') === 'classic') return { cp, courseId, view: null, sub: 'classroom', key: 'pass:' + p };
+      if (q.get('tt') === 'classic') return { cp, courseId, view: null, sub: m[2] === 'home' ? 'stream' : 'classroom', key: 'pass:' + p };
       return { cp, courseId, view, key: view + ':' + courseId };
     }
     if ((m = p.match(/^\/platform\/\d+\/courses\/(\d+)\/course-plan(?:\/flow)?$/)) && TT.settings.gcNativeCoursePlan !== false && q.get('tt') !== 'classic') {
       return { cp, courseId: m[1], view: 'course-plan', key: 'course-plan:' + m[1] };
+    }
+    // An assignment is a full-screen Toddle modal over its old Assignments page. Draw our Classwork
+    // underneath instead: closing the assignment then shows a page that's already there (no flash of
+    // Toddle's list), at the same scroll position.
+    if ((m = p.match(/^\/platform\/\d+\/courses\/(\d+)\/classroom\/classroom-details\//)) && q.get('tt') !== 'classic') {
+      return { cp, courseId: m[1], view: 'classwork', under: true, sub: 'classroom', key: 'classwork:' + m[1] };
     }
     if ((m = p.match(/^\/platform\/\d+\/courses\/(\d+)\//))) {
       const sub = p.split('/')[5] || '';
@@ -157,8 +169,20 @@
     window.addEventListener('resize', TT.debounce(applyDrawerMode, 100));
     // Clicking outside the slide-over menu closes it.
     document.addEventListener('mousedown', (e) => {
-      if (html.classList.contains('tt-gc-drawer-peek') && drawerEl && !drawerEl.contains(e.target) && !e.target.closest('.tt-gc-bar-left .tt-gc-iconbtn')) html.classList.remove('tt-gc-drawer-peek');
+      if (html.classList.contains('tt-gc-drawer-peek') && drawerEl && !drawerEl.contains(e.target) && !e.target.closest('.tt-gc-bar-left .tt-gc-iconbtn')) html.classList.remove('tt-gc-drawer-peek', 'tt-gc-drawer-hover');
     }, true);
+    // Settings → "Open the collapsed menu on hover": resting on the icon rail slides the full menu
+    // over the page (nothing underneath moves); leaving it slides it back.
+    let hoverT = null;
+    drawerEl.addEventListener('mouseenter', () => {
+      if (!TT.settings.gcDrawerHover || html.classList.contains('tt-gc-drawer-open') || html.classList.contains('tt-gc-drawer-peek')) return;
+      clearTimeout(hoverT);
+      hoverT = setTimeout(() => html.classList.add('tt-gc-drawer-peek', 'tt-gc-drawer-hover'), 180);
+    });
+    drawerEl.addEventListener('mouseleave', () => {
+      clearTimeout(hoverT);
+      if (html.classList.contains('tt-gc-drawer-hover')) hoverT = setTimeout(() => html.classList.remove('tt-gc-drawer-peek', 'tt-gc-drawer-hover'), 250);
+    });
   };
 
   // Wide windows: the drawer is docked (open/closed is remembered). Narrow windows: a slim rail,
@@ -173,6 +197,7 @@
   };
 
   const toggleDrawer = () => {
+    if (html.classList.contains('tt-gc-drawer-hover')) { html.classList.remove('tt-gc-drawer-peek', 'tt-gc-drawer-hover'); if (isNarrow()) return; }
     if (isNarrow()) { html.classList.toggle('tt-gc-drawer-peek'); return; }
     const open = !html.classList.contains('tt-gc-drawer-open');
     html.classList.toggle('tt-gc-drawer-open', open);
@@ -195,7 +220,7 @@
         h('span', { class: 'tt-gc-crumb-title' }, c.title),
         t ? h('span', { class: 'tt-gc-crumb-sub' }, TT.personName(t)) : null));
     } else {
-      const titles = { todo: 'To-do', calendar: 'Calendar', timetable: 'Timetable', attendance: 'Attendance', finals: 'Finals' };
+      const titles = { todo: 'To-do', calendar: 'Calendar', timetable: 'Timetable', attendance: 'Attendance', finals: 'Finals', grades: 'Grades' };
       if (titles[r.view]) left.append(h('span', { class: 'tt-gc-crumb-sep' }, I('right')), h('span', { class: 'tt-gc-page-title' }, titles[r.view]));
     }
 
@@ -293,6 +318,7 @@
     drawer.append(
       navItem(`${b}/courses`, 'home', 'Home', r.view === 'home'),
       navItem(`${b}/courses?tt=calendar`, 'calendar', 'Calendar', r.view === 'calendar'));
+    if (TT.settings.gcGrades !== false) drawer.append(navItem(`${b}/courses?tt=grades`, 'grade', 'Grades', r.view === 'grades'));
     // Finals: only in the weeks before exams (Settings → Finals).
     const fs = TT.school && TT.school.finalsStatus();
     if (fs && fs.show) {
@@ -337,8 +363,20 @@
 
   gc.active = () => html.classList.contains('tt-gc-shell');
 
+  let curHref = location.href, prevHref = null;
+  // An assignment opens over the page you came from (Grades, Stream, To-do…), which stays drawn
+  // underneath with its own top bar. Only when you land on an assignment directly is the class's
+  // Classwork drawn under it.
+  let lastRoute = null;
+  let keptUnder = false;
+  const shownRoute = () => { const r = gc.route(); return keptUnder && r && r.under && lastRoute ? { ...lastRoute, under: true } : r; };
+  // The address of the page in #tt-gc-view (not the assignment's while one is open over it).
+  gc.viewUrl = () => (keptUnder && lastNative ? lastNative : location.pathname + location.search);
   gc.render = () => {
-    const r = gc.route();
+    if (location.href !== curHref) { prevHref = curHref; curHref = location.href; }
+    const r0 = gc.route();
+    keptUnder = !!(r0 && r0.under && lastRoute && currentKey === lastRoute.key && lastRoute.key !== r0.key);
+    const r = keptUnder ? { ...lastRoute, under: true } : r0;
     const on = !!(TT.settings.classroomMode && r && userInfo().jwt);
     html.classList.toggle('tt-gc-shell', on);
     if (!on) {
@@ -347,7 +385,8 @@
       return;
     }
     build();
-    html.classList.remove('tt-gc-drawer-peek'); // navigating closes the slide-over menu
+    // Navigating closes the slide-over menu (unless it's open because the mouse is resting on it).
+    if (!html.classList.contains('tt-gc-drawer-hover')) html.classList.remove('tt-gc-drawer-peek');
     if (!shell.isConnected) (document.body || html).appendChild(shell);
     swapIfChanged(barEl, (el) => renderBar(r, el));
     swapIfChanged(drawerEl, (el) => renderDrawer(r, el));
@@ -355,15 +394,26 @@
     else html.style.setProperty('--tt-course', '#1967d2');
     const fn = r.view && gc.views[r.view];
     html.classList.toggle('tt-gc-native', !!fn);
+    html.classList.toggle('tt-gc-under', !!(fn && r.under));
     html.classList.toggle('tt-gc-in-course', !!r.courseId);
-    if (!fn) { view.textContent = ''; currentKey = null; return; }
+    if (!fn) { rememberScroll(); view.textContent = ''; currentKey = null; return; }
     if (currentKey !== r.key) {
+      rememberScroll();
       currentKey = r.key;
       view.textContent = '';
-      view.scrollTop = 0;
       fn(view, r);
+      // Coming back to a page you were just on (from an assignment, another tab of the class…)
+      // puts you where you were; anywhere new starts at the top.
+      view.scrollTop = scrollMemo.get(r.key) || 0;
     }
+    if (!r.under) { lastNative = location.pathname + location.search; lastRoute = r; }
   };
+
+  // Scroll position per native page, for this tab's session.
+  const scrollMemo = new Map();
+  let lastNative = null;
+  const rememberScroll = () => { if (currentKey && view) scrollMemo.set(currentKey, view.scrollTop); };
+  gc.lastNative = () => lastNative;
 
   const swapIfChanged = (target, draw) => {
     if (!target) return;
@@ -383,7 +433,7 @@
     if (!gc.active()) return;
     if (!forceNext && typingInView()) { setTimeout(() => gc.rerender(), 1500); return; }
     forceNext = false;
-    const r = gc.route();
+    const r = shownRoute();
     if (!r) return;
     swapIfChanged(barEl, (el) => renderBar(r, el));
     swapIfChanged(drawerEl, (el) => renderDrawer(r, el));
@@ -399,14 +449,32 @@
   }, 60);
 
   // Redraw just the bar (the next-class chip's minutes).
-  gc.rerenderBar = () => { if (gc.active()) { const r = gc.route(); if (r) swapIfChanged(barEl, (el) => renderBar(r, el)); } };
+  gc.rerenderBar = () => { if (gc.active()) { const r = shownRoute(); if (r) swapIfChanged(barEl, (el) => renderBar(r, el)); } };
   // Redraw the current view now (week arrows, checkboxes). Also used by the classic-mode page overlay.
   gc.refreshView = () => { if (gc.overlayRefresh && gc.overlayRefresh()) return; forceNext = true; gc.rerender(); };
 
+  // Toddle's own "go back" arrow on an assignment goes to its idea of the previous page (often Home,
+  // or its old Assignments page underneath). Send it back to the page you opened the assignment from.
+  const onToddleBack = (e) => {
+    if (!gc.active() || !e.target.closest) return;
+    const b = e.target.closest('[aria-label="go back" i], [aria-label="back" i]');
+    if (!b || !b.closest('.ReactModal__Content, .ReactModal__Overlay')) return;
+    const m = location.pathname.match(/^\/platform\/\d+\/courses\/(\d+)\/classroom\/classroom-details\//);
+    if (!m) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const target = lastNative || `${gc.base()}/courses/${m[1]}/classroom`;
+    const prev = prevHref && new URL(prevHref);
+    if (prev && prev.pathname + prev.search === target) history.back();
+    else gc.go(target);
+  };
+
   gc.start = () => {
+    document.addEventListener('click', onToddleBack, true);
     gc.render();
     window.addEventListener('tt:route', () => gc.render());
-    window.addEventListener('popstate', () => setTimeout(gc.render, 0));
+    // Back/forward: switch views before Toddle draws its own page for the new URL (no flash).
+    window.addEventListener('popstate', () => gc.render());
     TT.onRoute(() => gc.render());
     window.addEventListener('tt:settings', () => { gc.render(); currentKey = null; gc.render(); });
     TT.onTodo(() => gc.rerender());

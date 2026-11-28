@@ -11,7 +11,7 @@ button.primary { background: var(--blue); color: #fff; border: 0; border-radius:
 button.primary:hover { background: #1765cc; }
 button.link { background: none; border: 0; color: var(--blue); cursor: pointer; font: 500 13px Roboto, Arial, sans-serif; padding: 4px; }
 section { padding: 8px 14px 4px; border-bottom: 1px solid var(--line); }
-h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-2); margin: 4px 0 4px; font-weight: 500; }
+h2 { font-size: 13px; color: var(--text-2); margin: 4px 0 4px; font-weight: 500; }
 .row { display: flex; align-items: center; gap: 12px; padding: 7px 0; cursor: pointer; }
 .row span { flex: 1; display: flex; flex-direction: column; }
 .row b { font-weight: 500; }

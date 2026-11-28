@@ -33,17 +33,38 @@
   };
 
   // "Due on 23rd Nov 2026, 8:30 AM" → "… (in 4 days)". Works in classic mode too (see extras.js).
+  // Is the assignment on screen already handled (turned in, marked done, or nothing to turn in)?
+  // Then a past due date is just a date, not a red warning. null = we don't know it.
+  const settledHere = () => {
+    const m = location.pathname.match(/\/courses\/(\d+)\/classroom\/classroom-details\/\d+\/(\d+)/);
+    if (!m) return null;
+    const lists = [(TT.todoData && TT.todoData() || {}).items, (TT.api.cachedCourseWork(m[1]) || {}).list];
+    for (const list of lists) {
+      const it = (list || []).find((x) => x.id === m[2]);
+      if (it) return !!(it.toddleDone || it.isSubmitted || !it.needsSubmission || /TURNED_IN|SUBMITTED|NOT_REQUIRED/.test(it.submissionStatus || ''));
+    }
+    return null;
+  };
+
   const addRelativeDue = () => {
     if (TT.settings.relativeDates === false) return;
+    const settled = settledHere();
     for (const el of document.querySelectorAll('[class*="StudentAssignmentBasicDetails__basicDetails___"]')) {
-      if (el.querySelector('.tt-reldue')) continue;
+      const prev = el.querySelector('.tt-reldue');
+      if (prev) {
+        const late = prev.dataset.past === '1' && !settled;
+        prev.classList.toggle('late', late);
+        prev.classList.toggle('done', prev.dataset.past === '1' && !!settled);
+        continue;
+      }
       const m = (el.textContent || '').match(/Due on (\d{1,2})(?:st|nd|rd|th)? (\w{3})\w* (\d{4}),? (\d{1,2}):(\d{2}) ?([AP]M)?/i);
       if (!m) continue;
       let hr = +m[4];
       if (m[6]) { if (/pm/i.test(m[6]) && hr < 12) hr += 12; if (/am/i.test(m[6]) && hr === 12) hr = 0; }
       const t = new Date(`${m[2]} ${m[1]} ${m[3]} ${hr}:${m[5]}`).getTime();
       if (!t) continue;
-      el.append(TT.h('span', { class: 'tt-reldue' + (t < Date.now() ? ' late' : '') }, ' · ' + TT.relTime(t)));
+      const past = t < Date.now();
+      el.append(TT.h('span', { class: 'tt-reldue' + (past ? (settled ? ' done' : ' late') : ''), 'data-past': past ? '1' : '0' }, ' · ' + TT.relTime(t)));
     }
   };
   TT.addRelativeDue = addRelativeDue;
@@ -145,6 +166,33 @@
       if (el.textContent.trim() === 'Your response') el.textContent = 'Your work';
     }
   };
+
+  // ---------------- level names (both modes) ----------------
+  // Settings → Grades → Level names: Toddle's rubrics, assignment evaluations and gradebook use the
+  // new SAS scale (Not yet Evident … Meeting with Distinction). Show the names you picked instead.
+  // Only short pieces of text are touched (labels and abbreviations), never instructions or comments.
+  const LABEL_RE = /\b(not yet evident|not evident|meeting with distinction|meets with distinction|emerging|developing|meeting)\b/gi;
+  const ABBR_RE = /\b(NE|EM|DE|ME|MWD)\b/g;
+  const renameTop = () => {
+    const L = TT.levelNames;
+    if (!L || TT.settings.gradeWordsToddle === false || L.words() === 'new') return;
+    const roots = [...document.querySelectorAll('.ReactModal__Content, [role="dialog"]')];
+    if (/\/(student-progress-summary|classroom-details)\//.test(location.pathname)) { const r = document.getElementById('root'); if (r) roots.push(r); }
+    const label = (m) => { const r = L.renameKey(L.LABEL_KEY[m.toLowerCase()]); return r ? r[1] : m; };
+    const abbr = (m) => { const r = L.renameKey(m); return r ? r[0] : m; };
+    for (const root of roots) {
+      if (root.closest('#tt-gc-shell, .tt-sheet, .tt-gc-dialog-wrap')) continue;
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      for (let n = w.nextNode(); n; n = w.nextNode()) {
+        const v = n.nodeValue;
+        if (v.length > 48 || !v.trim() || n.parentElement.closest('textarea, [contenteditable="true"], .tt-gr')) continue;
+        const nv = v.replace(LABEL_RE, label).replace(ABBR_RE, abbr);
+        if (nv !== v) n.nodeValue = nv;
+      }
+    }
+  };
+  const renameTick = TT.debounce(renameTop, 150);
+  TT.waitFor('body', 20000).then((body) => body && new MutationObserver(renameTick).observe(body, { childList: true, subtree: true }));
 
   // ---------------- loop ----------------
   const tick = TT.debounce(() => {

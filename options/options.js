@@ -10,6 +10,7 @@ const DEFAULTS = {
   heatmap: true, hm_calendar: true, hm_timetable: false, hm_home: false, hm_todo: false, hm_sidebar: false,
   hmExpanded: false, hmWeekends: false, hmWeightTests: true, hmGrid: true, hmInsights: true,
   hmiBusiest: true, hmiLightest: true, hmiTests: true, hmiClass: true, hmiTotal: true, hmiOff: true, hmiMissing: true, hmiFinals: true,
+  gcGrades: true, gcDrawerHover: false, gradeWords: 'new', gradeWordsToddle: true, gradesStyle: 'classroom', gradesOverview: true, gradesBehaviors: true, gradesComments: true, gradesButton: true,
 };
 
 // Mini previews (made-up example classes), only where seeing it helps.
@@ -48,7 +49,7 @@ const P = {
     ? `<div class="pv-dk"><div class="pv-dk-bar">Classroom</div><div class="pv-dk-card"><b>Biology</b><small>Lab report · Due tomorrow</small></div></div>`
     : `<div class="pv-dk dark"><div class="pv-dk-bar">Classroom</div><div class="pv-dk-card"><b>Biology</b><small>Lab report · Due tomorrow</small></div></div>`,
   heatmap: (on) => on ? `<div class="pv-hm">${[1, 3, 0, 4, 2].map((l, i) => `<span class="l${l}"><small>${'MTWTF'[i]}</small>${[2, 5, 0, 7, 3][i] || '–'}</span>`).join('')}</div>` : `<div class="pv-mouse muted">No heatmap</div>`,
-  next: (on) => on ? `<div class="pv-next"><i></i><small>NEXT</small><b>Chemistry</b> in 12 min · H306</div>` : `<div class="pv-mouse muted">Top bar shows only your icons</div>`,
+  next: (on) => on ? `<div class="pv-next"><i></i>Next: <b>Chemistry</b> in 12 min · H306</div>` : `<div class="pv-mouse muted">Top bar shows only your icons</div>`,
   week: (on) => on ? `<div class="pv-week">${'MTWTF'.split('').map((d) => `<span><small>${d}</small><i></i><i></i><i></i></span>`).join('')}</div>` : `<div class="pv-week few">${'MTW'.split('').map((d) => `<span><small>${d}</small><i></i><i></i></span>`).join('')}</div>`,
   relDates: (on) => `<div class="pv-due">Submission open • Due on 23rd Nov, 8:30 AM${on ? ' <b>· in 4 days</b>' : ''}</div>`,
 };
@@ -56,10 +57,8 @@ const P = {
 // mode: 'gc' = only in Classroom mode, 'classic' = only in regular Toddle, 'both'. An item's own mode wins.
 // needs: another setting that has to be on for this one to do anything.
 const SECTIONS = [
-  { id: 'start', title: 'Start here', mode: 'both', items: [
-    { k: 'classroomMode', t: 'Google Classroom mode', d: 'Class cards, Stream / Classwork / People, To-do, Calendar, Timetable and more, in a Classroom-style app. Turn it off for regular Toddle.', pv: P.classroom, master: true },
-    { k: 'whatsNew', t: '"What\'s new" after updates', d: 'A small note in Toddle after Toddle Tweaks updates, with a link to the changelog.' },
-  ] },
+  // Highlights: built from HIGHLIGHTS below for your school (filled in by buildHighlights).
+  { id: 'highlights', title: 'Highlights', mode: 'both', items: [] },
   { id: 'todo', title: 'To-do & checking off', mode: 'both', items: [
     { k: 'smartTodo', t: 'Smart to-do on the home page', d: 'Replaces "Assignments and deadlines" with Missing, Today, This week and so on.', pv: P.smartTodo, mode: 'classic' },
     { k: 'hidePastNoSubmission', t: 'Check off past in-class items automatically', d: 'Old in-class work that can\'t be turned in is checked off instead of piling up. It goes to the bottom of the Done tab.', pv: P.hidePast },
@@ -72,7 +71,17 @@ const SECTIONS = [
     { k: 'nextClassRoom', t: 'Show the room with the next class', d: 'Adds the room, like "· H306".', mode: 'gc', needs: 'nextClass' },
     { k: 'gcAttendance', t: 'Attendance as a Classroom page', d: 'Your percentage, a breakdown, the year at a glance, every class, and the periods you weren\'t marked present. Off: Toddle\'s own attendance page.', mode: 'gc' },
   ] },
-  { id: 'finals', title: 'Finals', mode: 'both', intro: 'A Finals page in the menu in the weeks before exams: a day count, your exam schedule and what\'s due before finals.', items: [
+  { id: 'grades', title: 'Grades (Middle School)', mode: 'both', intro: 'For standards-based grading like SAS middle school. The Grades page opens from the menu in Classroom mode, and from Ctrl/⌘+K or g r in regular Toddle.', items: [
+    { k: 'gcGrades', t: 'Grades on one page', d: "Every graded assessment in every class with your standard levels, learning behaviors, scores, rubric rows and teacher comments right in the list, or by standard. Off: Toddle's gradebook links open Toddle's own.", mode: 'gc' },
+    { k: 'gradesStyle', t: 'Grades look', d: 'Classroom: laid out like Classwork, every assessment on one page. PowerSchool-style: looks and works like the PowerSchool student portal, with Grades and Attendance, a Scores page for each class (click a grade), and Standards Grades.', choices: [['classroom', 'Classroom'], ['powerschool', 'PowerSchool-style']] },
+    { k: 'gradeWords', t: 'Level names', d: 'New: NE · EM · DE · ME · MWD. Exemplary: the same, but MWD is called Exemplary. Old: Below · Approaching · Meets · Exemplary.', choices: [['new', 'New'], ['exemplary', 'Exemplary'], ['old', 'Old']] },
+    { k: 'gradeWordsToddle', t: "Use these names on Toddle's own pages too", d: "Rubrics, assignment evaluations and Toddle's gradebook show the names you picked above. Off: only the Grades page uses them." },
+    { k: 'gradesOverview', t: 'Overview', d: 'An Overview card at the top of the Classroom look: how many assessments are graded, how many are missing, and how your standard levels and learning behaviors add up for the term and class you picked.' },
+    { k: 'gradesBehaviors', t: 'Show learning behaviors', d: 'Organization, Collaboration and the rest, next to each assessment and in the By standard table.', mode: 'both' },
+    { k: 'gradesComments', t: 'Show teacher comments', d: 'Comments right under each assessment (click a long one to read it all).', mode: 'both' },
+    { k: 'gradesButton', t: "Grades button on Toddle's gradebook", d: "In regular Toddle, a button on Toddle's gradebook opens every grade on one page.", mode: 'classic' },
+  ] },
+  { id: 'finals', title: 'Finals (High School)', mode: 'both', intro: 'A Finals page in the menu in the weeks before exams: a day count, your exam schedule and what\'s due before finals.', items: [
     { k: 'finalsMode', t: 'Finals page before exams', d: 'Exam days are found from your school\'s bell schedule or calendar in Toddle. If they\'re wrong, set them below.' },
     { k: 'finalsLead', t: 'Show it this many days before finals', d: 'When the Finals item appears in the menu.', type: 'number', min: 1, max: 120, unit: 'days', needs: 'finalsMode' },
     { k: 'finalsStart', t: 'First exam day', d: 'Found automatically. Change it if it’s wrong; Reset goes back to automatic.', type: 'date', found: 'start', needs: 'finalsMode' },
@@ -92,6 +101,7 @@ const SECTIONS = [
   ] },
   { id: 'classroom', title: 'Classroom look', mode: 'gc', intro: 'How Classroom mode looks. These only apply while it\'s on.', items: [
     { k: 'gcCompact', t: 'Compact spacing', d: 'Tighter rows and cards, so more fits on screen.', pv: P.compact },
+    { k: 'gcDrawerHover', t: 'Open the collapsed menu on hover', d: 'When the menu is folded down to icons, resting the mouse on it slides the full menu out over the page; moving away folds it back.' },
     { k: 'gcCardInfo', t: 'Class cards show what\'s due', d: 'Up to three due items plus a "missing / due this week" summary on each card.', pv: P.cardInfo },
     { k: 'googleBanners', t: 'Use Google Classroom banner art', d: "Class banners use Google Classroom's own illustrations, loaded from Google's servers. Off: original Toddle Tweaks patterns in the same colours.", pv: P.banners },
     { k: 'gcNativeCoursePlan', t: 'Course plan as a Classroom page', d: "Units become topics with their dates, links open directly, and assignments show your status. Off: Toddle's own course plan.", pv: P.cpStyle },
@@ -107,6 +117,7 @@ const SECTIONS = [
     { k: 'docsNewTab', t: 'Open Google Docs in a new tab', d: "Google Docs, Slides, Sheets, Drive, Microsoft 365, Canva and similar links (and sites Toddle can't show anyway) open in their own tab instead of Toddle's built-in viewer.", pv: P.newTab },
     { k: 'linksNewTab', t: 'Open every link in a new tab', d: "Any web link skips Toddle's viewer. Uploaded files (PDFs, images, videos) still open in the viewer." },
     { k: 'realLinks', t: 'Middle-click opens a new tab', d: 'Middle-click or Ctrl-click class and assignment cards to open them in a new tab.' },
+    { k: 'whatsNew', t: '"What\'s new" after updates', d: 'A small note in Toddle after Toddle Tweaks updates, with a link to the changelog.' },
   ] },
   { id: 'speed', title: 'Speed & privacy', mode: 'both', items: [
     { k: 'gqlCache', t: 'Cache settings & class data', d: 'Config that rarely changes loads from your computer and refreshes in the background.', reload: true },
@@ -119,6 +130,46 @@ const SECTIONS = [
   ] },
 ];
 const MODE_LABEL = { gc: 'Classroom mode', classic: 'Regular Toddle', both: 'Both modes' };
+
+// Highlights: the settings people at each school go looking for, with a line on why. The school
+// comes from your Toddle account (the content script saves it); you can switch to see the others.
+const CLASSROOM = { k: 'classroomMode', t: 'Google Classroom mode', d: 'Class cards, Stream / Classwork / People, To-do, Calendar, Timetable and more, in a Classroom-style app. Turn it off for regular Toddle.', pv: P.classroom, master: true };
+const HIGHLIGHTS = {
+  ms: { label: 'Middle school', picks: [
+    ['gradeWords', 'Bring back the old names: Below, Approaching, Meets and Exemplary. Or keep the new ones and only call the top level Exemplary.'],
+    ['gradesStyle', 'PowerSchool-style: Grades and Attendance, a Scores page for each class and Standards Grades, like the PowerSchool portal.'],
+    ['gcGrades', 'Every graded assessment on one page, with your levels, learning behaviors and teacher comments. No clicking into each one.'],
+    ['gradesOverview', 'How your standard levels and learning behaviors add up this semester, at the top of Grades.'],
+    ['gcDrawerHover', 'Keep the menu folded to icons and open it by resting the mouse on it.'],
+    ['heatmap', 'See which days are busiest before they sneak up on you.'],
+  ] },
+  hs: { label: 'High school', picks: [
+    ['finalsMode', 'A Finals page before exams: a day count, your exam schedule and what\'s due before finals.'],
+    ['gcTimetable', 'Your whole week with A/B/C/D days, and export every class to Google Calendar.'],
+    ['nextClass', '"Next: Chemistry in 12 min · H306" in the top bar.'],
+    ['periodNames', 'Call classes by block, like A1 or B3, or by Toddle\'s P1, P2.'],
+    ['gcDrawerHover', 'Keep the menu folded to icons and open it by resting the mouse on it.'],
+    ['heatmap', 'See which days are busiest before they sneak up on you.'],
+    ['docsNewTab', 'Google Docs and Slides open in their own tab instead of Toddle\'s viewer.'],
+  ] },
+  other: { label: 'Everyone', picks: [
+    ['heatmap', 'See which days are busiest before they sneak up on you.'],
+    ['commandPalette', 'Jump to any class, assignment or setting from the keyboard.'],
+    ['docsNewTab', 'Google Docs and Slides open in their own tab instead of Toddle\'s viewer.'],
+    ['hidePastNoSubmission', 'Old in-class work that can\'t be turned in stops piling up in your to-do.'],
+  ] },
+};
+let school = null; // { level, label } from the Toddle page
+let hlShow = null; // the school picked here, if you switched
+const buildHighlights = () => {
+  const sec = SECTIONS.find((s) => s.id === 'highlights');
+  const key = hlShow || (school && HIGHLIGHTS[school.level] ? school.level : 'other');
+  const all = SECTIONS.filter((s) => s !== sec).flatMap((s) => s.items.map((it) => ({ ...it, mode: it.mode || s.mode })));
+  sec.items = [CLASSROOM, ...HIGHLIGHTS[key].picks.map(([k, d]) => { const it = all.find((x) => x.k === k); return it && { ...it, d }; }).filter(Boolean)];
+  sec.intro = key === 'other' ? 'A few favourites. Open Toddle once and this shows the picks for your school.'
+    : `Picked for ${HIGHLIGHTS[key].label.toLowerCase()}${!hlShow && school ? ` (you're in ${school.label} on Toddle)` : ''}. Everything here is also in its own section below.`;
+  sec.key = key;
+};
 
 const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, attrs = {}) => { const e = document.createElement(tag); Object.assign(e, attrs); return e; };
@@ -140,6 +191,7 @@ const save = async (patch) => {
 };
 
 const render = () => {
+  buildHighlights();
   const main = $('#main');
   const toc = $('#toc');
   main.textContent = '';
@@ -151,6 +203,15 @@ const render = () => {
     h2.append(el('span', { className: 'mode ' + sec.mode, textContent: MODE_LABEL[sec.mode] }));
     box.append(h2);
     if (sec.intro) box.append(el('p', { className: 'intro', textContent: sec.intro }));
+    if (sec.id === 'highlights') {
+      const seg = el('div', { className: 'seg hl-seg', role: 'radiogroup', ariaLabel: 'Show highlights for' });
+      for (const k of ['ms', 'hs', 'other']) {
+        const b = el('button', { type: 'button', className: 'seg-b' + (sec.key === k ? ' on' : ''), textContent: HIGHLIGHTS[k].label, role: 'radio', ariaChecked: String(sec.key === k) });
+        b.addEventListener('click', () => { hlShow = (school && school.level === k) ? null : k; render(); });
+        seg.append(b);
+      }
+      box.append(seg);
+    }
     for (const it of sec.items) {
       const row = el('div', { className: 'row' + (it.choices ? ' choice' : '') + (it.type ? ' wide' : '') });
       row.dataset.search = (it.t + ' ' + it.d + ' ' + (it.options || []).map((o) => o[1]).join(' ')).toLowerCase();
@@ -293,11 +354,13 @@ const applyFilter = () => {
   const { settings: s = {} } = await chrome.storage.sync.get('settings');
   settings = { ...DEFAULTS, ...s };
   try { found = (await chrome.storage.local.get('finalsFound')).finalsFound || null; } catch {}
+  try { school = (await chrome.storage.local.get('schoolLevel')).schoolLevel || null; } catch {}
   render();
   if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ block: 'start' }), 50); }
   $('#filter').addEventListener('input', applyFilter);
   chrome.storage.onChanged.addListener((ch, area) => {
     if (area === 'sync' && ch.settings) { settings = { ...DEFAULTS, ...ch.settings.newValue }; render(); }
     if (area === 'local' && ch.finalsFound) { found = ch.finalsFound.newValue || null; render(); }
+    if (area === 'local' && ch.schoolLevel) { school = ch.schoolLevel.newValue || null; render(); }
   });
 })();

@@ -116,9 +116,14 @@ html.tt-gc-native #tt-gc-view { display: block; }
   overflow: hidden; background: #fff; transition: box-shadow .2s;
 }
 .tt-gc-card:hover { box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 2px 6px 2px rgba(60,64,67,.15); }
-.tt-gc-card.dragging { opacity: .45; box-shadow: none; }
+/* While dragging: the card's place is an empty dashed slot, and cards don't light up under you. */
+.tt-gc-card.dragging { background: #f1f3f4; border: 1px dashed #9aa0a6; box-shadow: none !important; }
+.tt-gc-card.dragging > * { visibility: hidden; }
+.tt-gc-sorting .tt-gc-card:hover { box-shadow: none; }
+.tt-gc-sorting, .tt-gc-sorting * { cursor: grabbing !important; }
 .tt-gc-card.is-hidden { opacity: .7; }
 .tt-gc-card[draggable="true"] { cursor: grab; }
+.tt-gc-card[draggable="true"]:active { cursor: grabbing; }
 .tt-gc-card-head {
   position: relative; height: 100px; padding: 16px 48px 0 16px; color: #fff; flex: none;
   background-size: cover; background-position: right center; background-repeat: no-repeat;

@@ -41,6 +41,12 @@ Schedule Tweaks:
 • Attendance at a glance: your percentage, each class, and any period you weren't marked present
 • Optional: your next class in the top bar
 
+Grades Tweaks (Middle School):
+• Every graded assessment in every class on one page, with your standard levels, learning behaviors, scores and teacher comments
+• A Standards view: every level you've had on each standard, oldest to newest
+• Bring back the old level names (Below · Approaching · Meets · Exemplary), on Toddle's own pages too
+• Optional PowerSchool-style look: Grades and Attendance, Scores for each class, and Standards Grades
+
 Course Plan Tweaks:
 • Google Docs, Slides, Sheets and Drive links open in their own tab instead of Toddle's (horrendous) little viewer
 • "Due on 23rd Nov, 8:30 AM" also says "in 2 days"
@@ -77,7 +83,7 @@ Toddle Tweaks is an independent project. It isn't affiliated with, endorsed by o
 ```
 
 ## Single purpose (Chrome)
-> Toddle Tweaks improves the Toddle learning platform (web.toddleapp.com): it reorganizes assignments into a smarter to-do list, shows the student's timetable, finals and attendance more clearly, offers an alternative layout, and speeds up page loads. It only runs on toddleapp.com.
+> Toddle Tweaks improves the Toddle learning platform (web.toddleapp.com): it reorganizes assignments into a smarter to-do list, shows the student's timetable, finals, attendance and grades more clearly, offers an alternative layout, and speeds up page loads. It only runs on toddleapp.com.
 
 ## Permission justifications (Chrome "Privacy practices" tab)
 
@@ -92,9 +98,9 @@ Toddle Tweaks is an independent project. It isn't affiliated with, endorsed by o
 ## Data usage disclosures (Chrome)
 
 Tick these data types (they are *handled locally*, never sent to the developer):
-- **Personally identifiable information**: the user's name and profile picture shown in the account menu, teacher and classmate names from Toddle.
+- **Personally identifiable information**: the user's name and profile picture shown in the account menu, teacher and classmate names and teachers' email addresses from Toddle.
 - **Authentication information**: the user's existing Toddle session token is used to call Toddle's API on their behalf. It is never stored elsewhere or transmitted anywhere except Toddle.
-- **Website content**: assignments, announcements, class information, the timetable, the school calendar and the student's attendance from Toddle, cached locally for speed.
+- **Website content**: assignments, announcements, class information, the timetable, the school calendar, the student's attendance and grades from Toddle, cached locally for speed.
 
 Certify all three:
 - ✅ I do not sell or transfer user data to third parties, outside of the approved use cases
@@ -120,7 +126,7 @@ What it does:
 - No remote code, no analytics, no external servers. Fonts come from Google Fonts (stylesheet only). Images only: Classroom banner art (www.gstatic.com) and course-plan previews of Google Docs/YouTube links (drive.google.com/thumbnail, i.ytimg.com), loaded as <img>.
 - When a Google Docs/Drive link opens in Toddle's viewer, src/extras.js clicks Toddle's own "Open in Google Docs" button and closes the viewer (setting: docsNewTab).
 - Announcement/assignment HTML from Toddle is sanitized with an allow-list (TT.sanitize in src/common.js) before display.
-- src/school.js reads the student's timetable, school calendar, grading periods, bell schedules and attendance from the same Toddle API (read-only) to draw the Timetable, Finals and Attendance pages.
+- src/school.js reads the student's timetable, school calendar, grading periods, bell schedules and attendance from the same Toddle API (read-only) to draw the Timetable, Finals and Attendance pages. api.getGrades (src/api.js) reads the student's own evaluated assessments (read-only) for the Grades page.
 - The only write to Toddle is the student's own "Mark as done" on an assignment with nothing to turn in (api.markDone in src/api.js), sent only when the student ticks it and doesn't press Undo.
 - Calendar export builds an .ics file in the page and downloads it. Nothing is uploaded.
 - On first install, background.js opens onboarding/welcome.html (an extension page). It only saves the layout choice and, on Firefox, offers a button that calls permissions.request for web.toddleapp.com.

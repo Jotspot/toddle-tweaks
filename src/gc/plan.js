@@ -242,8 +242,21 @@
 
     // Sections: each root unit/folder is a topic; loose root items collect under "Resources".
     const main = h('div', { class: 'tt-gc-plan-main' });
+    // The topic list folds away to a single button (remembered for every class), giving the plan the room.
+    const folded = !!TT.lsGet('tt:cpNavFolded', false);
+    const foldBtn = h('button', { class: 'tt-gc-iconbtn', title: folded ? 'Show topics' : 'Hide topics', 'aria-label': folded ? 'Show topics' : 'Hide topics', 'aria-expanded': folded ? 'false' : 'true', onClick: () => {
+      const now = !layout.classList.contains('nav-folded');
+      TT.lsSet('tt:cpNavFolded', now);
+      layout.classList.toggle('nav-folded', now);
+      foldBtn.title = now ? 'Show topics' : 'Hide topics';
+      foldBtn.setAttribute('aria-label', foldBtn.title);
+      foldBtn.setAttribute('aria-expanded', now ? 'false' : 'true');
+      foldBtn.replaceChildren(I(now ? 'right' : 'left'));
+    } }, I(folded ? 'right' : 'left'));
     const nav = h('nav', { class: 'tt-gc-plan-nav', 'aria-label': 'Topics' },
-      h('button', { class: 'tt-gc-plan-nav-item all on', onClick: () => { const v = document.getElementById('tt-gc-view'); (v || window).scrollTo({ top: 0, behavior: 'smooth' }); } }, 'All topics'));
+      h('div', { class: 'tt-gc-plan-nav-top' },
+        h('button', { class: 'tt-gc-plan-nav-item all on', onClick: () => { const v = document.getElementById('tt-gc-view'); (v || window).scrollTo({ top: 0, behavior: 'smooth' }); } }, 'All topics'),
+        foldBtn));
     const navFor = new Map();
     let loose = null;
     for (const n of roots) {
@@ -288,7 +301,8 @@
     });
 
     main.prepend(toolbar);
-    wrap.append(h('div', { class: 'tt-gc-plan-layout' }, nav, main));
+    const layout = h('div', { class: 'tt-gc-plan-layout' + (folded ? ' nav-folded' : '') }, nav, main);
+    wrap.append(layout);
     el.append(wrap);
 
     // Highlight the topic you're reading in the topic list (like Classroom's Classwork page).
@@ -299,7 +313,7 @@
         for (const e of entries) seen.set(e.target.id, e.isIntersecting ? e.boundingClientRect.top : null);
         const top = [...seen].filter(([, t]) => t !== null).sort((x, y) => x[1] - y[1])[0];
         const btn = top ? navFor.get(top[0]) : null;
-        const want = btn || nav.firstChild;
+        const want = btn || nav.querySelector('.tt-gc-plan-nav-item.all');
         if (want.classList.contains('on')) return;
         nav.querySelectorAll('.on').forEach((x) => x.classList.remove('on'));
         want.classList.add('on');

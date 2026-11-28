@@ -175,37 +175,87 @@
   };
 
   // ---------------- drag & drop reorder ----------------
+  // The card you pick up leaves a dashed slot behind; the others slide out of the way (no jumping),
+  // dropping in a gap goes to the nearest card, letting go anywhere keeps the order, and Esc puts it
+  // back where it was.
   const enableDnD = (grid) => {
     let dragging = null;
+    let start = null; // order when the drag began, for Esc
+    let busy = 0; // until the slide finishes, so a card moving under the cursor can't bounce back
+    const cards = () => [...grid.querySelectorAll('.tt-gc-card')];
+    const slide = (move) => {
+      const before = new Map(cards().map((c) => [c, c.getBoundingClientRect()]));
+      move();
+      for (const [c, r] of before) {
+        const n = c.getBoundingClientRect();
+        const dx = r.left - n.left;
+        const dy = r.top - n.top;
+        if (!dx && !dy) continue;
+        c.style.transition = 'none';
+        c.style.transform = `translate(${dx}px, ${dy}px)`;
+        requestAnimationFrame(() => { c.style.transition = 'transform .2s cubic-bezier(.2, 0, 0, 1)'; c.style.transform = ''; });
+      }
+      busy = performance.now() + 200;
+    };
+    // The card nearest the cursor, so the gaps between cards work too.
+    const nearest = (x, y) => {
+      let best = null;
+      let bd = Infinity;
+      for (const c of cards()) {
+        const r = c.getBoundingClientRect();
+        const d = Math.hypot(Math.max(r.left - x, 0, x - r.right), Math.max(r.top - y, 0, y - r.bottom));
+        if (d < bd) { bd = d; best = c; }
+      }
+      return bd < 80 ? best : null;
+    };
+    const keep = (e) => { if (dragging) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } };
     grid.addEventListener('dragstart', (e) => {
       const c = e.target.closest('.tt-gc-card');
       if (!c) return;
       dragging = c;
-      c.classList.add('dragging');
+      start = cards().map((x) => x.dataset.id);
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', c.dataset.id);
+      // After the browser has taken its picture of the card, turn the card into the empty slot.
+      requestAnimationFrame(() => { if (dragging === c) c.classList.add('dragging'); });
+      grid.classList.add('tt-gc-sorting');
+      document.addEventListener('dragover', keep);
+      document.addEventListener('drop', keep);
     });
     grid.addEventListener('dragover', (e) => {
       if (!dragging) return;
       e.preventDefault();
-      const over = e.target.closest('.tt-gc-card');
+      if (performance.now() < busy) return;
+      const over = nearest(e.clientX, e.clientY);
       if (!over || over === dragging) return;
       const r = over.getBoundingClientRect();
+      // Past the middle of the card you're over: go after it; before the middle: before it.
       const after = e.clientX > r.left + r.width / 2;
-      if (after) over.after(dragging); else over.before(dragging);
+      if (after ? over.nextElementSibling === dragging : over.previousElementSibling === dragging) return;
+      slide(() => { if (after) over.after(dragging); else over.before(dragging); });
     });
-    const finish = () => {
+    const finish = (e) => {
       if (!dragging) return;
-      dragging.classList.remove('dragging');
+      document.removeEventListener('dragover', keep);
+      document.removeEventListener('drop', keep);
+      grid.classList.remove('tt-gc-sorting');
+      const c = dragging;
       dragging = null;
+      c.classList.remove('dragging');
+      if (e && e.type === 'dragend' && e.dataTransfer.dropEffect === 'none') {
+        // Esc: back to how it was.
+        slide(() => { for (const id of start) { const x = grid.querySelector(`.tt-gc-card[data-id="${id}"]`); if (x) grid.append(x); } });
+        return;
+      }
       const p = TT.gcPrefs();
-      const visible = [...grid.querySelectorAll('.tt-gc-card')].map((x) => x.dataset.id);
+      const visible = cards().map((x) => x.dataset.id);
+      if (visible.join() === start.join()) return;
       const rest = (p.order || []).filter((id) => !visible.includes(id));
       p.order = [...visible, ...rest];
       TT.gcSavePrefs(p);
-      gc.rerender();
+      setTimeout(() => gc.rerender(), 220); // after the last slide
     };
-    grid.addEventListener('drop', (e) => { e.preventDefault(); finish(); });
+    grid.addEventListener('drop', (e) => { e.preventDefault(); finish(e); });
     grid.addEventListener('dragend', finish);
   };
 

@@ -57,6 +57,16 @@ TT.DEFAULTS = {
   hmGrid: true,            // six-week grid when expanded
   hmInsights: true,        // insights when expanded
   hmiBusiest: true, hmiLightest: true, hmiTests: true, hmiClass: true, hmiTotal: true, hmiOff: true, hmiMissing: true, hmiFinals: true,
+  // 2.7
+  gcGrades: true,          // Grades: every graded assessment on one page (replaces Toddle's gradebook in Classroom mode)
+  gcDrawerHover: false,    // the collapsed menu slides open while the mouse rests on it
+  gradeWords: 'new',       // standards levels: 'new' (NE EM DE ME MWD) | 'exemplary' (MWD → Exemplary) | 'old' (Below Approaching Meets Exemplary)
+  gradeWordsToddle: true,  //   …also on Toddle's own rubrics, assignments and gradebook
+  gradesStyle: 'classroom', // Grades page look: 'classroom' | 'powerschool'
+  gradesOverview: true,    // Grades page starts with an overview of your levels
+  gradesBehaviors: true,   // Grades page shows learning behaviors
+  gradesComments: true,    // Grades page shows teacher comments
+  gradesButton: true,      // regular Toddle: "All grades on one page" button on Toddle's gradebook
 };
 
 TT.settings = { ...TT.DEFAULTS };
@@ -203,6 +213,7 @@ TT.waitFor = (sel, timeout = 15000, root = document) => new Promise((resolve) =>
 
 // ---------- Material icons (24px paths) ----------
 TT.ICONS = {
+  mail: 'M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z',
   menu: 'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z',
   home: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
   calendar: 'M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z',
@@ -260,15 +271,23 @@ TT.ICONS = {
   refresh: 'M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z',
   event: 'M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z',
   trend: 'M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z',
+  grade: 'M300-80q-58 0-99-41t-41-99v-520q0-58 41-99t99-41h500v600q-25 0-42.5 17.5T740-220q0 25 17.5 42.5T800-160v80H300Zm-60-267q14-7 29-10t31-3h20v-440h-20q-25 0-42.5 17.5T240-740v393Zm160-13h320v-440H400v440Zm-160 13v-453 453Zm60 187h373q-6-14-9.5-28.5T660-220q0-16 3-31t10-29H300q-26 0-43 17.5T240-220q0 26 17 43t43 17Z', // Material Symbols book_2
+  chat: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z',
+  dock: 'M3 5v14h18V5H3zm5 12H5V7h3v10zm11 0h-9V7h9v10z',
+  tune: 'M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z',
+  up: 'M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z',
+  down: 'M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z',
   spa: 'M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z',
   checkbox: 'M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
   doneToddle: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
   dark: 'M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z',
   globe: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm6.93 6h-2.95a15.65 15.65 0 0 0-1.38-3.56A8.03 8.03 0 0 1 18.93 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 0 1 5.08 16zm2.95-8H5.08a7.99 7.99 0 0 1 4.33-3.56A15.65 15.65 0 0 0 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z',
 };
+// Icons taken from Material Symbols (not Material Icons) use its 960-unit grid.
+TT.ICON_BOX = { grade: '0 -960 960 960' };
 TT.gIcon = (name, cls) => {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('viewBox', TT.ICON_BOX[name] || '0 0 24 24');
   svg.setAttribute('class', 'tt-ico' + (cls ? ' ' + cls : ''));
   svg.setAttribute('aria-hidden', 'true');
   const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -345,3 +364,25 @@ TT.colorFor = (id) => {
 
 // Icon for a piece of work: summatives get a checklist, tests a pencil, quizzes a question mark.
 TT.workIcon = (it) => (!it ? 'assignment' : it.kind === 'Summative' ? 'summative' : it.kind === 'Test' ? 'test' : it.kind === 'Quiz' ? 'quiz' : it.needsSubmission === false ? 'description' : 'assignment');
+
+// Middle or high school, from the curriculum program in the URL (Toddle labels them "Middle School",
+// "High School"). Settings reads it to pick its Highlights.
+TT.schoolLevel = () => {
+  const u = TT.lsGet('userInfo', {}) || {};
+  const cp = (u.curriculumPrograms || []).find((c) => String(c.id) === String(TT.cpId()));
+  if (!cp) return null;
+  const s = `${cp.acronym || ''} ${cp.label || ''}`;
+  const level = /\bmiddle\b|^MS\b/i.test(s) ? 'ms' : /\bhigh\b|^HS\b/i.test(s) ? 'hs' : /elementary|primary|^ES\b/i.test(s) ? 'es' : 'other';
+  return { level, label: cp.label || cp.acronym || '' };
+};
+(() => {
+  let last = '';
+  const note = () => {
+    const l = TT.schoolLevel();
+    if (!l || l.level + l.label === last) return;
+    last = l.level + l.label;
+    try { chrome.storage.local.set({ schoolLevel: l }); } catch {}
+  };
+  setTimeout(note, 1500);
+  TT.onRoute(note);
+})();
