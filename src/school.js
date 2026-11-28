@@ -39,13 +39,22 @@
   const notify = TT.debounce(() => subs.forEach((f) => { try { f(); } catch (e) { console.warn('[TT]', e); } }), 30);
   const inflight = new Map();
   const failed = new Map();
+  const retries = new Map();
   // Returns the cached value right away; refreshes in the background when older than ttl.
   const cached = (key, ttl, fetcher) => {
     const c = TT.lsGet(key, null);
     const stale = !c || Date.now() - c.t > ttl;
     if (stale && !inflight.has(key) && !(failed.get(key) > Date.now() - 60e3)) {
-      const p = fetcher().then((v) => { TT.lsSet(key, { t: Date.now(), v }); failed.delete(key); notify(); return v; })
-        .catch((e) => { failed.set(key, Date.now()); console.warn('[TT] school', key, e && e.message); notify(); })
+      const p = fetcher().then((v) => { TT.lsSet(key, { t: Date.now(), v }); failed.delete(key); retries.delete(key); notify(); return v; })
+        .catch((e) => {
+          failed.set(key, Date.now());
+          console.warn('[TT] school', key, e && e.message);
+          notify();
+          // Try again by itself in a minute (a few times), e.g. once your classes have loaded.
+          const n = (retries.get(key) || 0) + 1;
+          retries.set(key, n);
+          if (n <= 5) setTimeout(() => cached(key, ttl, fetcher), 61e3);
+        })
         .finally(() => inflight.delete(key));
       inflight.set(key, p);
     }
@@ -156,9 +165,12 @@
   // ---------------- semesters ----------------
   const gpFetch = async () => {
     const courses = ((TT.api.cachedCourses() || {}).courses || []).map((c) => c.id);
-    const tryIds = courses.length ? courses.slice(0, 4) : [];
-    for (const id of tryIds) {
+    // No classes yet (still loading, or just signed in): don't save "no semesters" as the answer.
+    if (!courses.length) throw new Error('classes not loaded yet');
+    let answered = false;
+    for (const id of courses.slice(0, 4)) {
       const d = await gql(`query ttGP($id: ID!) { node(id: $id, type: COURSE) { id ... on Course { learningCourse { id gradingPeriods { edges { node { id label startDate endDate } } } } } } }`, { id }, 'ttGP').catch(() => null);
+      if (d) answered = true;
       const lc = d && d.node && d.node.learningCourse;
       const edges = ((Array.isArray(lc) ? lc[0] : lc) || {}).gradingPeriods;
       const list = ((edges && edges.edges) || []).map((e) => e.node).filter((n) => n && n.startDate && n.endDate)
@@ -166,6 +178,8 @@
         .sort((a, b) => a.start.localeCompare(b.start));
       if (list.length) return list;
     }
+    // Every request failed (signed out, switching accounts, offline): try again later instead.
+    if (!answered) throw new Error('grading periods unavailable');
     return [];
   };
   const gradingPeriods = () => cached('tt:gp', 3 * DAY, gpFetch);
@@ -220,7 +234,8 @@
       for (let d = parseIso(start); iso(d) <= end; d = addDays(d, 1)) if (d.getDay() % 6) days.push(iso(d));
       return { start, end, days, source: 'manual', semester: sem };
     }
-    if (!sem) return null;
+    // No semester known (yet): throw so it's retried in a minute rather than remembered for 12 hours.
+    if (!sem) throw new Error('no semester found');
     // Exams sit in the last few weeks of a semester.
     const winStart = iso(addDays(parseIso(sem.end), -24));
     const winEnd = sem.end;

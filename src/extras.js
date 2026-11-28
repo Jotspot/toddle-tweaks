@@ -54,7 +54,7 @@
       { kind: 'Page', title: 'Calendar', icon: 'calendar', action: view('calendar'), sub: 'Due dates by week', keys: 'g c' },
       { kind: 'Page', title: 'Timetable', icon: 'event', action: view('timetable'), sub: 'Your whole week', keys: 'g w' },
       { kind: 'Page', title: 'Attendance', icon: 'attendance', action: view('attendance'), keys: 'g a' },
-      { kind: 'Page', title: 'Grades', icon: 'grade', action: view('grades'), sub: 'Every graded assessment on one page', keys: 'g r' },
+      TT.gradesOn() && { kind: 'Page', title: 'Grades', icon: 'grade', action: view('grades'), sub: 'Every graded assessment on one page', keys: 'g r' },
       { kind: 'Page', title: 'Finals', icon: 'summative', action: view('finals'), sub: fs.show ? (fs.daysUntil > 0 ? `Starts in ${fs.daysUntil} days` : fs.phase === 'during' ? 'Happening now' : '') : 'Exam schedule and checklist', boost: fs.show ? 2 : 0, quiet: !fs.show, keys: 'g f' },
       { kind: 'Page', title: 'School announcements', icon: 'campaign', url: `${base()}/circulars` },
       { kind: 'Page', title: 'School calendar', icon: 'schedule', url: `${base()}/courses/my-calendar`, quiet: true },
@@ -66,7 +66,7 @@
       { kind: 'Action', title: 'Keyboard shortcuts', icon: 'keyboard', action: () => toggleHelp(), keys: '?', quiet: true },
       { kind: 'Action', title: 'Refresh assignments', icon: 'todo', action: () => TT.refreshTodo(true), quiet: true },
       { kind: 'Action', title: 'Take a tour of Classroom mode', icon: 'help', action: () => TT.gc && TT.gc.startTour && TT.gc.startTour(), quiet: true, gcOnly: true },
-    ].filter((x) => !x.gcOnly || inGc());
+    ].filter((x) => x && (!x.gcOnly || inGc()));
     // The class you're in now (or next) floats to the top, with when and where.
     let nowNext = null;
     if (TT.school) {
@@ -89,6 +89,7 @@
       out.push({ kind: 'Course plan', title: c.title, icon: 'folder', url: `${base()}/courses/${c.id}/course-plan/flow`, quiet: true });
     }
     for (const [k, label, type, vals] of TOGGLES) {
+      if (k === 'gradesOverview' && !TT.gradesOn()) continue;
       const on = type === 'choice' ? TT.settings[k] === vals[1] : TT.settings[k] !== false && !!TT.settings[k];
       out.push({ kind: 'Setting', title: `${label}: ${on ? 'on' : 'off'}`, icon: 'settings', sub: `Turn ${on ? 'off' : 'on'}`, quiet: true, setting: true,
         action: () => TT.saveSettings({ [k]: type === 'choice' ? (on ? vals[0] : vals[1]) : !on }).then(() => { window.dispatchEvent(new CustomEvent('tt:settings')); if (TT.gc && TT.gc.toast) TT.gc.toast(`${label} ${on ? 'off' : 'on'}`); }) });
@@ -233,7 +234,7 @@
         w: () => TT.openView('timetable'),
         a: () => TT.openView('attendance'),
         f: () => TT.openView('finals'),
-        r: () => TT.openView('grades'),
+        r: () => TT.gradesOn() && TT.openView('grades'),
         s: () => TT.openSettings(),
       };
       if (map[e.key]) { e.preventDefault(); map[e.key](); return; }

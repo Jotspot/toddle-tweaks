@@ -29,7 +29,7 @@
       return { cp, view: v, key: 'home:' + (tt || '') + (v === 'grades' && q.get('class') ? `:${q.get('class')}:${q.get('term') || ''}` : '') };
     }
     // Toddle's gradebook → everything on one page (?tt=classic shows Toddle's).
-    if ((m = p.match(/^\/platform\/\d+\/student-progress-summary(?:\/|$)/)) && q.get('tt') !== 'classic' && TT.settings.gcGrades !== false) {
+    if ((m = p.match(/^\/platform\/\d+\/student-progress-summary(?:\/|$)/)) && q.get('tt') !== 'classic' && TT.gradesOn()) {
       const lc = (p.match(/\/all-assessments\/(\d+)/) || [])[1] || null;
       return { cp, view: 'grades', lc, key: 'grades:' + (lc || '') };
     }
@@ -318,7 +318,7 @@
     drawer.append(
       navItem(`${b}/courses`, 'home', 'Home', r.view === 'home'),
       navItem(`${b}/courses?tt=calendar`, 'calendar', 'Calendar', r.view === 'calendar'));
-    if (TT.settings.gcGrades !== false) drawer.append(navItem(`${b}/courses?tt=grades`, 'grade', 'Grades', r.view === 'grades'));
+    if (TT.gradesOn()) drawer.append(navItem(`${b}/courses?tt=grades`, 'grade', 'Grades', r.view === 'grades'));
     // Finals: only in the weeks before exams (Settings → Finals).
     const fs = TT.school && TT.school.finalsStatus();
     if (fs && fs.show) {

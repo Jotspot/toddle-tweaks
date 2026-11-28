@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Toddle Tweaks",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "A better Toddle: a smarter to-do, a whole-week timetable, faster pages and an optional Google Classroom look.",
   "homepage_url": "https://github.com/Jotspot/toddle-tweaks",
   "icons": {

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.1
+- Finals shows up again for people whose semester dates failed to load once (for example while switching accounts): a failed lookup is no longer remembered as "no semesters" for days, and it tries again by itself
+- Switching to a different Toddle account on the same browser clears the last person's cached classes, grades, timetable, finals and page snapshots. Settings and layout choices stay
+- Grades is middle school only for now: high school doesn't grade in Toddle until next year, so it's left out of the menu, Ctrl/⌘ + K and Toddle's gradebook there
+
 ## 2.7.0
 - Grades on one page, laid out like Classwork: every graded assessment in every class with your standard levels, learning behaviors, scores, rubric and checklist rows, and your teacher's comments (shown like private comments). No more clicking a class, then an icon, to see one level
 - Overview at the top of Grades: how many assessments are graded and missing, and how your standard levels and learning behaviors add up for the term and class you picked (can be turned off in Settings)

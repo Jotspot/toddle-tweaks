@@ -634,7 +634,7 @@
   // opens every grade on one page over it (Settings → Grades → "Grades button on Toddle's gradebook").
   const syncButton = () => {
     const want = !(gc.active && gc.active()) && /\/student-progress-summary\//.test(location.pathname)
-      && TT.settings.gcGrades !== false && TT.settings.gradesButton !== false && !!document.body;
+      && TT.gradesOn() && TT.settings.gradesButton !== false && !!document.body;
     let b = document.getElementById('tt-gr-open');
     if (!want) { if (b) b.remove(); return; }
     if (b) return;

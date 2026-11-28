@@ -375,6 +375,13 @@ TT.schoolLevel = () => {
   const level = /\bmiddle\b|^MS\b/i.test(s) ? 'ms' : /\bhigh\b|^HS\b/i.test(s) ? 'hs' : /elementary|primary|^ES\b/i.test(s) ? 'es' : 'other';
   return { level, label: cp.label || cp.acronym || '' };
 };
+// Grades is for middle school for now: high school doesn't grade in Toddle until next year, so it
+// stays out of the menu, Ctrl/⌘ + K and Toddle's gradebook there.
+TT.gradesOn = () => {
+  if (TT.settings.gcGrades === false) return false;
+  const l = TT.schoolLevel();
+  return !(l && l.level === 'hs');
+};
 (() => {
   let last = '';
   const note = () => {
@@ -385,4 +392,30 @@ TT.schoolLevel = () => {
   };
   setTimeout(note, 1500);
   TT.onRoute(note);
+})();
+// A different person signed in on this browser (a brother or sister's account, say): forget the last
+// person's cached classes, grades, timetable, finals and page snapshots, so nothing of theirs shows or
+// gets reused. Settings and layout choices stay. Runs on load and on every route change (Toddle signs
+// in without a full reload), and reloads the page when it finds a switch mid-session.
+TT.KEEP_ON_SWITCH = /^tt:((settings|gc|gqlUrl|tourDone|finalsKey|finalsOverride|finalsOpen|localDone|ttExport|cpNavFolded|todoView|cwView|streamShow|collapsed|gradesCollapsed|gradesView|openRows|openPosts|cpThumbFail|dev|uid)$|(hmOpen|cwCollapsed|cpCollapsed):)/;
+(() => {
+  let loaded = false;
+  const check = () => {
+    const id = (TT.lsGet('userInfo', {}) || {}).id;
+    if (!id) return;
+    let prev = null;
+    try { prev = localStorage.getItem('tt:uid'); } catch { return; }
+    if (prev === String(id)) { loaded = true; return; }
+    try {
+      for (const k of Object.keys(localStorage)) if (k.startsWith('tt:') && !TT.KEEP_ON_SWITCH.test(k)) localStorage.removeItem(k);
+      localStorage.setItem('tt:uid', String(id));
+    } catch {}
+    TT.idb('snap', 'readwrite', (st) => st.clear()).catch(() => {});
+    try { chrome.storage.local.remove(['finalsFound', 'schoolLevel']); } catch {}
+    if (loaded) location.reload();
+    loaded = true;
+  };
+  check();
+  TT.onRoute(check);
+  window.addEventListener('storage', (e) => { if (e.key === 'userInfo') check(); });
 })();
